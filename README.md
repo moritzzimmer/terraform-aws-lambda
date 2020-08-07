@@ -1,6 +1,6 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.2.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.2.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.2.1-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.2.1) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) resources with configurable event sources, IAM configuration (following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)), VPC as well as SSM/KMS and log streaming support.
 
@@ -28,7 +28,7 @@ Furthermore this module supports:
 ## History
 
 Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
-should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.0` to benefit from new features and bugfixes. 
+should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.1` to benefit from new features and bugfixes. 
 
 ## How do I use this module?
 
@@ -45,7 +45,7 @@ provider "aws" {
 
 module "lambda" {
   source           = "moritzzimmer/lambda/aws"
-  version          = "5.2.0"
+  version          = "5.2.1"
   filename         = "my-package.zip"
   function_name    = "my-function"
   handler          = "my-handler"
