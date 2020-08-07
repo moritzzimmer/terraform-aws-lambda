@@ -28,7 +28,7 @@ Furthermore this module supports:
 ## History
 
 Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
-should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.1` to benefit from new features and bugfixes. 
+should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.0` to benefit from new features and bugfixes. 
 
 ## How do I use this module?
 
