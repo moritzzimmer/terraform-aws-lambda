@@ -1,17 +1,17 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/spring-media/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.2.0-blue.svg)](https://registry.terraform.io/modules/spring-media/lambda/aws/5.2.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.2.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.2.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) resources with configurable event sources, IAM configuration (following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)), VPC as well as SSM/KMS and log streaming support.
 
 The following [event sources](https://docs.aws.amazon.com/lambda/latest/dg/invoking-lambda-function.html) are supported (see [examples](#examples)):
 
-- [cloudwatch-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-cloudwatch-event): configures a [CloudWatch Event Rule](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger the Lambda by CloudWatch [event pattern](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CloudWatchEventsandEventPatterns.html) or on a regular, scheduled basis
-- [dynamodb](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-dynamodb-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by DynamoDb events
-- [kinesis](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-kinesis-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by Kinesis events
-- [s3](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-s3-event): configures permission to trigger the Lambda by S3
-- [sns](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-sns-event): to trigger Lambda by [SNS Topic Subscription](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html)
-- [sqs](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-sqs-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by SQS events
+- [cloudwatch-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-cloudwatch-event): configures a [CloudWatch Event Rule](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger the Lambda by CloudWatch [event pattern](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CloudWatchEventsandEventPatterns.html) or on a regular, scheduled basis
+- [dynamodb](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-dynamodb-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by DynamoDb events
+- [kinesis](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-kinesis-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by Kinesis events
+- [s3](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-s3-event): configures permission to trigger the Lambda by S3
+- [sns](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sns-event): to trigger Lambda by [SNS Topic Subscription](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html)
+- [sqs](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sqs-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by SQS events
 
 Furthermore this module supports:
 
@@ -22,8 +22,13 @@ Furthermore this module supports:
 
 | module | terraform |     branch      |
 | :----: | :-------: | :-------------: |
-| 4.x.x  |  0.12+   |     master      |
+| 4+  |  0.12+   |     master      |
 | 3.x.x  |  0.11.x   | terraform_0.11x |
+
+## History
+
+Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
+should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.0` to benefit from new features and bugfixes. 
 
 ## How do I use this module?
 
@@ -39,7 +44,7 @@ provider "aws" {
 }
 
 module "lambda" {
-  source           = "spring-media/lambda/aws"
+  source           = "moritzzimmer/lambda/aws"
   version          = "5.2.0"
   filename         = "my-package.zip"
   function_name    = "my-function"
@@ -98,22 +103,22 @@ module "lambda" {
 
 ### Examples
 
-- [example-with-cloudwatch-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-cloudwatch-event)
-- [example-with-dynamodb-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-dynamodb-event)
-- [example-with-kinesis-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-kinesis-event)
-- [example-with-s3-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-s3-event)
-- [example-with-sns-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-sns-event)
-- [example-with-sqs-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-sqs-event)
-- [example-with-vpc](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-with-vpc)
-- [example-without-event](https://github.com/spring-media/terraform-aws-lambda/tree/master/examples/example-without-event)
+- [example-with-cloudwatch-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-cloudwatch-event)
+- [example-with-dynamodb-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-dynamodb-event)
+- [example-with-kinesis-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-kinesis-event)
+- [example-with-s3-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-s3-event)
+- [example-with-sns-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sns-event)
+- [example-with-sqs-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sqs-event)
+- [example-with-vpc](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-vpc)
+- [example-without-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-without-event)
 
 ### bootstrap with func
 
-In case you are using [go](https://golang.org/) for developing your Lambda functions, you can also use [func](https://github.com/spring-media/func) to bootstrap your project and get started quickly.
+In case you are using [go](https://golang.org/) for developing your Lambda functions, you can also use [func](https://github.com/moritzzimmer/func) to bootstrap your project and get started quickly.
 
 ## How do I contribute to this module?
 
-Contributions are very welcome! Check out the [Contribution Guidelines](https://github.com/spring-media/terraform-aws-lambda/blob/master/CONTRIBUTING.md) for instructions.
+Contributions are very welcome! Check out the [Contribution Guidelines](https://github.com/moritzzimmer/terraform-aws-lambda/blob/master/CONTRIBUTING.md) for instructions.
 
 ## How is this module versioned?
 

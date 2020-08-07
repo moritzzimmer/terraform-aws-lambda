@@ -19,7 +19,7 @@ get feedback from the maintainers and the community. If there is anything you're
 
 We also recommend updating the examples/creating new examples _before_ updating any code. This
 ensures the examples stay up to date and verify all the functionality in this module, including whatever new
-functionality you're adding in your contribution. Check out the [Makefile](https://github.com/spring-media/terraform-aws-lambda/blob/master/Makefile)
+functionality you're adding in your contribution. Check out the [Makefile](https://github.com/moritzzimmer/terraform-aws-lambda/blob/master/Makefile)
 for instructions for testing all examples.
 
 Furthermore we recommend to `terraform apply` all new or updated examples in your AWS account since some errors

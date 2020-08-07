@@ -12,7 +12,7 @@ provider "aws" {
 }
 
 module "lambda" {
-  source        = "spring-media/lambda/aws//modules/lambda"
+  source        = "moritzzimmer/lambda/aws//modules/lambda"
   filename      = "my-package.zip"
   function_name = "my-function"
   handler       = "my-handler"

@@ -16,7 +16,7 @@ $ terraform plan
 
 ## bootstrap with func
 
-In case you are using [go](https://golang.org/) for developing your Lambda functions, you can also use [func](https://github.com/spring-media/func) to bootstrap your project and get started quickly:
+In case you are using [go](https://golang.org/) for developing your Lambda functions, you can also use [func](https://github.com/moritzzimmer/func) to bootstrap your project and get started quickly:
 
 ```
 $ func new example-with-cloudwatch
