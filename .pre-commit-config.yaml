@@ -8,4 +8,3 @@ repos:
     hooks:
       - id: check-merge-conflict
       - id: trailing-whitespace
-      - id: end-of-file-fixer
