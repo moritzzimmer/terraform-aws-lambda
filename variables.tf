@@ -48,6 +48,12 @@ variable "kms_key_arn" {
   default     = ""
 }
 
+variable "layers" {
+  default     = []
+  description = "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function."
+  type        = list(string)
+}
+
 variable "log_retention_in_days" {
   description = "Specifies the number of days you want to retain log events in the specified log group. Defaults to 14."
   default     = 14

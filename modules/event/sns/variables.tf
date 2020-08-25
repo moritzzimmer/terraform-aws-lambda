@@ -15,4 +15,3 @@ variable "function_name" {
 variable "topic_arn" {
   description = "The ARN of the SNS topic to subscribe to"
 }
-

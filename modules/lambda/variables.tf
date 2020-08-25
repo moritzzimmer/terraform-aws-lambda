@@ -35,6 +35,12 @@ variable "environment" {
   default     = {}
 }
 
+variable "layers" {
+  default     = []
+  description = "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function."
+  type        = list(string)
+}
+
 variable "memory_size" {
   description = "Amount of memory in MB your Lambda Function can use at runtime. Defaults to 128."
   default     = 128
@@ -86,4 +92,3 @@ variable "vpc_config" {
   type        = map(list(string))
   default     = {}
 }
-

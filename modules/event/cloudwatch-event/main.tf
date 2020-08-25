@@ -22,4 +22,3 @@ resource "aws_cloudwatch_event_target" "lambda" {
   rule  = aws_cloudwatch_event_rule.lambda[count.index].name
   arn   = var.lambda_function_arn
 }
-

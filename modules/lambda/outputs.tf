@@ -17,4 +17,3 @@ output "role_name" {
   description = "The name of the IAM attached to the Lambda Function."
   value       = aws_iam_role.lambda.name
 }
-
