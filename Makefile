@@ -70,7 +70,7 @@ check-git-branch: check-git-clean
 	git fetch --all --tags --prune
 	git checkout master
 
-release: check-git-branch bump documentation ## Releases a new module version
+release: check-git-branch bump-version documentation ## Releases a new module version
 	@echo "+ $@"
 	git add VERSION.txt README.md docs/part1.md
 	git commit -vsam "Bump version to $(NEW_VERSION)"
