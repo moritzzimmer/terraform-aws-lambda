@@ -46,4 +46,3 @@ variable "schedule_expression" {
   default     = ""
   description = "(Required, if event_pattern isn't specified) Scheduling expression for triggering the Lambda Function using CloudWatch events. For example, cron(0 20 * * ? *) or rate(5 minutes)."
 }
-

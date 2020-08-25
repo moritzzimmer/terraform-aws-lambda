@@ -37,4 +37,3 @@ resource "aws_iam_role_policy_attachment" "stream_policy_attachment" {
   role       = var.iam_role_name
   policy_arn = aws_iam_policy.stream_policy[count.index].arn
 }
-
