@@ -12,6 +12,7 @@ resource "aws_lambda_function" "lambda" {
   filename                       = var.s3_bucket == "" ? var.filename : null
   function_name                  = var.function_name
   handler                        = var.handler
+  layers                         = var.layers
   memory_size                    = var.memory_size
   publish                        = var.publish
   reserved_concurrent_executions = var.reserved_concurrent_executions

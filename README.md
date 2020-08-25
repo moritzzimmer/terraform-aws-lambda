@@ -18,21 +18,14 @@ Furthermore this module supports:
 - reading configuration and secrets from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html) including decryption of [SecureString](https://docs.aws.amazon.com/kms/latest/developerguide/services-parameter-store.html) parameters
 - [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) e.g. to stream logs via Lambda to Elasticsearch
 
-## Terraform version compatibility
-
-| module | terraform |     branch      |
-| :----: | :-------: | :-------------: |
-| 4+  |  0.12+   |     master      |
-| 3.x.x  |  0.11.x   | terraform_0.11x |
-
 ## History
 
 Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
-should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.0` to benefit from new features and bugfixes. 
+should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.0` to benefit from new features and bugfixes.
 
 ## How do I use this module?
 
-The module can be used for all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) supported by AWS Lambda. 
+The module can be used for all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) supported by AWS Lambda.
 
 Deployment packages can be specified either directly as a local file (using the `filename` argument) or indirectly via Amazon S3 (using the `s3_bucket`, `s3_key` and `s3_object_versions` arguments), see [documentation](https://www.terraform.io/docs/providers/aws/r/lambda_function.html#specifying-the-deployment-package) for details.
 
@@ -59,7 +52,7 @@ module "lambda" {
 ```terraform
 module "lambda" {
   // see above
-  
+
   event = {
     type                = "cloudwatch-event"
     schedule_expression = "rate(1 minute)"
@@ -127,3 +120,51 @@ This Module follows the principles of [Semantic Versioning](http://semver.org/).
 During initial development, the major version will be 0 (e.g., `0.x.y`), which indicates the code does not yet have a
 stable API. Once we hit `1.0.0`, we will make every effort to maintain a backwards compatible API and use the MAJOR,
 MINOR, and PATCH versions on each release to indicate any incompatibilities.
+
+## Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| aws | n/a |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| description | Description of what your Lambda Function does. | `string` | `""` | no |
+| environment | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | `map(map(string))` | `{}` | no |
+| event | Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3, sns | `map(string)` | `{}` | no |
+| filename | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options cannot be used. | `string` | `""` | no |
+| function\_name | A unique name for your Lambda Function. | `any` | n/a | yes |
+| handler | The function entrypoint in your code. | `any` | n/a | yes |
+| kms\_key\_arn | The Amazon Resource Name (ARN) of the KMS key to decrypt AWS Systems Manager parameters. | `string` | `""` | no |
+| layers | List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function. | `list(string)` | `[]` | no |
+| log\_retention\_in\_days | Specifies the number of days you want to retain log events in the specified log group. Defaults to 14. | `number` | `14` | no |
+| logfilter\_destination\_arn | The ARN of the destination to deliver matching log events to. Kinesis stream or Lambda function ARN. | `string` | `""` | no |
+| memory\_size | Amount of memory in MB your Lambda Function can use at runtime. Defaults to 128. | `number` | `128` | no |
+| publish | Whether to publish creation/change as new Lambda Function Version. Defaults to false. | `bool` | `false` | no |
+| reserved\_concurrent\_executions | The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations. Defaults to Unreserved Concurrency Limits -1. | `string` | `"-1"` | no |
+| runtime | The runtime environment for the Lambda function you are uploading. | `any` | n/a | yes |
+| s3\_bucket | The S3 bucket location containing the function's deployment package. Conflicts with filename. This bucket must reside in the same AWS region where you are creating the Lambda function. | `string` | `""` | no |
+| s3\_key | The S3 key of an object containing the function's deployment package. Conflicts with filename. | `string` | `""` | no |
+| s3\_object\_version | The object version containing the function's deployment package. Conflicts with filename. | `string` | `""` | no |
+| source\_code\_hash | Used to trigger updates. Must be set to a base64-encoded SHA256 hash of the package file specified with either filename or s3\_key. The usual way to set this is filebase64sha256('file.zip') where 'file.zip' is the local filename of the lambda function source archive. | `string` | `""` | no |
+| ssm\_parameter\_names | List of AWS Systems Manager Parameter Store parameters this Lambda will have access to. In order to decrypt secure parameters, a kms\_key\_arn needs to be provided as well. | `list` | `[]` | no |
+| tags | A mapping of tags to assign to the Lambda function. | `map(string)` | `{}` | no |
+| timeout | The amount of time your Lambda Function has to run in seconds. Defaults to 3. | `number` | `3` | no |
+| vpc\_config | Provide this to allow your function to access your VPC (if both 'subnet\_ids' and 'security\_group\_ids' are empty then vpc\_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details). | `map(list(string))` | `{}` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| arn | The Amazon Resource Name (ARN) identifying your Lambda Function. |
+| function\_name | The unique name of your Lambda Function. |
+| invoke\_arn | The ARN to be used for invoking Lambda Function from API Gateway - to be used in aws\_api\_gateway\_integration's uri |
+| role\_name | The name of the IAM role attached to the Lambda Function. |

@@ -12,6 +12,7 @@ module "lambda" {
   function_name                  = var.function_name
   handler                        = var.handler
   memory_size                    = var.memory_size
+  layers                         = var.layers
   publish                        = var.publish
   reserved_concurrent_executions = var.reserved_concurrent_executions
   runtime                        = var.runtime
@@ -165,4 +166,3 @@ resource "aws_iam_role_policy_attachment" "kms_policy_attachment" {
   role       = module.lambda.role_name
   policy_arn = aws_iam_policy.kms_policy[count.index].arn
 }
-
