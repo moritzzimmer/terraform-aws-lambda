@@ -115,6 +115,36 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
   distribution    = "ByLogStream"
 }
 
+data "aws_iam_policy_document" "ssm" {
+  count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
+
+  statement {
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParametersByPath",
+    ]
+
+    resources = formatlist("arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter%s", var.ssm.parameter_names)
+  }
+}
+
+resource "aws_iam_policy" "ssm" {
+  count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
+
+  description = "Provides minimum SSM read permissions."
+  name        = "${var.function_name}-ssm-policy-${data.aws_region.current.name}"
+  policy      = data.aws_iam_policy_document.ssm[count.index].json
+}
+
+resource "aws_iam_role_policy_attachment" "ssm" {
+  count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
+
+  role       = module.lambda.role_name
+  policy_arn = aws_iam_policy.ssm[count.index].arn
+}
+
+
 // Deprecated - will be removed in the next major version
 data "aws_iam_policy_document" "ssm_policy_document" {
   count = length(var.ssm_parameter_names)
@@ -134,8 +164,8 @@ data "aws_iam_policy_document" "ssm_policy_document" {
 // Deprecated - will be removed in the next major version
 resource "aws_iam_policy" "ssm_policy" {
   count       = length(var.ssm_parameter_names)
-  name        = "${module.lambda.function_name}-ssm-${count.index}-${data.aws_region.current.name}"
-  description = "Provides minimum Parameter Store permissions for ${module.lambda.function_name}."
+  name        = "${var.function_name}-ssm-${count.index}-${data.aws_region.current.name}"
+  description = "Provides minimum Parameter Store permissions for ${var.function_name}."
   policy      = data.aws_iam_policy_document.ssm_policy_document[count.index].json
 }
 
@@ -165,8 +195,8 @@ data "aws_iam_policy_document" "kms_policy_document" {
 resource "aws_iam_policy" "kms_policy" {
   count = var.kms_key_arn != "" ? 1 : 0
 
-  name        = "${module.lambda.function_name}-kms-${data.aws_region.current.name}"
-  description = "Provides minimum KMS permissions for ${module.lambda.function_name}."
+  name        = "${var.function_name}-kms-${data.aws_region.current.name}"
+  description = "Provides minimum KMS permissions for ${var.function_name}."
   policy      = data.aws_iam_policy_document.kms_policy_document[count.index].json
 }
 
