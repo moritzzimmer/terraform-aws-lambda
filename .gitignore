@@ -4,3 +4,4 @@ terraform.tfstate.backup
 
 bin/
 .idea
+lambda.zip

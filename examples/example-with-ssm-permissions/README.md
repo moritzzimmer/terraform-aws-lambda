@@ -1,6 +1,6 @@
-# Example with VPC and CloudWatch scheduled event
+# Example without event
 
-Creates an AWS Lambda function inside a VPC.
+Creates an AWS Lambda function with read permissions to SSM parameters.
 
 ## requirements
 
@@ -8,8 +8,6 @@ Creates an AWS Lambda function inside a VPC.
 - authentication configuration for the [aws provider](https://www.terraform.io/docs/providers/aws/)
 
 ## usage
-
-To generate and show the execution plan run
 
 ```
 terraform init

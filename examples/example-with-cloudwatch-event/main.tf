@@ -2,14 +2,18 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+module "source" {
+  source = "../fixtures"
+}
+
 module "lambda-scheduled" {
   source           = "../../"
-  description      = "Example AWS Lambda using go with cloudwatch scheduled event trigger"
-  filename         = "${path.module}/test_function.zip"
-  function_name    = "tf-example-go-basic"
-  handler          = "example-lambda-func"
-  runtime          = "go1.x"
-  source_code_hash = filebase64sha256("${path.module}/test_function.zip")
+  description      = "Example usage for an AWS Lambda with a CloudWatch (scheduled) event trigger."
+  filename         = module.source.output_path
+  function_name    = "example-with-cloudwatch-scheduled-event"
+  handler          = "handler"
+  runtime          = "nodejs12.x"
+  source_code_hash = module.source.output_base64sha256
 
   event = {
     type                = "cloudwatch-event"
@@ -19,12 +23,12 @@ module "lambda-scheduled" {
 
 module "lambda-pattern" {
   source           = "../../"
-  description      = "Example AWS Lambda using go with cloudwatch event pattern trigger"
-  filename         = "${path.module}/test_function.zip"
-  function_name    = "tf-example-go-basic"
-  handler          = "example-lambda-func"
-  runtime          = "go1.x"
-  source_code_hash = filebase64sha256("${path.module}/test_function.zip")
+  description      = "Example usage for an AWS Lambda with a CloudWatch event trigger."
+  filename         = module.source.output_path
+  function_name    = "example-with-cloudwatch-event"
+  handler          = "handler"
+  runtime          = "nodejs12.x"
+  source_code_hash = module.source.output_base64sha256
 
   event = {
     type          = "cloudwatch-event"

@@ -28,14 +28,16 @@ variable "description" {
 
 variable "environment" {
   description = "Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries"
-  type        = map(map(string))
-  default     = {}
+  default     = null
+  type = object({
+    variables = map(string)
+  })
 }
 
 variable "event" {
   description = "Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3, sns"
-  type        = map(string)
   default     = {}
+  type        = map(string)
 }
 
 variable "filename" {
@@ -44,13 +46,13 @@ variable "filename" {
 }
 
 variable "kms_key_arn" {
-  description = "The Amazon Resource Name (ARN) of the KMS key to decrypt AWS Systems Manager parameters."
+  description = "Amazon Resource Name (ARN) of the AWS Key Management Service (KMS) key that is used to encrypt environment variables. If this configuration is not provided when environment variables are in use, AWS Lambda uses a default service key. If this configuration is provided when environment variables are not in use, the AWS Lambda API does not save this configuration and Terraform will show a perpetual difference of adding the key. To fix the perpetual difference, remove this configuration."
   default     = ""
 }
 
 variable "layers" {
-  default     = []
   description = "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function."
+  default     = []
   type        = list(string)
 }
 
@@ -99,15 +101,23 @@ variable "source_code_hash" {
   default     = ""
 }
 
+variable "ssm" {
+  description = "List of AWS Systems Manager Parameter Store parameter names. The IAM role of this Lambda function will be enhanced with read permissions for those parameters. Parameters must start with a forward slash and can be encrypted with the default KMS key."
+  default     = null
+  type = object({
+    parameter_names = list(string)
+  })
+}
+
 variable "ssm_parameter_names" {
-  description = "List of AWS Systems Manager Parameter Store parameters this Lambda will have access to. In order to decrypt secure parameters, a kms_key_arn needs to be provided as well."
+  description = "DEPRECATED: use `ssm` object instead. This variable will be removed in version 6 of this module. (List of AWS Systems Manager Parameter Store parameters this Lambda will have access to. In order to decrypt secure parameters, a kms_key_arn needs to be provided as well.)"
   default     = []
 }
 
 variable "tags" {
   description = "A mapping of tags to assign to the Lambda function."
-  type        = map(string)
   default     = {}
+  type        = map(string)
 }
 
 variable "timeout" {
@@ -117,6 +127,9 @@ variable "timeout" {
 
 variable "vpc_config" {
   description = "Provide this to allow your function to access your VPC (if both 'subnet_ids' and 'security_group_ids' are empty then vpc_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details)."
-  type        = map(list(string))
-  default     = {}
+  default     = null
+  type = object({
+    security_group_ids = list(string)
+    subnet_ids         = list(string)
+  })
 }
