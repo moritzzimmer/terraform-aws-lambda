@@ -28,8 +28,10 @@ variable "description" {
 
 variable "environment" {
   description = "Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries"
-  type        = map(map(string))
-  default     = {}
+  type = object({
+    variables = map(string)
+  })
+  default = null
 }
 
 variable "event" {
@@ -44,7 +46,7 @@ variable "filename" {
 }
 
 variable "kms_key_arn" {
-  description = "The Amazon Resource Name (ARN) of the KMS key to decrypt AWS Systems Manager parameters."
+  description = "Amazon Resource Name (ARN) of the AWS Key Management Service (KMS) key that is used to encrypt environment variables. If this configuration is not provided when environment variables are in use, AWS Lambda uses a default service key. If this configuration is provided when environment variables are not in use, the AWS Lambda API does not save this configuration and Terraform will show a perpetual difference of adding the key. To fix the perpetual difference, remove this configuration."
   default     = ""
 }
 
@@ -116,7 +118,10 @@ variable "timeout" {
 }
 
 variable "vpc_config" {
+  default     = null
   description = "Provide this to allow your function to access your VPC (if both 'subnet_ids' and 'security_group_ids' are empty then vpc_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details)."
-  type        = map(list(string))
-  default     = {}
+  type = object({
+    security_group_ids = list(string)
+    subnet_ids         = list(string)
+  })
 }

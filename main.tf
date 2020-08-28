@@ -11,8 +11,9 @@ module "lambda" {
   filename                       = var.filename
   function_name                  = var.function_name
   handler                        = var.handler
-  memory_size                    = var.memory_size
+  kms_key_arn                    = var.kms_key_arn
   layers                         = var.layers
+  memory_size                    = var.memory_size
   publish                        = var.publish
   reserved_concurrent_executions = var.reserved_concurrent_executions
   runtime                        = var.runtime
@@ -114,6 +115,7 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
   distribution    = "ByLogStream"
 }
 
+// Deprecated - will be removed in the next major version
 data "aws_iam_policy_document" "ssm_policy_document" {
   count = length(var.ssm_parameter_names)
 
@@ -129,6 +131,7 @@ data "aws_iam_policy_document" "ssm_policy_document" {
   }
 }
 
+// Deprecated - will be removed in the next major version
 resource "aws_iam_policy" "ssm_policy" {
   count       = length(var.ssm_parameter_names)
   name        = "${module.lambda.function_name}-ssm-${count.index}-${data.aws_region.current.name}"
@@ -136,13 +139,17 @@ resource "aws_iam_policy" "ssm_policy" {
   policy      = data.aws_iam_policy_document.ssm_policy_document[count.index].json
 }
 
+// Deprecated - will be removed in the next major version
 resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
   count      = length(var.ssm_parameter_names)
   role       = module.lambda.role_name
   policy_arn = aws_iam_policy.ssm_policy[count.index].arn
 }
 
+// Deprecated - will be removed in the next major version
 data "aws_iam_policy_document" "kms_policy_document" {
+  count = var.kms_key_arn != "" ? 1 : 0
+
   statement {
     actions = [
       "kms:Decrypt",
@@ -154,15 +161,19 @@ data "aws_iam_policy_document" "kms_policy_document" {
   }
 }
 
+// Deprecated - will be removed in the next major version
 resource "aws_iam_policy" "kms_policy" {
-  count       = var.kms_key_arn != "" ? 1 : 0
+  count = var.kms_key_arn != "" ? 1 : 0
+
   name        = "${module.lambda.function_name}-kms-${data.aws_region.current.name}"
   description = "Provides minimum KMS permissions for ${module.lambda.function_name}."
-  policy      = data.aws_iam_policy_document.kms_policy_document.json
+  policy      = data.aws_iam_policy_document.kms_policy_document[count.index].json
 }
 
+// Deprecated - will be removed in the next major version
 resource "aws_iam_role_policy_attachment" "kms_policy_attachment" {
-  count      = var.kms_key_arn != "" ? 1 : 0
+  count = var.kms_key_arn != "" ? 1 : 0
+
   role       = module.lambda.role_name
   policy_arn = aws_iam_policy.kms_policy[count.index].arn
 }

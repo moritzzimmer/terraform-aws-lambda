@@ -2,12 +2,26 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+module "source" {
+  source = "../fixtures"
+}
+
 module "lambda" {
   source           = "../../"
-  description      = "Example AWS Lambda using go with cloudwatch scheduled event trigger"
-  filename         = "${path.module}/test_function.zip"
-  function_name    = "tf-example-go-basic"
-  handler          = "example-lambda-func"
-  runtime          = "go1.x"
-  source_code_hash = filebase64sha256("${path.module}/test_function.zip")
+  description      = "Example usage for an AWS Lambda without an event trigger."
+  filename         = module.source.output_path
+  function_name    = "example-without-event"
+  handler          = "handler"
+  runtime          = "nodejs12.x"
+  source_code_hash = module.source.output_base64sha256
+
+  environment = {
+    variables = {
+      key = "value"
+    }
+  }
+
+  tags = {
+    key = "value"
+  }
 }

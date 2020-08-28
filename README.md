@@ -137,12 +137,12 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | description | Description of what your Lambda Function does. | `string` | `""` | no |
-| environment | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | `map(map(string))` | `{}` | no |
+| environment | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
 | event | Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3, sns | `map(string)` | `{}` | no |
 | filename | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options cannot be used. | `string` | `""` | no |
 | function\_name | A unique name for your Lambda Function. | `any` | n/a | yes |
 | handler | The function entrypoint in your code. | `any` | n/a | yes |
-| kms\_key\_arn | The Amazon Resource Name (ARN) of the KMS key to decrypt AWS Systems Manager parameters. | `string` | `""` | no |
+| kms\_key\_arn | Amazon Resource Name (ARN) of the AWS Key Management Service (KMS) key that is used to encrypt environment variables. If this configuration is not provided when environment variables are in use, AWS Lambda uses a default service key. If this configuration is provided when environment variables are not in use, the AWS Lambda API does not save this configuration and Terraform will show a perpetual difference of adding the key. To fix the perpetual difference, remove this configuration. | `string` | `""` | no |
 | layers | List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function. | `list(string)` | `[]` | no |
 | log\_retention\_in\_days | Specifies the number of days you want to retain log events in the specified log group. Defaults to 14. | `number` | `14` | no |
 | logfilter\_destination\_arn | The ARN of the destination to deliver matching log events to. Kinesis stream or Lambda function ARN. | `string` | `""` | no |
@@ -157,7 +157,7 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 | ssm\_parameter\_names | List of AWS Systems Manager Parameter Store parameters this Lambda will have access to. In order to decrypt secure parameters, a kms\_key\_arn needs to be provided as well. | `list` | `[]` | no |
 | tags | A mapping of tags to assign to the Lambda function. | `map(string)` | `{}` | no |
 | timeout | The amount of time your Lambda Function has to run in seconds. Defaults to 3. | `number` | `3` | no |
-| vpc\_config | Provide this to allow your function to access your VPC (if both 'subnet\_ids' and 'security\_group\_ids' are empty then vpc\_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details). | `map(list(string))` | `{}` | no |
+| vpc\_config | Provide this to allow your function to access your VPC (if both 'subnet\_ids' and 'security\_group\_ids' are empty then vpc\_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details). | <pre>object({<br>    security_group_ids = list(string)<br>    subnet_ids         = list(string)<br>  })</pre> | `null` | no |
 
 ## Outputs
 
@@ -167,3 +167,4 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 | function\_name | The unique name of your Lambda Function. |
 | invoke\_arn | The ARN to be used for invoking Lambda Function from API Gateway - to be used in aws\_api\_gateway\_integration's uri |
 | role\_name | The name of the IAM role attached to the Lambda Function. |
+
