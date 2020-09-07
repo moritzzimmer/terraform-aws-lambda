@@ -15,6 +15,7 @@ resource "aws_cloudwatch_event_rule" "lambda" {
   name                = var.name
   name_prefix         = var.name_prefix
   schedule_expression = var.schedule_expression
+  tags                = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {

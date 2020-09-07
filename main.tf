@@ -37,6 +37,7 @@ module "event-cloudwatch" {
   name                = lookup(var.event, "name", null)
   name_prefix         = lookup(var.event, "name_prefix", null)
   schedule_expression = lookup(var.event, "schedule_expression", "")
+  tags                = var.tags
 }
 
 module "event-dynamodb" {
@@ -95,6 +96,7 @@ module "event-sqs" {
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/${module.lambda.function_name}"
   retention_in_days = var.log_retention_in_days
+  tags              = var.tags
 }
 
 resource "aws_lambda_permission" "cloudwatch_logs" {
