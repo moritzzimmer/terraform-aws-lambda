@@ -115,7 +115,7 @@ variable "ssm_parameter_names" {
 }
 
 variable "tags" {
-  description = "A mapping of tags to assign to the Lambda function."
+  description = "A mapping of tags to assign to the Lambda function and all resources supporting tags."
   default     = {}
   type        = map(string)
 }
