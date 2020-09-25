@@ -100,16 +100,21 @@ resource "aws_cloudwatch_log_group" "lambda" {
 }
 
 resource "aws_lambda_permission" "cloudwatch_logs" {
-  count         = var.logfilter_destination_arn != "" ? 1 : 0
+  count = var.logfilter_destination_arn != "" ? 1 : 0
+
   action        = "lambda:InvokeFunction"
   function_name = var.logfilter_destination_arn
   principal     = "logs.${data.aws_region.current.name}.amazonaws.com"
-  source_arn    = aws_cloudwatch_log_group.lambda.arn
+  // workaround for https://github.com/terraform-providers/terraform-provider-aws/issues/14630
+  // in aws provider 3.x 'aws_cloudwatch_log_group.lambda.arn' interpolates to something like 'arn:aws:logs:eu-west-1:000000000000:log-group:/aws/lambda/my-group'
+  // but we need 'arn:aws:logs:eu-west-1:000000000000:log-group:/aws/lambda/my-group:*'
+  source_arn = length(regexall(":\\*$", aws_cloudwatch_log_group.lambda.arn)) == 1 ? aws_cloudwatch_log_group.lambda.arn : "${aws_cloudwatch_log_group.lambda.arn}:*"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
-  depends_on      = [aws_lambda_permission.cloudwatch_logs]
-  count           = var.logfilter_destination_arn != "" ? 1 : 0
+  count      = var.logfilter_destination_arn != "" ? 1 : 0
+  depends_on = [aws_lambda_permission.cloudwatch_logs]
+
   name            = "elasticsearch-stream-filter"
   log_group_name  = aws_cloudwatch_log_group.lambda.name
   filter_pattern  = ""
