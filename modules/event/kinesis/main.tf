@@ -1,4 +1,5 @@
 data "aws_region" "current" {
+  count = var.enable ? 1 : 0
 }
 
 resource "aws_lambda_event_source_mapping" "stream_source" {
@@ -12,6 +13,8 @@ resource "aws_lambda_event_source_mapping" "stream_source" {
 
 // see https://github.com/awslabs/serverless-application-model/blob/develop/samtranslator/policy_templates_data/policy_templates.json
 data "aws_iam_policy_document" "stream_policy_document" {
+  count = var.enable ? 1 : 0
+
   statement {
     actions = [
       "kinesis:ListStreams",
@@ -41,9 +44,9 @@ data "aws_iam_policy_document" "stream_policy_document" {
 
 resource "aws_iam_policy" "stream_policy" {
   count       = var.enable ? 1 : 0
-  name        = "${var.function_name}-stream-consumer-${data.aws_region.current.name}"
+  name        = "${var.function_name}-stream-consumer-${data.aws_region.current[count.index].name}"
   description = "Gives permission to list and read a Kinesis stream to ${var.function_name}."
-  policy      = data.aws_iam_policy_document.stream_policy_document.json
+  policy      = data.aws_iam_policy_document.stream_policy_document[count.index].json
 }
 
 resource "aws_iam_role_policy_attachment" "stream_policy_attachment" {
