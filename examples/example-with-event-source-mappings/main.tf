@@ -1,0 +1,45 @@
+resource "aws_sqs_queue" "example_1" {
+  name = "example-1"
+}
+
+resource "aws_sqs_queue" "example_2" {
+  name = "example-2"
+}
+
+data "archive_file" "sqs_handler" {
+  output_path = "${path.module}/sqs.zip"
+  type        = "zip"
+
+  source {
+    content  = "exports.handler = async function(event, context) { event.Records.forEach(record => { const { body } = record; console.log(body);  }); return {}; }"
+    filename = "index.js"
+  }
+}
+
+module "sqs" {
+  source = "../../"
+
+  description      = "Example usage for an AWS Lambda with a SQS event source mapping"
+  filename         = data.archive_file.sqs_handler.output_path
+  function_name    = "example-with-sqs-event-source-mapping"
+  handler          = "index.handler"
+  runtime          = "nodejs12.x"
+  source_code_hash = data.archive_file.sqs_handler.output_base64sha256
+
+  event_sources = {
+    sqs_1 = {
+      event_source_arn = aws_sqs_queue.example_1.arn
+
+      // overwrite function_name in case an alias should be used in the
+      // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
+      // function_name    = aws_lambda_alias.example.arn
+    }
+    sqs_2 = {
+      event_source_arn = aws_sqs_queue.example_2.arn
+
+      // overwrite function_name in case an alias should be used in the
+      // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
+      // function_name    = aws_lambda_alias.example.arn
+    }
+  }
+}

@@ -26,9 +26,15 @@ variable "environment" {
 }
 
 variable "event" {
-  description = "Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3, sns"
+  description = "(deprecated) Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3, sns"
   default     = {}
   type        = map(string)
+}
+
+variable "event_sources" {
+  description = "Event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events."
+  default     = {}
+  type        = map(any)
 }
 
 variable "sns_subscriptions" {
