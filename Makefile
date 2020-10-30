@@ -36,15 +36,9 @@ tfsec: ## Runs tfsec on all Terraform files
 	@tfsec $$d || exit 1
 
 .PHONY: test
-test: ## Validates and generates execution plan for all examples.
+test: ## Runs all terraform tests
 	@echo "+ $@"
-	@for dir in `ls $(EXAMPLES_DIR)`; do \
-		echo "--> $$dir"; \
-		terraform init $(PREFIX)/$(EXAMPLES_DIR)/$$dir/ > /dev/null; \
-		terraform validate $(PREFIX)/$(EXAMPLES_DIR)/$$dir/; \
-		terraform plan $(PREFIX)/$(EXAMPLES_DIR)/$$dir/ > /dev/null; \
-		rm -rf $(PREFIX)/$(EXAMPLES_DIR)/$$dir/.terraform; \
-	done
+	@cd test && go test -v -timeout 30m
 
 .PHONY: documentation
 documentation: ## Generates README.md from static snippets and Terraform variables
