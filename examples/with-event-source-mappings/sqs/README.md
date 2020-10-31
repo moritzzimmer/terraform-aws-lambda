@@ -1,6 +1,6 @@
-# Example with event source mapping
+# Example with SQS event source mappings
 
-Creates an AWS Lambda function triggered by a SQS [event source mapping](https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html).
+Creates an AWS Lambda function triggered by SQS [event source mappings](https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html).
 
 ## Usage
 
@@ -17,15 +17,15 @@ Note that this example may create resources which cost money. Run `terraform des
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.13.0 |
-| aws | >= 3.0 |
+| terraform | >= 0.12.0 |
+| aws | >= 3.19 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | archive | n/a |
-| aws | >= 3.0 |
+| aws | >= 3.19 |
 
 ## Inputs
 
@@ -33,5 +33,9 @@ No input.
 
 ## Outputs
 
-No output.
-
+| Name | Description |
+|------|-------------|
+| arn | The Amazon Resource Name (ARN) identifying your Lambda Function. |
+| event\_source\_arns | The Amazon Resource Names (ARNs) identifying the event sources. |
+| function\_name | The unique name of your Lambda Function. |
+| role\_name | The name of the IAM role attached to the Lambda Function. |

@@ -3,7 +3,17 @@ output "arn" {
   value       = module.lambda.arn
 }
 
+output "event_source_arns" {
+  description = "The Amazon Resource Names (ARNs) identifying the event sources."
+  value       = list(aws_dynamodb_table.table_1.stream_arn, aws_dynamodb_table.table_2.stream_arn)
+}
+
 output "function_name" {
   description = "The unique name of your Lambda Function."
   value       = module.lambda.function_name
+}
+
+output "role_name" {
+  description = "The name of the IAM role attached to the Lambda Function."
+  value       = module.lambda.role_name
 }

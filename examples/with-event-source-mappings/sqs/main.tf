@@ -1,5 +1,9 @@
-resource "aws_sqs_queue" "example" {
-  name = "example-sqs-queue"
+resource "aws_sqs_queue" "queue_1" {
+  name = "example-sqs-queue-1"
+}
+
+resource "aws_sqs_queue" "queue_2" {
+  name = "example-sqs-queue-2"
 }
 
 data "archive_file" "sqs_handler" {
@@ -22,10 +26,19 @@ module "lambda" {
   runtime          = "nodejs12.x"
   source_code_hash = data.archive_file.sqs_handler.output_base64sha256
 
-  event_sources = {
-    sqs = {
+  event_source_mappings = {
+    queue_1 = {
       batch_size       = 5 // optionally overwrite default 'batch_size'
-      event_source_arn = aws_sqs_queue.example.arn
+      event_source_arn = aws_sqs_queue.queue_1.arn
+
+      // overwrite function_name in case an alias should be used in the
+      // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
+      // function_name    = aws_lambda_alias.example.arn
+    }
+
+    queue_2 = {
+      batch_size       = 5 // optionally overwrite default 'batch_size'
+      event_source_arn = aws_sqs_queue.queue_2.arn
 
       // overwrite function_name in case an alias should be used in the
       // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html

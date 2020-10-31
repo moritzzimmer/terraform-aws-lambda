@@ -1,6 +1,6 @@
-# Example with DynamoDb event source mappings
+# Example with Kinesis event source mappings
 
-Creates an AWS Lambda function triggered by DynamoDb [event source mappings](https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html).
+Creates an AWS Lambda function triggered by Kinesis [event source mappings](https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html).
 
 ## Usage
 

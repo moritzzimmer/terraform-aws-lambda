@@ -38,7 +38,7 @@ tfsec: ## Runs tfsec on all Terraform files
 .PHONY: test
 test: ## Runs all terratests
 	@echo "+ $@"
-	@cd test && go test -v -timeout 30m
+	@cd test && go test -v -count=1 -timeout 30m
 
 .PHONY: documentation
 documentation: ## Generates README.md from static snippets and Terraform variables
