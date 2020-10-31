@@ -1,4 +1,4 @@
-# Example with event source mappings
+# Example with event source mapping
 
 Creates an AWS Lambda function triggered by a SQS [event source mapping](https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html).
 

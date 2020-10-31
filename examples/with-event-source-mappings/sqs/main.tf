@@ -12,8 +12,8 @@ data "archive_file" "sqs_handler" {
   }
 }
 
-module "sqs" {
-  source = "../../"
+module "lambda" {
+  source = "../../.."
 
   description      = "Example usage for an AWS Lambda with a SQS event source mapping"
   filename         = data.archive_file.sqs_handler.output_path

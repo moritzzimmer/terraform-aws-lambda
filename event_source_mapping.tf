@@ -4,7 +4,7 @@ locals {
   sqs_event_sources      = [for k, v in var.event_sources : lookup(v, "event_source_arn", null) if length(regexall(".*:sqs:.*", lookup(v, "event_source_arn", null))) > 0]
 }
 
-resource "aws_lambda_event_source_mapping" "event_sources" {
+resource "aws_lambda_event_source_mapping" "event_source" {
   for_each = var.event_sources
 
   batch_size                         = lookup(each.value, "batch_size", null)
@@ -16,7 +16,7 @@ resource "aws_lambda_event_source_mapping" "event_sources" {
   maximum_retry_attempts             = lookup(each.value, "maximum_retry_attempts", null)
   maximum_record_age_in_seconds      = lookup(each.value, "maximum_record_age_in_seconds", null)
   parallelization_factor             = lookup(each.value, "parallelization_factor", null)
-  starting_position                  = lookup(each.value, "starting_position", null)
+  starting_position                  = lookup(each.value, "starting_position", length(regexall(".*:dynamodb:.*", lookup(each.value, "event_source_arn", null))) > 0 ? "TRIM_HORIZON" : null)
   starting_position_timestamp        = lookup(each.value, "starting_position_timestamp", null)
 }
 
@@ -47,7 +47,8 @@ data "aws_iam_policy_document" "event_sources" {
       actions = [
         "dynamodb:DescribeStream",
         "dynamodb:GetShardIterator",
-        "dynamodb:GetRecords"
+        "dynamodb:GetRecords",
+        "dynamodb:ListStreams"
       ]
 
       resources = [statement.value]
