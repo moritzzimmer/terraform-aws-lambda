@@ -94,6 +94,12 @@ variable "timeout" {
   default     = 3
 }
 
+variable "tracing_config_mode" {
+  description = "Tracing config mode of the Lambda function. Can be either PassThrough or Active."
+  default     = null
+  type        = string
+}
+
 variable "vpc_config" {
   default     = null
   description = "Provide this to allow your function to access your VPC (if both 'subnet_ids' and 'security_group_ids' are empty then vpc_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details)."

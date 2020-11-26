@@ -22,6 +22,7 @@ module "lambda" {
   s3_object_version              = var.s3_object_version
   source_code_hash               = var.source_code_hash
   timeout                        = var.timeout
+  tracing_config_mode            = var.tracing_config_mode
   tags                           = var.tags
   vpc_config                     = var.vpc_config
 }
