@@ -26,6 +26,13 @@ resource "aws_lambda_function" "lambda" {
   tags                           = var.tags
   timeout                        = var.timeout
 
+  dynamic "tracing_config" {
+    for_each = var.tracing_config_mode == null ? [] : [true]
+    content {
+      mode = var.tracing_config_mode
+    }
+  }
+
   dynamic "vpc_config" {
     for_each = var.vpc_config == null ? [] : [var.vpc_config]
     content {
@@ -57,9 +64,13 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_logs" {
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_attachment" {
-  count = var.vpc_config == null ? 0 : 1
-  role  = aws_iam_role.lambda.name
-
-  // see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html
+  count      = var.vpc_config == null ? 0 : 1
+  role       = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "tracing_attachment" {
+  count      = var.tracing_config_mode == null ? 0 : 1
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
 }
