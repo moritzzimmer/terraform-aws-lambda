@@ -37,14 +37,19 @@ variable "filename" {
   type        = string
 }
 
-
 variable "handler" {
   description = "The function entrypoint in your code."
   default     = ""
 }
 
 variable "image_config" {
-  description = "The Lambda OCI image configurations."
+  description = <<EOF
+  The Lambda OCI [image configurations](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#image_config) block with three (optional) arguments:
+
+  - *entry_point* - The ENTRYPOINT for the docker image (type `list(string)`).
+  - *command* - The CMD for the docker image (type `list(string)`).
+  - *working_directory* - The working directory for the docker image (type `string`).
+EOF
   default     = {}
   type        = any
 }
