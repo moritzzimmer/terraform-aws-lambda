@@ -50,7 +50,7 @@ $(SEMBUMP):
 	GO111MODULE=off go get -u github.com/jessfraz/junk/sembump
 
 .PHONY: bump-version
-BUMP := patch
+BUMP ?= patch
 bump-version: $(SEMBUMP) ## Bump the version in the version file. Set BUMP to [ patch | major | minor ].
 	@echo "+ $@"
 	$(eval NEW_VERSION = $(shell $(BINDIR)/sembump --kind $(BUMP) $(VERSION)))
