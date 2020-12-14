@@ -1,8 +1,6 @@
-data "aws_region" "current" {
-}
+data "aws_region" "current" {}
 
-data "aws_caller_identity" "current" {
-}
+data "aws_caller_identity" "current" {}
 
 module "lambda" {
   source                         = "./modules/lambda"
@@ -11,9 +9,12 @@ module "lambda" {
   filename                       = var.filename
   function_name                  = var.function_name
   handler                        = var.handler
+  image_config                   = var.image_config
+  image_uri                      = var.image_uri
   kms_key_arn                    = var.kms_key_arn
   layers                         = var.layers
   memory_size                    = var.memory_size
+  package_type                   = var.package_type
   publish                        = var.publish
   reserved_concurrent_executions = var.reserved_concurrent_executions
   runtime                        = var.runtime

@@ -2,29 +2,41 @@ data "aws_region" "current" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  description = var.description
+  description                    = var.description
+  filename                       = var.filename
+  function_name                  = var.function_name
+  handler                        = var.package_type != "Zip" ? null : var.handler
+  image_uri                      = var.image_uri
+  kms_key_arn                    = var.kms_key_arn
+  layers                         = var.layers
+  memory_size                    = var.memory_size
+  package_type                   = var.package_type
+  publish                        = var.publish
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  role                           = aws_iam_role.lambda.arn
+  runtime                        = var.package_type != "Zip" ? null : var.runtime
+  s3_bucket                      = var.s3_bucket
+  s3_key                         = var.s3_key
+  s3_object_version              = var.s3_object_version
+  source_code_hash               = var.source_code_hash
+  tags                           = var.tags
+  timeout                        = var.timeout
+
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
       variables = environment.value.variables
     }
   }
-  filename                       = var.s3_bucket == "" ? var.filename : null
-  function_name                  = var.function_name
-  handler                        = var.handler
-  layers                         = var.layers
-  kms_key_arn                    = var.kms_key_arn
-  memory_size                    = var.memory_size
-  publish                        = var.publish
-  reserved_concurrent_executions = var.reserved_concurrent_executions
-  role                           = aws_iam_role.lambda.arn
-  runtime                        = var.runtime
-  s3_bucket                      = var.filename == "" ? var.s3_bucket : null
-  s3_key                         = var.filename == "" ? var.s3_key : null
-  s3_object_version              = var.filename == "" ? var.s3_object_version : null
-  source_code_hash               = var.source_code_hash
-  tags                           = var.tags
-  timeout                        = var.timeout
+
+  dynamic "image_config" {
+    for_each = length(var.image_config) > 0 ? [true] : []
+    content {
+      command           = lookup(var.image_config, "command", null)
+      entry_point       = lookup(var.image_config, "entry_point", null)
+      working_directory = lookup(var.image_config, "working_directory", null)
+    }
+  }
 
   dynamic "tracing_config" {
     for_each = var.tracing_config_mode == null ? [] : [true]
