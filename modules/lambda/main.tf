@@ -29,15 +29,6 @@ resource "aws_lambda_function" "lambda" {
     }
   }
 
-  //  dynamic "image_config" {
-  //    for_each = var.image_config == null ? [] : [true]
-  //    content {
-  //      command           = length(var.image_config.command) > 0 ? var.image_config.command : null
-  //      entry_point       = length(var.image_config.entry_point) > 0 ? var.image_config.entry_point : null
-  //      working_directory = var.image_config.working_directory != "" ? var.image_config.working_directory : null
-  //    }
-  //  }
-
   dynamic "image_config" {
     for_each = length(var.image_config) > 0 ? [true] : []
     content {
