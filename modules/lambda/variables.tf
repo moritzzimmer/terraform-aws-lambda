@@ -3,20 +3,8 @@
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "filename" {
-  description = "The path to the function's deployment package within the local filesystem."
-}
-
 variable "function_name" {
   description = "A unique name for your Lambda Function."
-}
-
-variable "handler" {
-  description = "The function entrypoint in your code."
-}
-
-variable "runtime" {
-  description = "The runtime environment for the Lambda function you are uploading."
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -30,11 +18,34 @@ variable "description" {
 }
 
 variable "environment" {
-  description = "Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries"
+  description = "Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries."
   type = object({
     variables = map(string)
   })
   default = null
+}
+
+variable "filename" {
+  description = "The path to the function's deployment package within the local filesystem. If defined, The s3_-prefixed options and image_uri cannot be used."
+  default     = null
+  type        = string
+}
+
+variable "handler" {
+  description = "The function entrypoint in your code."
+  default     = ""
+}
+
+variable "image_config" {
+  description = "The Lambda OCI image configurations."
+  default     = {}
+  type        = any
+}
+
+variable "image_uri" {
+  description = "The ECR image URI containing the function's deployment package. Conflicts with filename, s3_bucket, s3_key, and s3_object_version."
+  type        = string
+  default     = null
 }
 
 variable "kms_key_arn" {
@@ -49,33 +60,46 @@ variable "layers" {
 }
 
 variable "memory_size" {
-  description = "Amount of memory in MB your Lambda Function can use at runtime. Defaults to 128."
+  description = "Amount of memory in MB your Lambda Function can use at runtime."
   default     = 128
 }
 
+variable "package_type" {
+  description = "The Lambda deployment package type. Valid values are Zip and Image."
+  default     = "Zip"
+}
+
 variable "publish" {
-  description = "Whether to publish creation/change as new Lambda Function Version. Defaults to false."
+  description = "Whether to publish creation/change as new Lambda Function Version."
   default     = false
 }
 
 variable "reserved_concurrent_executions" {
-  description = "The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations. Defaults to Unreserved Concurrency Limits -1."
+  description = "The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations."
   default     = "-1"
 }
 
-variable "s3_bucket" {
-  description = "The S3 bucket location containing the function's deployment package. Conflicts with filename. This bucket must reside in the same AWS region where you are creating the Lambda function."
+variable "runtime" {
+  description = "The runtime environment for the Lambda function you are uploading."
   default     = ""
+}
+
+variable "s3_bucket" {
+  description = "The S3 bucket location containing the function's deployment package. Conflicts with filename and image_uri. This bucket must reside in the same AWS region where you are creating the Lambda function."
+  default     = null
+  type        = string
 }
 
 variable "s3_key" {
-  description = " The S3 key of an object containing the function's deployment package. Conflicts with filename."
-  default     = ""
+  description = "The S3 key of an object containing the function's deployment package. Conflicts with filename and image_uri."
+  default     = null
+  type        = string
 }
 
 variable "s3_object_version" {
-  description = "The object version containing the function's deployment package. Conflicts with filename."
-  default     = ""
+  description = "The object version containing the function's deployment package. Conflicts with filename and image_uri."
+  default     = null
+  type        = string
 }
 
 variable "source_code_hash" {
@@ -90,7 +114,7 @@ variable "tags" {
 }
 
 variable "timeout" {
-  description = "The amount of time your Lambda Function has to run in seconds. Defaults to 3."
+  description = "The amount of time your Lambda Function has to run in seconds."
   default     = 3
 }
 
