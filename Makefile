@@ -8,7 +8,7 @@ export GOBIN :=$(BINDIR)
 export PATH := $(GOBIN):$(PATH)
 SEMBUMP := $(BINDIR)/sembump
 
-all: init fmt validate
+all: init fmt validate tflint tfsec
 
 .PHONY: init
 init: ## Initialize a Terraform working directory
@@ -16,7 +16,7 @@ init: ## Initialize a Terraform working directory
 	@terraform init
 
 .PHONY: fmt
-fmt: ## Rewrites config files to canonical format
+fmt: ## Rewrites terraform files to canonical format
 	@echo "+ $@"
 	@terraform fmt -check=true -recursive
 
@@ -24,6 +24,16 @@ fmt: ## Rewrites config files to canonical format
 validate: ## Validates the Terraform files
 	@echo "+ $@"
 	@AWS_REGION=eu-west-1 terraform validate
+
+.PHONY: tflint
+tflint: ## Runs tflint on all Terraform files
+	@echo "+ $@"
+	@tflint || exit 2
+
+.PHONY: tfsec
+tfsec: ## Runs tfsec on all Terraform files
+	@echo "+ $@"
+	@tfsec $$d || exit 1
 
 .PHONY: test
 test: ## Validates and generates execution plan for all examples.

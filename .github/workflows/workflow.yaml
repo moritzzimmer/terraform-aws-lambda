@@ -10,15 +10,21 @@ on:
 
 jobs:
   check:
-    name: Validate
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform: [ ~0.12.0, ~0.13.0, ~0.14.0 ]
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - uses: hashicorp/setup-terraform@v1
+      - uses: hashicorp/setup-terraform@v1.3.2
         with:
-          terraform_version: ~0.13.0
+          terraform_version: ${{ matrix.terraform }}
 
-      - name: Terraform validate
-        run: make init fmt validate
+      - name: install tools
+        run: |
+          curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
+          curl -L "$(curl -s https://api.github.com/repos/tfsec/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
+
+      - run: make
