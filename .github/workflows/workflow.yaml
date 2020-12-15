@@ -10,15 +10,16 @@ on:
 
 jobs:
   check:
-    name: Validate
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform: [ ~0.13.0, ~0.14.0 ]
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - uses: hashicorp/setup-terraform@v1
+      - uses: hashicorp/setup-terraform@v1.3.2
         with:
-          terraform_version: ~0.13.0
+          terraform_version: ${{ matrix.terraform }}
 
-      - name: Terraform validate
-        run: make init fmt validate
+      - run: make init fmt validate
