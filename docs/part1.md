@@ -1,6 +1,6 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.6.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.6.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.7.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.7.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) resources with configurable event sources, IAM configuration (following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)), VPC as well as SSM and log streaming support.
 
@@ -27,18 +27,20 @@ should migrate to this module as a drop-in replacement for all provisions up to 
 
 The module can be used for all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) supported by AWS Lambda.
 
-Deployment packages can be specified either directly as a local file (using the `filename` argument) or indirectly via Amazon S3 (using the `s3_bucket`, `s3_key` and `s3_object_versions` arguments), see [documentation](https://www.terraform.io/docs/providers/aws/r/lambda_function.html#specifying-the-deployment-package) for details.
+Deployment packages can be specified either directly as a local file (using the `filename` argument), indirectly via Amazon S3 (using the `s3_bucket`, `s3_key` and `s3_object_versions` arguments)
+or using [container images](https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html) (using `image_uri` and `package_type` arguments),
+see [documentation](https://www.terraform.io/docs/providers/aws/r/lambda_function.html#specifying-the-deployment-package) for details.
 
-**basic**
+**simple**
 
-```terraform
+```hcl
 provider "aws" {
   region = "eu-west-1"
 }
 
 module "lambda" {
   source           = "moritzzimmer/lambda/aws"
-  version          = "5.6.0"
+  version          = "5.7.0"
   filename         = "my-package.zip"
   function_name    = "my-function"
   handler          = "my-handler"
@@ -47,9 +49,21 @@ module "lambda" {
 }
 ```
 
+**using container images**
+
+```hcl
+module "lambda" {
+  source        = "moritzzimmer/lambda/aws"
+  version       = "5.7.0"
+  function_name = "my-function"
+  image_uri     = "111111111111.dkr.ecr.eu-west-1.amazonaws.com/my-image"
+  package_type  = "Image"
+}
+```
+
 **with event trigger**
 
-```terraform
+```hcl
 module "lambda" {
   // see above
 
@@ -62,7 +76,7 @@ module "lambda" {
 
 **in a VPC**
 
-```terraform
+```hcl
 module "lambda" {
   // see above
 
@@ -75,7 +89,7 @@ module "lambda" {
 
 **with access to parameter store**
 
-```terraform
+```hcl
 module "lambda" {
   // see above
 
@@ -87,7 +101,7 @@ module "lambda" {
 
 **with log subscription (stream to ElasticSearch)**
 
-```terraform
+```hcl
 module "lambda" {
   // see above
 
@@ -97,6 +111,7 @@ module "lambda" {
 
 ### Examples
 
+- [container-image](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/container-image)
 - [example-with-cloudwatch-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-cloudwatch-event)
 - [example-with-dynamodb-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-dynamodb-event)
 - [example-with-kinesis-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-kinesis-event)
@@ -105,7 +120,7 @@ module "lambda" {
 - [example-with-sqs-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sqs-event)
 - [example-with-ssm-permissions](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-ssm-permissions)
 - [example-with-vpc](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-vpc)
-- [example-without-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-without-event)
+- [simple](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/simple)
 
 ### bootstrap with func
 
