@@ -34,7 +34,7 @@ variable "event" {
 variable "sns_subscriptions" {
   description = "SNS subscriptions to topics which trigger the Lambda function"
   default     = {}
-  type        = map
+  type        = map(any)
 }
 
 variable "filename" {
