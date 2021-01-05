@@ -1,5 +1,5 @@
 resource "aws_lambda_permission" "sns" {
-  for_each      = var.sns_subscriptions
+  for_each = var.sns_subscriptions
 
   action        = "lambda:InvokeFunction"
   function_name = var.function_name
@@ -13,7 +13,7 @@ resource "aws_lambda_permission" "sns" {
 }
 
 resource "aws_sns_topic_subscription" "subscription" {
-  for_each  = var.sns_subscriptions
+  for_each = var.sns_subscriptions
 
   endpoint  = var.endpoint
   protocol  = "lambda"
