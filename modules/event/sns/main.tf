@@ -6,6 +6,10 @@ resource "aws_lambda_permission" "sns" {
   principal     = "sns.amazonaws.com"
   statement_id  = each.key
   source_arn    = lookup(each.value, "topic_arn")
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_sns_topic_subscription" "subscription" {
@@ -14,4 +18,8 @@ resource "aws_sns_topic_subscription" "subscription" {
   endpoint  = var.endpoint
   protocol  = "lambda"
   topic_arn = lookup(each.value, "topic_arn")
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
