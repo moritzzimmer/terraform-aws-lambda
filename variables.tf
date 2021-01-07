@@ -26,7 +26,7 @@ variable "environment" {
 }
 
 variable "event" {
-  description = "Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3"
+  description = "Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3, sns"
   default     = {}
   type        = map(string)
 }
