@@ -77,10 +77,11 @@ module "event-s3" {
 
 module "event-sns" {
   source = "./modules/event/sns"
+  enable = lookup(var.event, "type", "") == "sns" ? true : false
 
-  sns_subscriptions = var.sns_subscriptions
-  endpoint          = module.lambda.arn
-  function_name     = module.lambda.function_name
+  endpoint      = module.lambda.arn
+  function_name = module.lambda.function_name
+  topic_arn     = lookup(var.event, "topic_arn", "")
 }
 
 module "event-sqs" {

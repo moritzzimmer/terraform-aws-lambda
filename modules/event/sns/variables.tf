@@ -1,5 +1,7 @@
-variable "sns_subscriptions" {
-  description = "SNS subscriptions to topics which trigger the Lambda function"
+variable "enable" {
+  description = "Conditionally enables this module (and all it's ressources)."
+  type        = bool
+  default     = false
 }
 
 variable "endpoint" {
@@ -8,4 +10,8 @@ variable "endpoint" {
 
 variable "function_name" {
   description = "Name of the Lambda function whose resource policy should be allowed to subscribe to SNS topics."
+}
+
+variable "topic_arn" {
+  description = "The ARN of the SNS topic to subscribe to"
 }
