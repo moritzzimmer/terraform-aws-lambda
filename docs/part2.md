@@ -18,7 +18,8 @@
 | description | Description of what your Lambda Function does. | `string` | `""` | no |
 | environment | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
 | event | Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, s3, sns | `map(string)` | `{}` | no |
-| sns_subscriptions | SNS subscriptions to topics which trigger the Lambda function | `map` | `{}` | no || filename | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
+| sns_subscriptions | SNS subscriptions to topics which trigger the Lambda function | `map` | `{}` | no |
+| filename | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
 | function\_name | A unique name for your Lambda Function. | `any` | n/a | yes |
 | handler | The function entrypoint in your code. | `string` | `""` | no |
 | image\_config | The Lambda OCI [image configurations](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#image_config) block with three (optional) arguments:<br><br>  - *entry\_point* - The ENTRYPOINT for the docker image (type `list(string)`).<br>  - *command* - The CMD for the docker image (type `list(string)`).<br>  - *working\_directory* - The working directory for the docker image (type `string`). | `any` | `{}` | no |
