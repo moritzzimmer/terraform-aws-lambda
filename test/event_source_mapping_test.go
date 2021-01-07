@@ -73,7 +73,7 @@ func TestPolicyAttachments(t *testing.T) {
 		actions []string
 	}{
 		{name: "sqs", dir: "examples/with-event-source-mappings/sqs", actions: []string{"sqs:ReceiveMessage", "sqs:GetQueueAttributes", "sqs:DeleteMessageBatch", "sqs:DeleteMessage", "sqs:ChangeMessageVisibilityBatch", "sqs:ChangeMessageVisibility"}},
-		{name: "dynamodb", dir: "examples/with-event-source-mappings/dynamodb", actions: []string{"dynamodb:ListStreams", "dynamodb:GetShardIterator", "dynamodb:GetRecords", "dynamodb:DescribeStream"}},
+		{name: "dynamodb", dir: "examples/with-event-source-mappings/dynamodb-with-alias", actions: []string{"dynamodb:ListStreams", "dynamodb:GetShardIterator", "dynamodb:GetRecords", "dynamodb:DescribeStream"}},
 	}
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -156,12 +156,13 @@ func getPolicy(t *testing.T, svc *iam.IAM, options *terraform.Options) Policy {
 
 func TestEventSourceMapping(t *testing.T) {
 	td := []struct {
-		name string
-		dir  string
+		name  string
+		dir   string
+		alias bool
 	}{
-		{name: "sqs", dir: "examples/with-event-source-mappings/sqs"},
-		{name: "dynamodb", dir: "examples/with-event-source-mappings/dynamodb"},
-		{name: "kinesis", dir: "examples/with-event-source-mappings/kinesis"},
+		{name: "sqs", dir: "examples/with-event-source-mappings/sqs", alias: false},
+		{name: "dynamodb", dir: "examples/with-event-source-mappings/dynamodb-with-alias", alias: true},
+		{name: "kinesis", dir: "examples/with-event-source-mappings/kinesis", alias: false},
 	}
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -185,8 +186,14 @@ func TestEventSourceMapping(t *testing.T) {
 			defer terraform.Destroy(t, terraformOptions)
 			terraform.InitAndApply(t, terraformOptions)
 
-			fn := terraform.Output(t, terraformOptions, "function_name")
-			arn := terraform.Output(t, terraformOptions, "arn")
+			var fn, arn string
+			if tc.alias {
+				fn = terraform.Output(t, terraformOptions, "alias_arn")
+				arn = terraform.Output(t, terraformOptions, "alias_arn")
+			} else {
+				fn = terraform.Output(t, terraformOptions, "function_name")
+				arn = terraform.Output(t, terraformOptions, "arn")
+			}
 
 			resp, err := svc.ListEventSourceMappings(&lambda.ListEventSourceMappingsInput{
 				FunctionName: aws.String(fn),

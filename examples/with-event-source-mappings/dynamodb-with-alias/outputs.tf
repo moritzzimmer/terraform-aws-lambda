@@ -1,3 +1,8 @@
+output "alias_arn" {
+  description = "The Amazon Resource Name (ARN) identifying your Lambda alias."
+  value       = aws_lambda_alias.example.arn
+}
+
 output "arn" {
   description = "The Amazon Resource Name (ARN) identifying your Lambda Function."
   value       = module.lambda.arn

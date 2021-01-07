@@ -30,23 +30,19 @@ module "lambda" {
 
   event_source_mappings = {
     stream_1 = {
-      batch_size        = 50 // optionally overwrite default 'batch_size'
-      event_source_arn  = aws_kinesis_stream.stream_1.arn
-      starting_position = "LATEST" // optionally overwrite default 'starting_position'
+      // optionally overwrite arguments like 'batch_size'
+      // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
+      batch_size       = 50
+      event_source_arn = aws_kinesis_stream.stream_1.arn
 
-      // overwrite function_name in case an alias should be used in the
+      // optionally overwrite function_name in case an alias should be used in the
       // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
       // function_name    = aws_lambda_alias.example.arn
     }
 
     stream_2 = {
-      batch_size        = 50 // optionally overwrite default 'batch_size'
       event_source_arn  = aws_kinesis_stream.stream_2.arn
       starting_position = "LATEST" // optionally overwrite default 'starting_position'
-
-      // overwrite function_name in case an alias should be used in the
-      // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
-      // function_name    = aws_lambda_alias.example.arn
     }
   }
 }
