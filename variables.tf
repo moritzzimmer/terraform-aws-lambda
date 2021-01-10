@@ -31,6 +31,12 @@ variable "event" {
   type        = map(string)
 }
 
+variable "sns_subscriptions" {
+  description = "SNS subscriptions to topics which trigger the Lambda function"
+  default     = {}
+  type        = map(any)
+}
+
 variable "filename" {
   description = "The path to the function's deployment package within the local filesystem. If defined, The s3_-prefixed options and image_uri cannot be used."
   default     = null
