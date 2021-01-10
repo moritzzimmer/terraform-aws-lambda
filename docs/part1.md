@@ -12,7 +12,7 @@ Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/
 
 - [x] IAM role with permissions following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 - [x] [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) for DynamoDb, Kinesis and SQS triggers including required permissions (see [examples](examples/with-event-source-mappings)).
-- [x] [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) for SNS triggers including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/example-with-sns-event))
+- [x] [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) for SNS triggers including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
 - [x] [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger by [EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/what-is-amazon-eventbridge.html) event patterns or on a regular, scheduled basis (see [example](examples/example-with-cloudwatch-event))
 - [x] IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
 - [x] [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions to stream logs via another Lambda (e.g. to Elasticsearch)
@@ -77,6 +77,24 @@ module "lambda" {
 }
 ```
 
+***with SNS subscriptions**
+
+```hcl
+module "lambda" {
+  // see above
+
+  sns_subscriptions = {
+    topic_1 = {
+      topic_arn = aws_sns_topic.topic_1.arn
+    }
+
+    topic_2 = {
+      topic_arn = aws_sns_topic.topic_2.arn
+    }
+  }
+}
+```
+
 **with access to parameter store**
 
 ```hcl
@@ -103,9 +121,9 @@ module "lambda" {
 
 - [container-image](examples/container-image)
 - [example-with-cloudwatch-event](examples/example-with-cloudwatch-event)
-- [example-with-sns-event](examples/example-with-sns-event)
 - [simple](examples/simple)
 - [with-event-source-mappings](examples/with-event-source-mappings)
+- [with-sns-subscriptions](examples/with-sns-subscriptions)
 
 ### bootstrap with func
 

@@ -12,7 +12,7 @@ Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/
 
 - [x] IAM role with permissions following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 - [x] [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) for DynamoDb, Kinesis and SQS triggers including required permissions (see [examples](examples/with-event-source-mappings)).
-- [x] [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) for SNS triggers including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/example-with-sns-event))
+- [x] [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) for SNS triggers including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
 - [x] [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger by [EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/what-is-amazon-eventbridge.html) event patterns or on a regular, scheduled basis (see [example](examples/example-with-cloudwatch-event))
 - [x] IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
 - [x] [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions to stream logs via another Lambda (e.g. to Elasticsearch)
@@ -77,6 +77,24 @@ module "lambda" {
 }
 ```
 
+***with SNS subscriptions**
+
+```hcl
+module "lambda" {
+  // see above
+
+  sns_subscriptions = {
+    topic_1 = {
+      topic_arn = aws_sns_topic.topic_1.arn
+    }
+
+    topic_2 = {
+      topic_arn = aws_sns_topic.topic_2.arn
+    }
+  }
+}
+```
+
 **with access to parameter store**
 
 ```hcl
@@ -103,9 +121,9 @@ module "lambda" {
 
 - [container-image](examples/container-image)
 - [example-with-cloudwatch-event](examples/example-with-cloudwatch-event)
-- [example-with-sns-event](examples/example-with-sns-event)
 - [simple](examples/simple)
 - [with-event-source-mappings](examples/with-event-source-mappings)
+- [with-sns-subscriptions](examples/with-sns-subscriptions)
 
 ### bootstrap with func
 
@@ -141,7 +159,7 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 |------|-------------|------|---------|:--------:|
 | description | Description of what your Lambda Function does. | `string` | `""` | no |
 | environment | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
-| event | Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb (deprecated - use event\_source\_mappings), kinesis (deprecated - use event\_source\_mappings), s3, sns, sqs (deprecated - use event\_source\_mappings) | `map(string)` | `{}` | no |
+| event | Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb (deprecated - use event\_source\_mappings), kinesis (deprecated - use event\_source\_mappings), s3, sns (deprecated - use sns\_subscriptions), sqs (deprecated - use event\_source\_mappings) | `map(string)` | `{}` | no |
 | event\_source\_mappings | Event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `map(any)` | `{}` | no |
 | filename | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
 | function\_name | A unique name for your Lambda Function. | `any` | n/a | yes |
@@ -160,6 +178,7 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 | s3\_bucket | The S3 bucket location containing the function's deployment package. Conflicts with filename and image\_uri. This bucket must reside in the same AWS region where you are creating the Lambda function. | `string` | `null` | no |
 | s3\_key | The S3 key of an object containing the function's deployment package. Conflicts with filename and image\_uri. | `string` | `null` | no |
 | s3\_object\_version | The object version containing the function's deployment package. Conflicts with filename and image\_uri. | `string` | `null` | no |
+| sns\_subscriptions | Subscriptions to SNS topics which trigger your Lambda function. Lambda invocation permissions will be generated. | `map(any)` | `{}` | no |
 | source\_code\_hash | Used to trigger updates. Must be set to a base64-encoded SHA256 hash of the package file specified with either filename or s3\_key. The usual way to set this is filebase64sha256('file.zip') where 'file.zip' is the local filename of the lambda function source archive. | `string` | `""` | no |
 | ssm | List of AWS Systems Manager Parameter Store parameter names. The IAM role of this Lambda function will be enhanced with read permissions for those parameters. Parameters must start with a forward slash and can be encrypted with the default KMS key. | <pre>object({<br>    parameter_names = list(string)<br>  })</pre> | `null` | no |
 | ssm\_parameter\_names | DEPRECATED: use `ssm` object instead. This variable will be removed in version 6 of this module. (List of AWS Systems Manager Parameter Store parameters this Lambda will have access to. In order to decrypt secure parameters, a kms\_key\_arn needs to be provided as well.) | `list` | `[]` | no |

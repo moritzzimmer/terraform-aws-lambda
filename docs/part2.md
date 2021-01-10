@@ -17,7 +17,7 @@
 |------|-------------|------|---------|:--------:|
 | description | Description of what your Lambda Function does. | `string` | `""` | no |
 | environment | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
-| event | Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb (deprecated - use event\_source\_mappings), kinesis (deprecated - use event\_source\_mappings), s3, sns, sqs (deprecated - use event\_source\_mappings) | `map(string)` | `{}` | no |
+| event | Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb (deprecated - use event\_source\_mappings), kinesis (deprecated - use event\_source\_mappings), s3, sns (deprecated - use sns\_subscriptions), sqs (deprecated - use event\_source\_mappings) | `map(string)` | `{}` | no |
 | event\_source\_mappings | Event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `map(any)` | `{}` | no |
 | filename | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
 | function\_name | A unique name for your Lambda Function. | `any` | n/a | yes |
@@ -36,6 +36,7 @@
 | s3\_bucket | The S3 bucket location containing the function's deployment package. Conflicts with filename and image\_uri. This bucket must reside in the same AWS region where you are creating the Lambda function. | `string` | `null` | no |
 | s3\_key | The S3 key of an object containing the function's deployment package. Conflicts with filename and image\_uri. | `string` | `null` | no |
 | s3\_object\_version | The object version containing the function's deployment package. Conflicts with filename and image\_uri. | `string` | `null` | no |
+| sns\_subscriptions | Subscriptions to SNS topics which trigger your Lambda function. Lambda invocation permissions will be generated. | `map(any)` | `{}` | no |
 | source\_code\_hash | Used to trigger updates. Must be set to a base64-encoded SHA256 hash of the package file specified with either filename or s3\_key. The usual way to set this is filebase64sha256('file.zip') where 'file.zip' is the local filename of the lambda function source archive. | `string` | `""` | no |
 | ssm | List of AWS Systems Manager Parameter Store parameter names. The IAM role of this Lambda function will be enhanced with read permissions for those parameters. Parameters must start with a forward slash and can be encrypted with the default KMS key. | <pre>object({<br>    parameter_names = list(string)<br>  })</pre> | `null` | no |
 | ssm\_parameter\_names | DEPRECATED: use `ssm` object instead. This variable will be removed in version 6 of this module. (List of AWS Systems Manager Parameter Store parameters this Lambda will have access to. In order to decrypt secure parameters, a kms\_key\_arn needs to be provided as well.) | `list` | `[]` | no |
