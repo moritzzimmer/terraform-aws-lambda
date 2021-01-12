@@ -2,21 +2,20 @@
 
 ![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.7.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.7.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) resources with configurable event sources, IAM configuration (following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)), VPC as well as SSM and log streaming support.
+Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) resources and other useful AWS resources like:
 
-The following [event sources](https://docs.aws.amazon.com/lambda/latest/dg/invoking-lambda-function.html) are supported (see [examples](#examples)):
+- configurable trigger for DynamodDb, EventBridge, Kinesis, SNS and SQS
+- IAM role with permissions following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
+- CloudWatch Logs configuration and many more
 
-- [cloudwatch-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-cloudwatch-event): configures a [CloudWatch Event Rule](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger the Lambda by CloudWatch [event pattern](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CloudWatchEventsandEventPatterns.html) or on a regular, scheduled basis
-- [dynamodb](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-dynamodb-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by DynamoDb events
-- [kinesis](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-kinesis-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by Kinesis events
-- [s3](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-s3-event): configures permission to trigger the Lambda by S3
-- [sns](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sns-event): to trigger Lambda by [SNS Topic Subscription](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html)
-- [sqs](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sqs-event): configures an [Event Source Mapping](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger the Lambda by SQS events
+## Features
 
-Furthermore this module supports:
-
-- adding IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
-- [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) e.g. to stream logs via Lambda to Elasticsearch
+- [x] IAM role with permissions following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
+- [x] [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) for DynamoDb, Kinesis and SQS triggers including required permissions (see [examples](examples/with-event-source-mappings)).
+- [x] [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) for SNS triggers including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
+- [x] [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger by [EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/what-is-amazon-eventbridge.html) event patterns or on a regular, scheduled basis (see [example](examples/example-with-cloudwatch-event))
+- [x] IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
+- [x] [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions to stream logs via another Lambda (e.g. to Elasticsearch)
 
 ## History
 
@@ -61,28 +60,37 @@ module "lambda" {
 }
 ```
 
-**with event trigger**
+**with event source mappings**
 
 ```hcl
 module "lambda" {
   // see above
 
-  event = {
-    type                = "cloudwatch-event"
-    schedule_expression = "rate(1 minute)"
+  event_source_mappings = {
+    queue_1 = {
+      event_source_arn = aws_sqs_queue.queue_1.arn
+    }
+    queue_2 = {
+      event_source_arn = aws_sqs_queue.queue_2.arn
+    }
   }
 }
 ```
 
-**in a VPC**
+***with SNS subscriptions**
 
 ```hcl
 module "lambda" {
   // see above
 
-  vpc_config = {
-    security_group_ids = ["sg-1"]
-    subnet_ids         = ["subnet-1", "subnet-2"]
+  sns_subscriptions = {
+    topic_1 = {
+      topic_arn = aws_sns_topic.topic_1.arn
+    }
+
+    topic_2 = {
+      topic_arn = aws_sns_topic.topic_2.arn
+    }
   }
 }
 ```
@@ -111,16 +119,11 @@ module "lambda" {
 
 ### Examples
 
-- [container-image](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/container-image)
-- [example-with-cloudwatch-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-cloudwatch-event)
-- [example-with-dynamodb-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-dynamodb-event)
-- [example-with-kinesis-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-kinesis-event)
-- [example-with-s3-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-s3-event)
-- [example-with-sns-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sns-event)
-- [example-with-sqs-event](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-sqs-event)
-- [example-with-ssm-permissions](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-ssm-permissions)
-- [example-with-vpc](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/example-with-vpc)
-- [simple](https://github.com/moritzzimmer/terraform-aws-lambda/tree/master/examples/simple)
+- [container-image](examples/container-image)
+- [example-with-cloudwatch-event](examples/example-with-cloudwatch-event)
+- [simple](examples/simple)
+- [with-event-source-mappings](examples/with-event-source-mappings)
+- [with-sns-subscriptions](examples/with-sns-subscriptions)
 
 ### bootstrap with func
 

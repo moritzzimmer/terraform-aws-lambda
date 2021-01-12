@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: terraform_fmt
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0
+    rev: v3.4.0
     hooks:
       - id: check-merge-conflict
       - id: trailing-whitespace

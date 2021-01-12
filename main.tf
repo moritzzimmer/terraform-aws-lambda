@@ -42,6 +42,7 @@ module "event-cloudwatch" {
   tags                = var.tags
 }
 
+// Deprecated - will be removed in the next major version
 module "event-dynamodb" {
   source = "./modules/event/dynamodb"
   enable = lookup(var.event, "type", "") == "dynamodb" ? true : false
@@ -54,6 +55,7 @@ module "event-dynamodb" {
   starting_position            = lookup(var.event, "starting_position", "TRIM_HORIZON")
 }
 
+// Deprecated - will be removed in the next major version
 module "event-kinesis" {
   source = "./modules/event/kinesis"
   enable = lookup(var.event, "type", "") == "kinesis" ? true : false
@@ -84,6 +86,7 @@ module "event-sns" {
   topic_arn     = lookup(var.event, "topic_arn", "")
 }
 
+// Deprecated - will be removed in the next major version
 module "event-sqs" {
   source = "./modules/event/sqs"
   enable = lookup(var.event, "type", "") == "sqs" ? true : false
