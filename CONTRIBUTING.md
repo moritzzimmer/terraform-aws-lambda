@@ -4,7 +4,7 @@ Contributions to this module are very welcome! We follow a fairly standard [pull
 process](https://help.github.com/articles/about-pull-requests/) for contributions, subject to the following guidelines:
 
 1. [File a GitHub issue](#file-a-github-issue)
-1. [Update the examples](#update-the-examples)
+1. [Update the examples and tests](#update-the-examples-and-tests)
 1. [Update the code](#update-the-code)
 1. [Update the documentation](#update-the-documentation)
 1. [Create a pull request](#create-a-pull-request)
@@ -15,15 +15,17 @@ process](https://help.github.com/articles/about-pull-requests/) for contribution
 Before starting any work, we recommend filing a GitHub issue in this repo. This is your chance to ask questions and
 get feedback from the maintainers and the community. If there is anything you're unsure about, just ask!
 
-## Update the examples
+## Update the examples and tests
 
 We also recommend updating the examples/creating new examples _before_ updating any code. This
 ensures the examples stay up to date and verify all the functionality in this module, including whatever new
-functionality you're adding in your contribution. Check out the [Makefile](https://github.com/moritzzimmer/terraform-aws-lambda/blob/master/Makefile)
-for instructions for testing all examples.
+functionality you're adding in your contribution.
 
-Furthermore we recommend to `terraform apply` all new or updated examples in your AWS account since some errors
-won't occur in the planning phase.
+Examples are used as test data for [terratest](https://terratest.gruntwork.io/) tests. Updating/writing new [tests](./test)
+and executing them in your own AWS account would be helpful.
+
+At least you should run `terraform apply` for all new or updated examples since some errors won't occur in the
+planning phase. This may create resources which cost money. Run `terraform destroy` to destroy those resources.
 
 ## Update the code
 
