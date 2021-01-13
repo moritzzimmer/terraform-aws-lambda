@@ -28,6 +28,7 @@ module "lambda" {
   vpc_config                     = var.vpc_config
 }
 
+// Deprecated - will be removed in the next major version
 module "event-cloudwatch" {
   source = "./modules/event/cloudwatch-event"
   enable = lookup(var.event, "type", "") == "cloudwatch-event" ? true : false
@@ -68,6 +69,7 @@ module "event-kinesis" {
   starting_position            = lookup(var.event, "starting_position", "TRIM_HORIZON")
 }
 
+// Deprecated - will be removed in the next major version
 module "event-s3" {
   source = "./modules/event/s3"
   enable = lookup(var.event, "type", "") == "s3" ? true : false
@@ -77,6 +79,7 @@ module "event-s3" {
   s3_bucket_id        = lookup(var.event, "s3_bucket_id", "")
 }
 
+// Deprecated - will be removed in the next major version
 module "event-sns" {
   source = "./modules/event/sns"
   enable = lookup(var.event, "type", "") == "sns" ? true : false
