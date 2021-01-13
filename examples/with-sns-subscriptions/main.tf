@@ -10,6 +10,12 @@ resource "aws_sns_topic" "topic_2" {
   name = "example-sns-topic-2"
 }
 
+resource "aws_lambda_alias" "example" {
+  function_name    = module.lambda.function_name
+  function_version = module.lambda.version
+  name             = "prod"
+}
+
 data "archive_file" "sns_handler" {
   output_path = "${path.module}/sns.zip"
   type        = "zip"
@@ -35,6 +41,9 @@ module "lambda" {
     }
 
     topic_2 = {
+      // optionally overwrite endpoint in case an alias should be used for
+      // the SNS subscription
+      endpoint  = aws_lambda_alias.example.arn
       topic_arn = aws_sns_topic.topic_2.arn
     }
   }

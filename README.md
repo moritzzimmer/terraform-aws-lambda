@@ -2,15 +2,16 @@
 
 ![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.7.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.7.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) resources and other useful AWS resources like:
+Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
+development of Lambda functions like:
 
 - configurable trigger for DynamodDb, EventBridge, Kinesis, SNS and SQS
-- IAM role with permissions following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
-- CloudWatch Logs configuration and many more
+- IAM role with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
+- CloudWatch Logs configuration
 
 ## Features
 
-- [x] IAM role with permissions following the [principal of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
+- [x] IAM role with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 - [x] [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) for DynamoDb, Kinesis and SQS triggers including required permissions (see [examples](examples/with-event-source-mappings)).
 - [x] [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) for SNS triggers including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
 - [x] [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger by [EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/what-is-amazon-eventbridge.html) event patterns or on a regular, scheduled basis (see [example](examples/example-with-cloudwatch-event))
@@ -20,7 +21,7 @@ Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/
 ## History
 
 Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
-should migrate to this module as a drop-in replacement for all provisions up to release/tag `5.2.0` to benefit from new features and bugfixes.
+should migrate to this module as a drop-in replacement to benefit from new features and bugfixes.
 
 ## How do I use this module?
 
@@ -77,7 +78,7 @@ module "lambda" {
 }
 ```
 
-***with SNS subscriptions**
+**with SNS subscriptions**
 
 ```hcl
 module "lambda" {
