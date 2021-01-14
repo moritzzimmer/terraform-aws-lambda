@@ -49,6 +49,12 @@ variable "deployment_config_name" {
   type        = string
 }
 
+variable "ecr_image_tag" {
+  description = "The tag used for the Lambda container image."
+  default     = "latest"
+  type        = string
+}
+
 variable "log_retention_in_days" {
   description = "Specifies the number of days you want to retain log events in the specified log group."
   default     = 14

@@ -24,7 +24,7 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["ecr_source"]
 
       configuration = {
-        "ImageTag" : "production",
+        "ImageTag" : var.ecr_image_tag,
         "RepositoryName" : aws_ecr_repository.this.name
       }
     }

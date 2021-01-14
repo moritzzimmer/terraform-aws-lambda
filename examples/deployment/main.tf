@@ -29,6 +29,7 @@ module "deployment" {
   source = "../../modules/deployment"
 
   alias_name    = aws_lambda_alias.example.name
+  ecr_image_tag = local.environment
   function_name = local.function_name
 }
 
