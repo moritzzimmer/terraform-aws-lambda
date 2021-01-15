@@ -41,6 +41,6 @@ resource "docker_registry_image" "image" {
   name = "${aws_ecr_repository.this.repository_url}:latest"
 
   build {
-    context = "context"
+    context = "../fixtures/context"
   }
 }

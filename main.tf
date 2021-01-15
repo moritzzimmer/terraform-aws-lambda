@@ -1,34 +1,36 @@
 data "aws_region" "current" {}
-
 data "aws_caller_identity" "current" {}
 
+// Deprecated - will be moved to root module in the next major version, https://github.com/moritzzimmer/terraform-aws-lambda/issues/14
 module "lambda" {
-  source                         = "./modules/lambda"
-  description                    = var.description
-  environment                    = var.environment
-  filename                       = var.filename
-  function_name                  = var.function_name
-  handler                        = var.handler
-  image_config                   = var.image_config
-  image_uri                      = var.image_uri
-  kms_key_arn                    = var.kms_key_arn
-  layers                         = var.layers
-  memory_size                    = var.memory_size
-  package_type                   = var.package_type
-  publish                        = var.publish
-  reserved_concurrent_executions = var.reserved_concurrent_executions
-  runtime                        = var.runtime
-  s3_bucket                      = var.s3_bucket
-  s3_key                         = var.s3_key
-  s3_object_version              = var.s3_object_version
-  source_code_hash               = var.source_code_hash
-  timeout                        = var.timeout
-  tracing_config_mode            = var.tracing_config_mode
-  tags                           = var.tags
-  vpc_config                     = var.vpc_config
+  source = "./modules/lambda"
+
+  description                      = var.description
+  environment                      = var.environment
+  filename                         = var.filename
+  function_name                    = var.function_name
+  handler                          = var.handler
+  ignore_external_function_updates = var.ignore_external_function_updates
+  image_config                     = var.image_config
+  image_uri                        = var.image_uri
+  kms_key_arn                      = var.kms_key_arn
+  layers                           = var.layers
+  memory_size                      = var.memory_size
+  package_type                     = var.package_type
+  publish                          = var.publish
+  reserved_concurrent_executions   = var.reserved_concurrent_executions
+  runtime                          = var.runtime
+  s3_bucket                        = var.s3_bucket
+  s3_key                           = var.s3_key
+  s3_object_version                = var.s3_object_version
+  source_code_hash                 = var.source_code_hash
+  timeout                          = var.timeout
+  tracing_config_mode              = var.tracing_config_mode
+  tags                             = var.tags
+  vpc_config                       = var.vpc_config
 }
 
-// Deprecated - will be removed in the next major version
+// Deprecated - EventBridge triggers will be moved to root module. This sub-module will be removed in the next major version.
 module "event-cloudwatch" {
   source = "./modules/event/cloudwatch-event"
   enable = lookup(var.event, "type", "") == "cloudwatch-event" ? true : false
@@ -43,7 +45,7 @@ module "event-cloudwatch" {
   tags                = var.tags
 }
 
-// Deprecated - will be removed in the next major version
+// Deprecated - use `event_source_mappings` instead. This sub-module will be removed in the next major version.
 module "event-dynamodb" {
   source = "./modules/event/dynamodb"
   enable = lookup(var.event, "type", "") == "dynamodb" ? true : false
@@ -56,7 +58,7 @@ module "event-dynamodb" {
   starting_position            = lookup(var.event, "starting_position", "TRIM_HORIZON")
 }
 
-// Deprecated - will be removed in the next major version
+// Deprecated - use `event_source_mappings` instead. This sub-module will be removed in the next major version.
 module "event-kinesis" {
   source = "./modules/event/kinesis"
   enable = lookup(var.event, "type", "") == "kinesis" ? true : false
@@ -69,7 +71,7 @@ module "event-kinesis" {
   starting_position            = lookup(var.event, "starting_position", "TRIM_HORIZON")
 }
 
-// Deprecated - will be removed in the next major version
+// Deprecated - additional permissions will be generalized and moved to the root module. This sub-module will be removed in the next major version.
 module "event-s3" {
   source = "./modules/event/s3"
   enable = lookup(var.event, "type", "") == "s3" ? true : false
@@ -79,7 +81,7 @@ module "event-s3" {
   s3_bucket_id        = lookup(var.event, "s3_bucket_id", "")
 }
 
-// Deprecated - will be removed in the next major version
+// Deprecated - use `sns_subscriptions` instead. This sub-module will be removed in the next major version.
 module "event-sns" {
   source = "./modules/event/sns"
   enable = lookup(var.event, "type", "") == "sns" ? true : false
@@ -89,7 +91,7 @@ module "event-sns" {
   topic_arn     = lookup(var.event, "topic_arn", "")
 }
 
-// Deprecated - will be removed in the next major version
+// // Deprecated - use `event_source_mappings` instead. This sub-module will be removed in the next major version.
 module "event-sqs" {
   source = "./modules/event/sqs"
   enable = lookup(var.event, "type", "") == "sqs" ? true : false

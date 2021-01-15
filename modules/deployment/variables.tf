@@ -8,6 +8,11 @@ variable "alias_name" {
   type        = string
 }
 
+variable "ecr_repository_name" {
+  description = "Name of the ECR repository source used for deployments."
+  type        = string
+}
+
 variable "function_name" {
   description = "The name of your Lambda Function to deploy."
   type        = string
@@ -18,6 +23,17 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "code_pipeline_role_arn" {
+  description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
+  default     = ""
+  type        = string
+}
+
+variable "code_build_role_arn" {
+  description = "ARN of an existing IAM role for CodeBuild execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
+  default     = ""
+  type        = string
+}
 
 variable "codestar_notifications_detail_type" {
   description = "The level of detail to include in the notifications for this resource. Possible values are BASIC and FULL."
@@ -55,7 +71,7 @@ variable "ecr_image_tag" {
   type        = string
 }
 
-variable "log_retention_in_days" {
+variable "cloudwatch_logs_retention_in_days" {
   description = "Specifies the number of days you want to retain log events in the specified log group."
   default     = 14
   type        = number

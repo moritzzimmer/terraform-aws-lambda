@@ -3,7 +3,7 @@ data "aws_region" "current" {}
 
 resource "aws_codepipeline" "codepipeline" {
   name     = var.function_name
-  role_arn = aws_iam_role.code_pipeline_role.arn
+  role_arn = var.code_pipeline_role_arn == "" ? aws_iam_role.code_pipeline_role[0].arn : var.code_pipeline_role_arn
   tags     = var.tags
 
 
@@ -25,7 +25,7 @@ resource "aws_codepipeline" "codepipeline" {
 
       configuration = {
         "ImageTag" : var.ecr_image_tag,
-        "RepositoryName" : aws_ecr_repository.this.name
+        "RepositoryName" : var.ecr_repository_name
       }
     }
   }

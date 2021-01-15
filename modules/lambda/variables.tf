@@ -31,6 +31,12 @@ variable "filename" {
   type        = string
 }
 
+variable "ignore_external_function_updates" {
+  description = "Ignore updates to your Lambda function executed externally to the Terraform lifecycle. Set this to `true` if you're using CodeDeploy, aws CLI or other external tools to update your Lambda function code."
+  default     = false
+  type        = bool
+}
+
 variable "handler" {
   description = "The function entrypoint in your code."
   default     = ""

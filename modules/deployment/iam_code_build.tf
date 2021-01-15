@@ -1,10 +1,14 @@
 resource "aws_iam_role" "code_build_role" {
+  count = var.code_build_role_arn == "" ? 1 : 0
+
   name               = "code-build-${var.function_name}"
-  assume_role_policy = data.aws_iam_policy_document.allow_code_build_assume.json
+  assume_role_policy = data.aws_iam_policy_document.allow_code_build_assume[count.index].json
   tags               = var.tags
 }
 
 data "aws_iam_policy_document" "allow_code_build_assume" {
+  count = var.code_build_role_arn == "" ? 1 : 0
+
   statement {
     actions = ["sts:AssumeRole"]
     principals {
@@ -15,16 +19,22 @@ data "aws_iam_policy_document" "allow_code_build_assume" {
 }
 
 resource "aws_iam_policy" "codebuild" {
+  count = var.code_build_role_arn == "" ? 1 : 0
+
   name   = "codebuild-${var.function_name}"
-  policy = data.aws_iam_policy_document.codebuild.json
+  policy = data.aws_iam_policy_document.codebuild[count.index].json
 }
 
 resource "aws_iam_role_policy_attachment" "codebuild" {
-  role       = aws_iam_role.code_build_role.name
-  policy_arn = aws_iam_policy.codebuild.arn
+  count = var.code_build_role_arn == "" ? 1 : 0
+
+  role       = aws_iam_role.code_build_role[count.index].name
+  policy_arn = aws_iam_policy.codebuild[count.index].arn
 }
 
 data "aws_iam_policy_document" "codebuild" {
+  count = var.code_build_role_arn == "" ? 1 : 0
+
   statement {
     actions = [
       "codedeploy:CreateDeployment"
