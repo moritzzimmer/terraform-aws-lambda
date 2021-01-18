@@ -1,11 +1,10 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-resource "aws_codepipeline" "codepipeline" {
+resource "aws_codepipeline" "this" {
   name     = var.function_name
   role_arn = var.code_pipeline_role_arn == "" ? aws_iam_role.code_pipeline_role[0].arn : var.code_pipeline_role_arn
   tags     = var.tags
-
 
   artifact_store {
     location = module.s3_bucket.this_s3_bucket_id

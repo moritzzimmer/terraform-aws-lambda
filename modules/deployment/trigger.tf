@@ -30,7 +30,7 @@ PATTERN
 }
 
 resource "aws_cloudwatch_event_target" "trigger" {
-  arn       = aws_codepipeline.codepipeline.arn
+  arn       = aws_codepipeline.this.arn
   role_arn  = aws_iam_role.trigger.arn
   rule      = aws_cloudwatch_event_rule.this.name
   target_id = "CodePipeline"
@@ -62,7 +62,7 @@ resource "aws_iam_policy" "trigger" {
 data "aws_iam_policy_document" "trigger-permissions" {
   statement {
     actions   = ["codepipeline:StartPipelineExecution"]
-    resources = [aws_codepipeline.codepipeline.arn]
+    resources = [aws_codepipeline.this.arn]
   }
 }
 

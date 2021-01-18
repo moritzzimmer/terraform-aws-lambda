@@ -56,7 +56,6 @@ resource "aws_codebuild_project" "this" {
     type      = "CODEPIPELINE"
     buildspec = <<EOF
 version: 0.2
-
 phases:
   install:
     runtime-versions:
@@ -75,8 +74,11 @@ phases:
         import hashlib
 
         print(f"boto3 version {boto3.__version__}")
+        ecr_push_json = json.load(sys.stdin)
 
-        img_uri = json.load(sys.stdin)["ImageURI"]
+        img_uri = ecr_push_json["ImageURI"]
+        img_digest = ecr_push_json["ImageDigest"].split(":")[1]
+        print(f"Received Event from ECR img_uri={img_uri} and code_sha/digest={img_digest}")
 
         lambda_function_name = os.environ.get("FUNCTION_NAME")
         lambda_alias = os.environ.get("ALIAS_NAME")
@@ -89,13 +91,19 @@ phases:
             current_version = lambda_client.get_alias(
                 FunctionName=lambda_function_name, Name=lambda_alias)["FunctionVersion"]
         else:
-            current_version = lambda_client.get_function(
-                FunctionName=lambda_function_name)["Configuration"]["Version"]
+            current_version = lambda_client.get_function(FunctionName=lambda_function_name)["Configuration"]["Version"]
 
-        target_version = lambda_client.update_function_code(
-            FunctionName=lambda_function_name, ImageUri=img_uri, Publish=True)["Version"]
+        update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, ImageUri=img_uri)
+        updated_version = update_response["Version"]
+        # wait until the function becomes active after being updated (prevents ResourceConflictException)
+        waiter = lambda_client.get_waiter("function_updated")
+        waiter.wait(FunctionName=lambda_function_name, Qualifier=updated_version)
 
-        print(f"current version={current_version} target version={target_version} img uri={img_uri}")
+        # publish the new version, verifying that the code_sha is equal to the incoming digest
+        publish_response = lambda_client.publish_version(FunctionName=lambda_function_name, CodeSha256=img_digest)
+        target_version = publish_response["Version"]
+        print(f"publish_version() response: version={publish_response['Version']} sha={publish_response['CodeSha256']} state={publish_response['State']}")
+        print(f"Done. Triggering CodeDeploy with:  current_version={current_version} target_version={target_version}")
 
         data = {
             "version": 0.0,
@@ -121,7 +129,6 @@ phases:
             data["Resources"][0][lambda_function_name]["Properties"].update(
                 {"Alias": lambda_alias})
 
-
         revision = {
             "revisionType": "AppSpecContent",
             "appSpecContent": {
@@ -129,8 +136,6 @@ phases:
                 "sha256": hashlib.sha256(json.dumps(data).encode("utf-8")).hexdigest()
             }
         }
-        # with open("app_spec.json", "w") as outfile:
-        #    json.dump(data, outfile)
 
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/codedeploy.html#CodeDeploy.Client.create_deployment
         deployment_id = deploy_client.create_deployment(
@@ -141,7 +146,6 @@ phases:
 
         print(f"deployment was created. id = {deployment_id}")
         BUILD
-
         cat imageDetail.json | python build.py
 EOF
   }

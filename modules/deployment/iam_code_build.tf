@@ -70,6 +70,8 @@ data "aws_iam_policy_document" "codebuild" {
     actions = [
       "lambda:GetAlias",
       "lambda:GetFunction",
+      "lambda:GetFunctionConfiguration",
+      "lambda:PublishVersion",
       "lambda:UpdateFunctionCode"
     ]
 
