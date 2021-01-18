@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "allow_code_build_assume" {
 resource "aws_iam_policy" "codebuild" {
   count = var.code_build_role_arn == "" ? 1 : 0
 
-  name   = "codebuild-${var.function_name}"
+  name   = "${var.function_name}-build-${data.aws_region.current.name}"
   policy = data.aws_iam_policy_document.codebuild[count.index].json
 }
 

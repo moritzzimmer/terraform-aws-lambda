@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "code_pipeline" {
 resource "aws_iam_policy" "code_pipeline" {
   count = var.code_pipeline_role_arn == "" ? 1 : 0
 
-  name   = "deployment-pipeline-${var.function_name}"
+  name   = "${var.function_name}-pipeline-${data.aws_region.current.name}"
   policy = data.aws_iam_policy_document.code_pipeline_permissions[count.index].json
 }
 

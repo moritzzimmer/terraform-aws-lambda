@@ -33,7 +33,7 @@ module "lambda" {
   description                      = "Example usage for an AWS Lambda deployed using CodePipeline and CodeDeploy."
   function_name                    = local.function_name
   ignore_external_function_updates = true
-  image_uri                        = "${aws_ecr_repository.this.repository_url}@${docker_registry_image.this.sha256_digest}"
+  image_uri                        = docker_registry_image.this.name
   package_type                     = "Image"
   publish                          = true
 

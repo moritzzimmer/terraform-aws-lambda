@@ -49,7 +49,7 @@ resource "aws_codepipeline" "this" {
 module "s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket        = "pipeline-${var.function_name}-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
   tags          = var.tags
 }

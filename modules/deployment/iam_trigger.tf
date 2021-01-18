@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "trigger-assume-role-policy" {
 }
 
 resource "aws_iam_policy" "trigger" {
-  name   = "${var.function_name}-${data.aws_region.current.name}-ecr-trigger"
+  name   = "${var.function_name}--trigger-${data.aws_region.current.name}"
   policy = data.aws_iam_policy_document.trigger-permissions.json
 }
 
