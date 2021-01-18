@@ -38,7 +38,7 @@ resource "aws_cloudwatch_event_target" "trigger" {
 
 resource "aws_iam_role" "trigger" {
   assume_role_policy = data.aws_iam_policy_document.trigger-assume-role-policy.json
-  name               = "${var.function_name}-${data.aws_region.current.name}-ecr-trigger"
+  name               = "${var.function_name}-ecr-trigger-${data.aws_region.current.name}"
   tags               = var.tags
 
 }

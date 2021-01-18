@@ -1,7 +1,7 @@
 resource "aws_iam_role" "code_build_role" {
   count = var.code_build_role_arn == "" ? 1 : 0
 
-  name               = "code-build-${var.function_name}"
+  name               = "${var.function_name}-build-${data.aws_region.current.name}"
   assume_role_policy = data.aws_iam_policy_document.allow_code_build_assume[count.index].json
   tags               = var.tags
 }

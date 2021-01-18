@@ -1,7 +1,7 @@
 resource "aws_iam_role" "code_pipeline_role" {
   count = var.code_pipeline_role_arn == "" ? 1 : 0
 
-  name               = "code-pipeline-${var.function_name}"
+  name               = "${var.function_name}-pipeline-${data.aws_region.current.name}"
   assume_role_policy = data.aws_iam_policy_document.code_pipeline[count.index].json
   tags               = var.tags
 }
