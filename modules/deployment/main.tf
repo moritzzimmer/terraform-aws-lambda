@@ -3,7 +3,7 @@ data "aws_region" "current" {}
 
 resource "aws_codepipeline" "this" {
   name     = var.function_name
-  role_arn = var.code_pipeline_role_arn == "" ? aws_iam_role.code_pipeline_role[0].arn : var.code_pipeline_role_arn
+  role_arn = var.codepipeline_role_arn == "" ? aws_iam_role.codepipeline_role[0].arn : var.codepipeline_role_arn
   tags     = var.tags
 
   artifact_store {

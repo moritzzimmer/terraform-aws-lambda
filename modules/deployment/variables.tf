@@ -23,13 +23,13 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "code_pipeline_role_arn" {
+variable "codepipeline_role_arn" {
   description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
   type        = string
 }
 
-variable "code_build_role_arn" {
+variable "codebuild_role_arn" {
   description = "ARN of an existing IAM role for CodeBuild execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
   type        = string

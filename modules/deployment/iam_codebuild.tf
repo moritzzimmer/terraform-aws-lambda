@@ -1,13 +1,13 @@
-resource "aws_iam_role" "code_build_role" {
-  count = var.code_build_role_arn == "" ? 1 : 0
+resource "aws_iam_role" "codebuild_role" {
+  count = var.codebuild_role_arn == "" ? 1 : 0
 
   name               = "${var.function_name}-build-${data.aws_region.current.name}"
-  assume_role_policy = data.aws_iam_policy_document.allow_code_build_assume[count.index].json
+  assume_role_policy = data.aws_iam_policy_document.allow_codebuild_assume[count.index].json
   tags               = var.tags
 }
 
-data "aws_iam_policy_document" "allow_code_build_assume" {
-  count = var.code_build_role_arn == "" ? 1 : 0
+data "aws_iam_policy_document" "allow_codebuild_assume" {
+  count = var.codebuild_role_arn == "" ? 1 : 0
 
   statement {
     actions = ["sts:AssumeRole"]
@@ -19,21 +19,21 @@ data "aws_iam_policy_document" "allow_code_build_assume" {
 }
 
 resource "aws_iam_policy" "codebuild" {
-  count = var.code_build_role_arn == "" ? 1 : 0
+  count = var.codebuild_role_arn == "" ? 1 : 0
 
   name   = "${var.function_name}-build-${data.aws_region.current.name}"
   policy = data.aws_iam_policy_document.codebuild[count.index].json
 }
 
 resource "aws_iam_role_policy_attachment" "codebuild" {
-  count = var.code_build_role_arn == "" ? 1 : 0
+  count = var.codebuild_role_arn == "" ? 1 : 0
 
-  role       = aws_iam_role.code_build_role[count.index].name
+  role       = aws_iam_role.codebuild_role[count.index].name
   policy_arn = aws_iam_policy.codebuild[count.index].arn
 }
 
 data "aws_iam_policy_document" "codebuild" {
-  count = var.code_build_role_arn == "" ? 1 : 0
+  count = var.codebuild_role_arn == "" ? 1 : 0
 
   statement {
     actions = [
