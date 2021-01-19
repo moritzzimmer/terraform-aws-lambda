@@ -70,7 +70,9 @@ module "lambda" {
 
 ### Examples
 
-- [deployment](../../examples/deployment)## Requirements
+- [deployment](../../examples/deployment)
+
+## Requirements
 
 | Name | Version |
 |------|---------|
