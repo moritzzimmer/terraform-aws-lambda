@@ -42,8 +42,11 @@ test: ## Runs all terratests
 
 .PHONY: documentation
 documentation: ## Generates README.md from static snippets and Terraform variables
+	@echo "+ $@"
 	terraform-docs markdown table . > docs/part2.md
 	cat docs/*.md > README.md
+	terraform-docs markdown table modules/deployment > docs/deployment/part2.md
+	cat docs/deployment/*.md > modules/deployment/README.md
 
 .PHONY: tag
 tag: ## Create a new git tag to prepare to build a release

@@ -14,8 +14,8 @@ provider "aws" {
 provider "docker" {
   registry_auth {
     address  = local.ecr
-    username = data.aws_ecr_authorization_token.token.user_name
     password = data.aws_ecr_authorization_token.token.password
+    username = data.aws_ecr_authorization_token.token.user_name
   }
 }
 
@@ -31,14 +31,16 @@ module "lambda" {
   package_type  = "Image"
 
   image_config = {
+    // optionally overwrite arguments like 'command'
+    // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#image_config
     command = ["app.handler"]
   }
 }
 
 resource "docker_registry_image" "image" {
-  name = "${local.ecr}/${aws_ecr_repository.this.id}:latest"
+  name = "${aws_ecr_repository.this.repository_url}:latest"
 
   build {
-    context = "context"
+    context = "../fixtures/context"
   }
 }
