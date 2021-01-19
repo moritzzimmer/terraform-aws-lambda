@@ -18,3 +18,56 @@ using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/usergui
 - `BeforeAllowTraffic` and `AfterAllowTraffic` hooks in CodeDeploy
 - external configuration of CodeBuild infrastructure like `compute_type` or `image`
 
+## How do I use this module?
+
+Make sure the specified `image_uri` exists in the `aws_ecr_repository` for the initial terraform run. This can be achieved for example by:
+
+- targeting only `aws_ecr_repository` in the first run and push and initial image before applying the rest of the infrastructure
+- using [docker_registry_image](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/registry_image) to build the image as part of the terraform lifecycle
+- using a `null_resource` with a `local-exec` provisioner to build and push the image as part of the terraform lifecycle
+
+It's recommended to build and push all further docker images using a CI system like GitHub actions.
+
+```hcl
+locals {
+  environment   = "production"
+  function_name = "example-with-code-pipeline"
+}
+
+resource "aws_lambda_alias" "this" {
+  function_name    = module.lambda.function_name
+  function_version = module.lambda.version
+  name             = local.environment
+
+  lifecycle {
+    ignore_changes = [function_version]
+  }
+}
+
+resource "aws_ecr_repository" "this" {
+  name = local.function_name
+}
+
+module "deployment" {
+  source = "moritzzimmer/lambda/aws//modules/deployment"
+
+  alias_name          = aws_lambda_alias.this.name
+  ecr_image_tag       = local.environment
+  ecr_repository_name = aws_ecr_repository.this.name
+  function_name       = local.function_name
+}
+
+module "lambda" {
+  source        = "moritzzimmer/lambda/aws"
+
+  function_name                    = local.function_name
+  ignore_external_function_updates = true
+  image_uri                        = "${aws_ecr_repository.this.repository_url}:${local.environment}"
+  package_type                     = "Image"
+  publish                          = true
+}
+```
+
+### Examples
+
+- [deployment](../../examples/deployment)

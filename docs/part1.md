@@ -19,7 +19,8 @@ development of Lambda functions like:
 - IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
 - [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions to stream logs via another Lambda (e.g. to Elasticsearch)
 - add-on [module](modules/deployment) for controlled blue/green deployments using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html)
-  and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment))
+  and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment)).
+  Optionally ignore terraform state changes resulting from those deployments (using `ignore_external_function_updates`).
 
 ## History
 
@@ -44,6 +45,7 @@ provider "aws" {
 module "lambda" {
   source           = "moritzzimmer/lambda/aws"
   version          = "5.8.0"
+
   filename         = "my-package.zip"
   function_name    = "my-function"
   handler          = "my-handler"
@@ -58,6 +60,7 @@ module "lambda" {
 module "lambda" {
   source        = "moritzzimmer/lambda/aws"
   version       = "5.8.0"
+
   function_name = "my-function"
   image_uri     = "111111111111.dkr.ecr.eu-west-1.amazonaws.com/my-image"
   package_type  = "Image"
