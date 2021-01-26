@@ -23,7 +23,7 @@ output "version" {
   value       = module.lambda.version
 }
 
-output "log_group_name" {
+output "cloudwatch_log_group_name" {
   description = "Name of the lambda log group."
   value       = aws_cloudwatch_log_group.lambda.name
 }
