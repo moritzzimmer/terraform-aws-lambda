@@ -51,9 +51,9 @@
 | Name | Description |
 |------|-------------|
 | arn | The Amazon Resource Name (ARN) identifying your Lambda Function. |
+| cloudwatch\_log\_group\_name | The name of the CloudWatch log group used by your Lambda function. |
 | function\_name | The unique name of your Lambda Function. |
 | invoke\_arn | The ARN to be used for invoking Lambda Function from API Gateway - to be used in aws\_api\_gateway\_integration's uri |
-| log\_group\_name | Name of the lambda log group. |
 | role\_name | The name of the IAM role attached to the Lambda Function. |
 | version | Latest published version of your Lambda Function. |
 

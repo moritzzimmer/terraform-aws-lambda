@@ -3,6 +3,11 @@ output "arn" {
   value       = module.lambda.arn
 }
 
+output "cloudwatch_log_group_name" {
+  description = "The name of the CloudWatch log group used by your Lambda function."
+  value       = aws_cloudwatch_log_group.lambda.name
+}
+
 output "function_name" {
   description = "The unique name of your Lambda Function."
   value       = module.lambda.function_name
@@ -21,9 +26,4 @@ output "role_name" {
 output "version" {
   description = "Latest published version of your Lambda Function."
   value       = module.lambda.version
-}
-
-output "cloudwatch_log_group_name" {
-  description = "The name of the CloudWatch log group used by your Lambda function."
-  value       = aws_cloudwatch_log_group.lambda.name
 }
