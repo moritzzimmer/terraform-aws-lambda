@@ -8,7 +8,7 @@ export GOBIN :=$(BINDIR)
 export PATH := $(GOBIN):$(PATH)
 SEMBUMP := $(BINDIR)/sembump
 
-all: init fmt validate
+all: init fmt validate tflint tfsec
 
 .PHONY: init
 init: ## Initialize a Terraform working directory
@@ -16,7 +16,7 @@ init: ## Initialize a Terraform working directory
 	@terraform init
 
 .PHONY: fmt
-fmt: ## Rewrites config files to canonical format
+fmt: ## Rewrites terraform files to canonical format
 	@echo "+ $@"
 	@terraform fmt -check=true -recursive
 
@@ -25,24 +25,32 @@ validate: ## Validates the Terraform files
 	@echo "+ $@"
 	@AWS_REGION=eu-west-1 terraform validate
 
-.PHONY: test
-test: ## Validates and generates execution plan for all examples.
+.PHONY: tflint
+tflint: ## Runs tflint on all Terraform files
 	@echo "+ $@"
-	@for dir in `ls $(EXAMPLES_DIR)`; do \
-		echo "--> $$dir"; \
-		terraform init $(PREFIX)/$(EXAMPLES_DIR)/$$dir/ > /dev/null; \
-		terraform validate $(PREFIX)/$(EXAMPLES_DIR)/$$dir/; \
-		terraform plan $(PREFIX)/$(EXAMPLES_DIR)/$$dir/ > /dev/null; \
-		rm -rf $(PREFIX)/$(EXAMPLES_DIR)/$$dir/.terraform; \
-	done
+	@tflint || exit 2
+
+.PHONY: tfsec
+tfsec: ## Runs tfsec on all Terraform files
+	@echo "+ $@"
+	@tfsec $$d || exit 1
+
+.PHONY: test
+test: ## Runs all terratests
+	@echo "+ $@"
+	@cd test && go test -v -count=1 -timeout 30m
 
 .PHONY: documentation
 documentation: ## Generates README.md from static snippets and Terraform variables
+	@echo "+ $@"
 	terraform-docs markdown table . > docs/part2.md
 	cat docs/*.md > README.md
+	terraform-docs markdown table modules/deployment > docs/deployment/part2.md
+	cat docs/deployment/*.md > modules/deployment/README.md
 
 .PHONY: tag
 tag: ## Create a new git tag to prepare to build a release
+	@echo "+ $@"
 	git tag -a $(VERSION) -m "$(VERSION)"
 	@echo "Run git push origin $(VERSION) to push your new tag to GitHub and trigger a build."
 
@@ -50,7 +58,7 @@ $(SEMBUMP):
 	GO111MODULE=off go get -u github.com/jessfraz/junk/sembump
 
 .PHONY: bump-version
-BUMP := patch
+BUMP ?= patch
 bump-version: $(SEMBUMP) ## Bump the version in the version file. Set BUMP to [ patch | major | minor ].
 	@echo "+ $@"
 	$(eval NEW_VERSION = $(shell $(BINDIR)/sembump --kind $(BUMP) $(VERSION)))
