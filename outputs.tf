@@ -22,3 +22,8 @@ output "version" {
   description = "Latest published version of your Lambda Function."
   value       = module.lambda.version
 }
+
+output "log_group_name" {
+  description = "Name of the lambda log group."
+  value       = aws_cloudwatch_log_group.lambda.name
+}
