@@ -21,6 +21,8 @@ development of Lambda functions like:
 - add-on [module](modules/deployment) for controlled blue/green deployments using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html)
   and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment)).
   Optionally ignore terraform state changes resulting from those deployments (using `ignore_external_function_updates`).
+- Lambda@Edge support fulfilling [requirements for CloudFront triggers](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html#lambda-requirements-cloudfront-triggers). Functions need
+to be deployed to US East (N. Virginia) region (`us-east-1`)
 
 ## History
 
