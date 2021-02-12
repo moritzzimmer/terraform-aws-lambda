@@ -5,7 +5,6 @@ resource "aws_lambda_permission" "event_bridge" {
   function_name = module.lambda.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.lambda[each.key].arn
-  statement_id  = "AllowExecutionFromEventBridge"
 }
 
 resource "aws_cloudwatch_event_rule" "lambda" {
