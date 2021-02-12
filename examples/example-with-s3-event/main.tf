@@ -21,7 +21,7 @@ module "lambda" {
   filename         = module.source.output_path
   function_name    = "example-wth-s3-event"
   handler          = "handler"
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs14.x"
   source_code_hash = module.source.output_base64sha256
 
   event = {

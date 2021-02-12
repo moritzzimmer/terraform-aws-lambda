@@ -32,7 +32,7 @@ module "lambda" {
   filename         = data.archive_file.sns_handler.output_path
   function_name    = "example-with-sns-event"
   handler          = "index.handler"
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs14.x"
   source_code_hash = data.archive_file.sns_handler.output_base64sha256
 
   sns_subscriptions = {

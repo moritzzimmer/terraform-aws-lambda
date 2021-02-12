@@ -12,7 +12,7 @@ module "lambda-scheduled" {
   filename         = module.source.output_path
   function_name    = "example-with-cloudwatch-scheduled-event"
   handler          = "handler"
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs14.x"
   source_code_hash = module.source.output_base64sha256
 
   event = {
@@ -27,7 +27,7 @@ module "lambda-pattern" {
   filename         = module.source.output_path
   function_name    = "example-with-cloudwatch-event"
   handler          = "handler"
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs14.x"
   source_code_hash = module.source.output_base64sha256
 
   event = {

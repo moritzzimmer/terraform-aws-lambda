@@ -28,9 +28,15 @@ variable "environment" {
 }
 
 variable "event" {
-  description = "Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb (deprecated - use event_source_mappings), kinesis (deprecated - use event_source_mappings), s3, sns (deprecated - use sns_subscriptions), sqs (deprecated - use event_source_mappings)"
+  description = "Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event (deprecated - use event_bridge_rules), dynamodb (deprecated - use event_source_mappings), kinesis (deprecated - use event_source_mappings), s3, sns (deprecated - use sns_subscriptions), sqs (deprecated - use event_source_mappings)"
   default     = {}
   type        = map(string)
+}
+
+variable "event_bridge_rules" {
+  description = ""
+  default     = {}
+  type        = map(any)
 }
 
 variable "event_source_mappings" {
