@@ -1,11 +1,33 @@
 locals {
-  dynamodb_event_sources = [for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:dynamodb:.*", lookup(v, "event_source_arn", null))) > 0]
-  kinesis_event_sources  = [for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:kinesis:.*", lookup(v, "event_source_arn", null))) > 0]
-  sqs_event_sources      = [for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:sqs:.*", lookup(v, "event_source_arn", null))) > 0]
+  // compute all event source mappings for DynamoDb
+  dynamodb_event_sources = [
+    for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:dynamodb:.*", lookup(v, "event_source_arn", null))) > 0
+  ]
+
+  // compute all event source mappings for Kinesis
+  kinesis_event_sources = [
+    for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:kinesis:.*", lookup(v, "event_source_arn", null))) > 0
+  ]
+
+  // compute all event source mappings for SQS
+  sqs_event_sources = [
+    for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:sqs:.*", lookup(v, "event_source_arn", null))) > 0
+  ]
+
+  // compute SQS destination ARNs for discarded batches
+  on_failure_sqs_destination_arns = [
+    for k, v in var.event_source_mappings : lookup(v, "destination_arn_on_failure", "") if length(regexall(".*:sqs:.*", lookup(v, "destination_arn_on_failure", ""))) > 0
+  ]
+
+  // compute SNS destination ARNs for discarded batches
+  on_failure_sns_destination_arns = [
+    for k, v in var.event_source_mappings : lookup(v, "destination_arn_on_failure", "") if length(regexall(".*:sns:.*", lookup(v, "destination_arn_on_failure", ""))) > 0
+  ]
 }
 
 resource "aws_lambda_event_source_mapping" "event_source" {
-  for_each = var.event_source_mappings
+  for_each   = var.event_source_mappings
+  depends_on = [module.lambda]
 
   batch_size                         = lookup(each.value, "batch_size", null)
   bisect_batch_on_function_error     = lookup(each.value, "bisect_batch_on_function_error", null)
@@ -18,6 +40,15 @@ resource "aws_lambda_event_source_mapping" "event_source" {
   parallelization_factor             = lookup(each.value, "parallelization_factor", null)
   starting_position                  = lookup(each.value, "starting_position", length(regexall(".*:sqs:.*", lookup(each.value, "event_source_arn", null))) > 0 ? null : "TRIM_HORIZON")
   starting_position_timestamp        = lookup(each.value, "starting_position_timestamp", null)
+
+  dynamic "destination_config" {
+    for_each = lookup(each.value, "destination_arn_on_failure", null) != null ? [true] : []
+    content {
+      on_failure {
+        destination_arn = each.value["destination_arn_on_failure"]
+      }
+    }
+  }
 }
 
 // type specific minimal permissions for supported event_sources,
@@ -25,7 +56,7 @@ resource "aws_lambda_event_source_mapping" "event_source" {
 data "aws_iam_policy_document" "event_sources" {
   count = length(var.event_source_mappings) > 0 ? 1 : 0
 
-  // SQS permissions
+  // SQS event source mapping permissions
   dynamic "statement" {
     for_each = length(local.sqs_event_sources) > 0 ? [true] : []
     content {
@@ -44,7 +75,7 @@ data "aws_iam_policy_document" "event_sources" {
     }
   }
 
-  // DynamoDb permissions
+  // DynamoDb event source mapping permissions
   dynamic "statement" {
     for_each = length(local.dynamodb_event_sources) > 0 ? [true] : []
     content {
@@ -61,7 +92,7 @@ data "aws_iam_policy_document" "event_sources" {
     }
   }
 
-  // Kinesis permissions
+  // Kinesis event source mapping permissions
   dynamic "statement" {
     for_each = length(local.kinesis_event_sources) > 0 ? [true] : []
     content {
@@ -90,6 +121,34 @@ data "aws_iam_policy_document" "event_sources" {
 
       resources = [
         for arn in local.kinesis_event_sources : arn
+      ]
+    }
+  }
+
+  // SQS permission for on-failure destinations
+  dynamic "statement" {
+    for_each = length(local.on_failure_sqs_destination_arns) > 0 ? [true] : []
+    content {
+      actions = [
+        "sqs:SendMessage"
+      ]
+
+      resources = [
+        for arn in local.on_failure_sqs_destination_arns : arn
+      ]
+    }
+  }
+
+  // SNS permission for on-failure destinations
+  dynamic "statement" {
+    for_each = length(local.on_failure_sns_destination_arns) > 0 ? [true] : []
+    content {
+      actions = [
+        "sns:Publish"
+      ]
+
+      resources = [
+        for arn in local.on_failure_sns_destination_arns : arn
       ]
     }
   }

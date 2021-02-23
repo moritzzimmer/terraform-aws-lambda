@@ -54,11 +54,16 @@ module "lambda" {
 
   event_source_mappings = {
     table_1 = {
-      // optionally overwrite arguments like 'batch_size'
-      // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
-      batch_size        = 50
-      event_source_arn  = aws_dynamodb_table.table_1.stream_arn
-      starting_position = "LATEST"
+      event_source_arn = aws_dynamodb_table.table_1.stream_arn
+
+      // optionally overwrite arguments from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
+      batch_size             = 50
+      maximum_retry_attempts = 3
+
+      // optionally configure a SNS or SQS destination for discarded batches, required IAM
+      // permissions will be added automatically by this module,
+      // see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
+      destination_arn_on_failure = aws_sqs_queue.errors.arn
 
       // optionally overwrite function_name in case an alias should be used in the
       // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
@@ -70,4 +75,8 @@ module "lambda" {
       function_name    = aws_lambda_alias.example.arn
     }
   }
+}
+
+resource "aws_sqs_queue" "errors" {
+  name = "${module.lambda.function_name}-processing-errors"
 }

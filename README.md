@@ -116,7 +116,8 @@ module "lambda" {
 ### with event source mappings
 
 [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger your Lambda function by DynamoDb,
-Kinesis and SQS can be declared inline. The module will add the required IAM permissions depending on the event source type to the function role automatically.
+Kinesis and SQS can be declared inline. The module will add the required read-only IAM permissions depending on the event source type to
+the function role automatically. In addition, permissions to send discarded batches to SNS or SQS will be added automatically, if `destination_arn_on_failure` is configured.
 
 see [examples](examples/with-event-source-mappings) for details
 
@@ -132,6 +133,11 @@ module "lambda" {
       // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
       batch_size        = 50
       starting_position = "LATEST"
+
+      // optionally configure a SNS or SQS destination for discarded batches, required IAM
+      // permissions will be added automatically by this module,
+      // see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
+      destination_arn_on_failure = aws_sqs_queue.errors.arn
 
       // optionally overwrite function_name in case an alias should be used in the
       // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
@@ -329,7 +335,7 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 | <a name="input_description"></a> [description](#input\_description) | Description of what your Lambda Function does. | `string` | `""` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
 | <a name="input_event"></a> [event](#input\_event) | (deprecated - use `cloudwatch_event_rules` [EventBridge/CloudWatch Events], `event_source_mappings` [DynamoDb, Kinesis, SQS] or `sns_subscriptions` [SNS] instead) Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, kinesis, s3, sns, sqs | `map(string)` | `{}` | no |
-| <a name="input_event_source_mappings"></a> [event\_source\_mappings](#input\_event\_source\_mappings) | Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `map(any)` | `{}` | no |
+| <a name="input_event_source_mappings"></a> [event\_source\_mappings](#input\_event\_source\_mappings) | Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `any` | `{}` | no |
 | <a name="input_filename"></a> [filename](#input\_filename) | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | A unique name for your Lambda Function. | `string` | n/a | yes |
 | <a name="input_handler"></a> [handler](#input\_handler) | The function entrypoint in your code. | `string` | `""` | no |
