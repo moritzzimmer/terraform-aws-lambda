@@ -81,6 +81,12 @@ variable "kms_key_arn" {
   type        = string
 }
 
+variable "lambda_at_edge" {
+  description = "Enable Lambda@Edge for your Node.js or Python functions. Required trust relationship and publishing of function versions will be configured."
+  default     = false
+  type        = bool
+}
+
 variable "layers" {
   description = "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function."
   default     = []
