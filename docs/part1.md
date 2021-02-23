@@ -116,7 +116,8 @@ module "lambda" {
 ### with event source mappings
 
 [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger your Lambda function by DynamoDb,
-Kinesis and SQS can be declared inline. The module will add the required IAM permissions depending on the event source type to the function role automatically.
+Kinesis and SQS can be declared inline. The module will add the required read-only IAM permissions depending on the event source type to
+the function role automatically. In addition, permissions to send discarded batches to SNS or SQS will be added automatically, if `destination_arn_on_failure` is configured.
 
 see [examples](examples/with-event-source-mappings) for details
 
@@ -132,6 +133,11 @@ module "lambda" {
       // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
       batch_size        = 50
       starting_position = "LATEST"
+
+      // optionally configure a SNS or SQS destination for discarded batches, required IAM
+      // permissions will be added automatically by this module,
+      // see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
+      destination_arn_on_failure = aws_sqs_queue.errors.arn
 
       // optionally overwrite function_name in case an alias should be used in the
       // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html

@@ -54,7 +54,7 @@ variable "event" {
 variable "event_source_mappings" {
   description = "Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events."
   default     = {}
-  type        = map(any)
+  type        = any
 }
 
 variable "filename" {

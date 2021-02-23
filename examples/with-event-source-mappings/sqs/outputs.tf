@@ -5,7 +5,7 @@ output "arn" {
 
 output "event_source_arns" {
   description = "The Amazon Resource Names (ARNs) identifying the event sources."
-  value       = list(aws_sqs_queue.queue_1.arn, aws_sqs_queue.queue_2.arn)
+  value       = [aws_sqs_queue.queue_1.arn, aws_sqs_queue.queue_2.arn]
 }
 
 output "function_name" {

@@ -5,7 +5,7 @@ output "arn" {
 
 output "event_source_arns" {
   description = "The Amazon Resource Names (ARNs) identifying the event sources."
-  value       = list(aws_kinesis_stream.stream_1.arn, aws_kinesis_stream.stream_2.arn)
+  value       = [aws_kinesis_stream.stream_1.arn, aws_kinesis_stream.stream_2.arn]
 }
 
 output "function_name" {
