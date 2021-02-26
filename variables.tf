@@ -13,6 +13,12 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "cloudwatch_event_rules" {
+  description = "Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated."
+  default     = {}
+  type        = map(any)
+}
+
 variable "description" {
   description = "Description of what your Lambda Function does."
   default     = ""
@@ -28,19 +34,13 @@ variable "environment" {
 }
 
 variable "event" {
-  description = "Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event (deprecated - use event_bridge_rules), dynamodb (deprecated - use event_source_mappings), kinesis (deprecated - use event_source_mappings), s3, sns (deprecated - use sns_subscriptions), sqs (deprecated - use event_source_mappings)"
+  description = "(deprecated - use `cloudwatch_event_rules` [EventBridge/CloudWatch Events], `event_source_mappings` [DynamoDb, Kinesis, SQS] or `sns_subscriptions` [SNS] instead) Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, kinesis, s3, sns, sqs"
   default     = {}
   type        = map(string)
 }
 
-variable "event_bridge_rules" {
-  description = ""
-  default     = {}
-  type        = map(any)
-}
-
 variable "event_source_mappings" {
-  description = "Event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events."
+  description = "Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events."
   default     = {}
   type        = map(any)
 }
@@ -160,7 +160,7 @@ variable "s3_object_version" {
 }
 
 variable "sns_subscriptions" {
-  description = "Subscriptions to SNS topics which trigger your Lambda function. Lambda invocation permissions will be generated."
+  description = "Creates subscriptions to SNS topics which trigger your Lambda function. Required Lambda invocation permissions will be generated."
   default     = {}
   type        = map(any)
 }

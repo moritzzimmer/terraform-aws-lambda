@@ -5,7 +5,7 @@
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
 development of Lambda functions like:
 
-- configurable trigger for DynamodDb, EventBridge, Kinesis, SNS and SQS
+- inline declaration of triggers for DynamodDb, EventBridge (CloudWatch Events), Kinesis, SNS or SQS including all required permissions
 - IAM role with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 - CloudWatch Logs configuration
 - blue/green deployments with AWS CodePipeline and CodeDeploy
@@ -13,16 +13,16 @@ development of Lambda functions like:
 ## Features
 
 - IAM role with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
-- [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) for DynamoDb, Kinesis and SQS triggers including required permissions (see [examples](examples/with-event-source-mappings)).
-- [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) for SNS triggers including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
-- [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger by [EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/what-is-amazon-eventbridge.html) event patterns or on a regular, scheduled basis (see [example](examples/example-with-cloudwatch-event))
+- inline declaration of [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) for DynamoDb, Kinesis and SQS triggers including required permissions (see [examples](examples/with-event-source-mappings)).
+- inline declaration of [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
+- inline declaration of [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-cloudwatch-event-rules))
 - IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
 - [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions to stream logs via another Lambda (e.g. to Elasticsearch)
+- Lambda@Edge support fulfilling [requirements for CloudFront triggers](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html#lambda-requirements-cloudfront-triggers). Functions need
+to be deployed to US East (N. Virginia) region (`us-east-1`)
 - add-on [module](modules/deployment) for controlled blue/green deployments using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html)
   and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment)).
   Optionally ignore terraform state changes resulting from those deployments (using `ignore_external_function_updates`).
-- Lambda@Edge support fulfilling [requirements for CloudFront triggers](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html#lambda-requirements-cloudfront-triggers). Functions need
-to be deployed to US East (N. Virginia) region (`us-east-1`)
 
 ## History
 
@@ -37,7 +37,9 @@ Deployment packages can be specified either directly as a local file (using the 
 or using [container images](https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html) (using `image_uri` and `package_type` arguments),
 see [documentation](https://www.terraform.io/docs/providers/aws/r/lambda_function.html#specifying-the-deployment-package) for details.
 
-**simple**
+### simple
+
+see [example](examples/simple) for details
 
 ```hcl
 provider "aws" {
@@ -56,7 +58,9 @@ module "lambda" {
 }
 ```
 
-**using container images**
+### using container images
+
+see [example](examples/container-image) for details
 
 ```hcl
 module "lambda" {
@@ -69,24 +73,82 @@ module "lambda" {
 }
 ```
 
-**with event source mappings**
+### with Amazon EventBridge (CloudWatch Events) rules
+
+[CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) to trigger your Lambda function
+by [EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/what-is-amazon-eventbridge.html) patterns or on a regular, scheduled basis can
+be declared inline. The module will create the required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission)
+automatically.
+
+see [example](examples/with-cloudwatch-event-rules) for details
+
+```hcl
+module "lambda" {
+  // see above
+
+  cloudwatch_event_rules = {
+    scheduled = {
+      schedule_expression = "rate(1 minute)"
+
+      // optionally overwrite arguments like 'description'
+      // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule
+      description = "Triggered by CloudTrail"
+
+      // optionally overwrite `cloudwatch_event_target_arn` in case an alias should be used for the event rule
+      cloudwatch_event_target_arn = aws_lambda_alias.example.arn
+    }
+
+    pattern = {
+      event_pattern = <<PATTERN
+      {
+        "detail-type": [
+          "AWS Console Sign In via CloudTrail"
+        ]
+      }
+      PATTERN
+    }
+  }
+}
+```
+
+### with event source mappings
+
+[Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger your Lambda function by DynamoDb,
+Kinesis and SQS can be declared inline. The module will add the required IAM permissions depending on the event source type to the Lambda role automatically.
+
+see [examples](examples/with-event-source-mappings) for details
 
 ```hcl
 module "lambda" {
   // see above
 
   event_source_mappings = {
-    queue_1 = {
-      event_source_arn = aws_sqs_queue.queue_1.arn
+    table_1 = {
+      event_source_arn  = aws_dynamodb_table.table_1.stream_arn
+
+      // optionally overwrite arguments like 'batch_size'
+      // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
+      batch_size        = 50
+      starting_position = "LATEST"
+
+      // optionally overwrite function_name in case an alias should be used in the
+      // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
+      function_name = aws_lambda_alias.example.arn
     }
-    queue_2 = {
-      event_source_arn = aws_sqs_queue.queue_2.arn
+
+    table_2 = {
+      event_source_arn = aws_dynamodb_table.table_2.stream_arn
     }
   }
 }
 ```
 
-**with SNS subscriptions**
+### with SNS subscriptions
+
+[SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) to trigger your Lambda function by SNS can de declared inline.
+The module will create the required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) automatically.
+
+see [example](examples/with-sns-subscriptions) for details
 
 ```hcl
 module "lambda" {
@@ -95,6 +157,9 @@ module "lambda" {
   sns_subscriptions = {
     topic_1 = {
       topic_arn = aws_sns_topic.topic_1.arn
+
+      // optionally overwrite `endpoint` in case an alias should be used for the SNS subscription
+      endpoint  = aws_lambda_alias.example.arn
     }
 
     topic_2 = {
@@ -104,7 +169,10 @@ module "lambda" {
 }
 ```
 
-**with access to parameter store**
+### with access to AWS Systems Manager Parameter Store
+
+Required IAM permissions to get parameter(s) from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
+(by path or name) can added to the Lambda role:
 
 ```hcl
 module "lambda" {
@@ -116,12 +184,19 @@ module "lambda" {
 }
 ```
 
-**with log subscription (stream to ElasticSearch)**
+### with CloudWatch Logs configuration
+
+The module will create a [CloudWatch Log Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group)
+for your Lambda function.
+
+The retention period and a [CloudWatch Logs subscription filter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter)
+(e.g. to stream logs to Amazon Elasticsearch Service) including required permissions can be declared inline:
 
 ```hcl
 module "lambda" {
   // see above
 
+  log_retention_in_days     = 7
   logfilter_destination_arn = "arn:aws:lambda:eu-west-1:647379381847:function:cloudwatch_logs_to_es_production"
 }
 ```
@@ -138,8 +213,8 @@ CodeDeploy deployments as part of an AWS [CodePipeline](https://docs.aws.amazon.
 
 - [container-image](examples/container-image)
 - [deployment](examples/deployment)
-- [example-with-cloudwatch-event](examples/example-with-cloudwatch-event)
 - [simple](examples/simple)
+- [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
 - [with-event-source-mappings](examples/with-event-source-mappings)
 - [with-sns-subscriptions](examples/with-sns-subscriptions)
 

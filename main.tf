@@ -31,7 +31,7 @@ module "lambda" {
   vpc_config                       = var.vpc_config
 }
 
-// Deprecated - EventBridge triggers will be moved to root module. This sub-module will be removed in the next major version.
+// Deprecated - use `cloudwatch_event_rules` instead. This sub-module will be removed in the next major version.
 module "event-cloudwatch" {
   source = "./modules/event/cloudwatch-event"
   enable = lookup(var.event, "type", "") == "cloudwatch-event" ? true : false
