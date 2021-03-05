@@ -23,6 +23,11 @@ output "role_name" {
   value       = module.lambda.role_name
 }
 
+output "role_arn" {
+  description = "The arn of the IAM role attached to the Lambda Function. This enables attaching policies after creation for more customization."
+  value       = module.lambda.role_arn
+}
+
 output "version" {
   description = "Latest published version of your Lambda Function."
   value       = module.lambda.version
