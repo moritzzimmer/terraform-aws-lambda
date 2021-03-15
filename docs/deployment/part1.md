@@ -26,7 +26,7 @@ Make sure the specified `image_uri` exists in the `aws_ecr_repository` for the i
 - using [docker_registry_image](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/registry_image) to build the image as part of the terraform lifecycle
 - using a `null_resource` with a `local-exec` provisioner to build and push the image as part of the terraform lifecycle
 
-It's recommended to build and push all further docker images using a CI system like GitHub actions.
+It's recommended to build and push all further container images using a CI system like GitHub actions.
 
 ```hcl
 locals {

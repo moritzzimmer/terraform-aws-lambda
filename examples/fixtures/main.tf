@@ -3,7 +3,7 @@ data "archive_file" "lambda" {
   type        = "zip"
 
   source {
-    content  = "exports.handler =  async function(event, context) { \n   return context.logStreamName"
+    content  = "exports.handler = async function(event, context) { console.log(\"EVENT: \" + JSON.stringify(event, null, 2)); return context.awsRequestId; }"
     filename = "index.js"
   }
 }

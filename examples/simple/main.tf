@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "eu-west-1"
-}
-
 module "source" {
   source = "../fixtures"
 }
@@ -12,7 +8,7 @@ module "lambda" {
   filename         = module.source.output_path
   function_name    = "example-without-event"
   handler          = "handler"
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs14.x"
   source_code_hash = module.source.output_base64sha256
 
   environment = {

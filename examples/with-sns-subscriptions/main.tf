@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "eu-west-1"
-}
-
 resource "aws_sns_topic" "topic_1" {
   name = "example-sns-topic-1"
 }
@@ -32,18 +28,18 @@ module "lambda" {
   filename         = data.archive_file.sns_handler.output_path
   function_name    = "example-with-sns-event"
   handler          = "index.handler"
-  runtime          = "nodejs12.x"
+  runtime          = "nodejs14.x"
   source_code_hash = data.archive_file.sns_handler.output_base64sha256
 
   sns_subscriptions = {
     topic_1 = {
       topic_arn = aws_sns_topic.topic_1.arn
+
+      // optionally overwrite `endpoint` in case an alias should be used for the SNS subscription
+      endpoint = aws_lambda_alias.example.arn
     }
 
     topic_2 = {
-      // optionally overwrite endpoint in case an alias should be used for
-      // the SNS subscription
-      endpoint  = aws_lambda_alias.example.arn
       topic_arn = aws_sns_topic.topic_2.arn
     }
   }

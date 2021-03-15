@@ -7,10 +7,6 @@ locals {
   function_name = "example-with-container-images"
 }
 
-provider "aws" {
-  region = "eu-west-1"
-}
-
 provider "docker" {
   registry_auth {
     address  = local.ecr
