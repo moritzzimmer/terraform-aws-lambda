@@ -216,7 +216,7 @@ module "lambda" {
 }
 ```
 
-This module will add the required IAM permissions to function role automatically for both package types.
+This module will add the required IAM permissions to the function role automatically for both package types.
 
 In case of a `zip` deployment package, this module will also add the appropriate [extension layer](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html)
 to your function (use `cloudwatch_lambda_insights_extension_version` to set the version of this layer).
