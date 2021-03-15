@@ -1,6 +1,6 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.10.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.10.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.11.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.11.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
 development of Lambda functions like:
@@ -48,7 +48,7 @@ provider "aws" {
 
 module "lambda" {
   source           = "moritzzimmer/lambda/aws"
-  version          = "5.10.0"
+  version          = "5.11.0"
 
   filename         = "my-package.zip"
   function_name    = "my-function"
@@ -65,7 +65,7 @@ see [example](examples/container-image) for details
 ```hcl
 module "lambda" {
   source        = "moritzzimmer/lambda/aws"
-  version       = "5.10.0"
+  version       = "5.11.0"
 
   function_name = "my-function"
   image_uri     = "111111111111.dkr.ecr.eu-west-1.amazonaws.com/my-image"
