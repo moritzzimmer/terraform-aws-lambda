@@ -13,13 +13,13 @@ variable "function_name" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 variable "cloudwatch_lambda_insights_enabled" {
-  description = "Enable CloudWatch Lambda Insights for your Lambda function"
+  description = "Enable CloudWatch Lambda Insights for your Lambda function."
   default     = false
   type        = bool
 }
 
 variable "cloudwatch_lambda_insights_extension_version" {
-  description = "Versions of the Lambda Insights extension, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html"
+  description = "Version of the Lambda Insights extension for Lambda functions using `zip` deployment packages, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html."
   default     = 14
   type        = number
 }
