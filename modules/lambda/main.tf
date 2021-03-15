@@ -1,6 +1,6 @@
 locals {
   lambda_insights_arn = "arn:aws:lambda:${data.aws_region.current.name}:580247275435:layer:LambdaInsightsExtension:${var.cloudwatch_lambda_insights_extension_version}"
-  layers              = var.cloudwatch_lambda_insights_enabled ? concat(var.layers, [local.lambda_insights_arn]) : var.layers
+  layers              = var.cloudwatch_lambda_insights_enabled && var.package_type != "Image" ? concat(var.layers, [local.lambda_insights_arn]) : var.layers
 }
 
 resource "aws_lambda_function" "lambda" {
