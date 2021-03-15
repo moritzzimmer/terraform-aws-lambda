@@ -5,30 +5,32 @@ data "aws_caller_identity" "current" {}
 module "lambda" {
   source = "./modules/lambda"
 
-  description                      = var.description
-  environment                      = var.environment
-  filename                         = var.filename
-  function_name                    = var.function_name
-  handler                          = var.handler
-  ignore_external_function_updates = var.ignore_external_function_updates
-  image_config                     = var.image_config
-  image_uri                        = var.image_uri
-  kms_key_arn                      = var.kms_key_arn
-  lambda_at_edge                   = var.lambda_at_edge
-  layers                           = var.layers
-  memory_size                      = var.memory_size
-  package_type                     = var.package_type
-  publish                          = var.lambda_at_edge ? true : var.publish
-  reserved_concurrent_executions   = var.reserved_concurrent_executions
-  runtime                          = var.runtime
-  s3_bucket                        = var.s3_bucket
-  s3_key                           = var.s3_key
-  s3_object_version                = var.s3_object_version
-  source_code_hash                 = var.source_code_hash
-  timeout                          = var.lambda_at_edge ? min(var.timeout, 5) : var.timeout
-  tracing_config_mode              = var.tracing_config_mode
-  tags                             = var.tags
-  vpc_config                       = var.vpc_config
+  cloudwatch_lambda_insights_enabled           = var.cloudwatch_lambda_insights_enabled
+  cloudwatch_lambda_insights_extension_version = var.cloudwatch_lambda_insights_extension_version
+  description                                  = var.description
+  environment                                  = var.environment
+  filename                                     = var.filename
+  function_name                                = var.function_name
+  handler                                      = var.handler
+  ignore_external_function_updates             = var.ignore_external_function_updates
+  image_config                                 = var.image_config
+  image_uri                                    = var.image_uri
+  kms_key_arn                                  = var.kms_key_arn
+  lambda_at_edge                               = var.lambda_at_edge
+  layers                                       = var.layers
+  memory_size                                  = var.memory_size
+  package_type                                 = var.package_type
+  publish                                      = var.lambda_at_edge ? true : var.publish
+  reserved_concurrent_executions               = var.reserved_concurrent_executions
+  runtime                                      = var.runtime
+  s3_bucket                                    = var.s3_bucket
+  s3_key                                       = var.s3_key
+  s3_object_version                            = var.s3_object_version
+  source_code_hash                             = var.source_code_hash
+  timeout                                      = var.lambda_at_edge ? min(var.timeout, 5) : var.timeout
+  tracing_config_mode                          = var.tracing_config_mode
+  tags                                         = var.tags
+  vpc_config                                   = var.vpc_config
 }
 
 // Deprecated - use `cloudwatch_event_rules` instead. This sub-module will be removed in the next major version.

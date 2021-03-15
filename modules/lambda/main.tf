@@ -1,3 +1,8 @@
+locals {
+  lambda_insights_arn = "arn:aws:lambda:${data.aws_region.current.name}:580247275435:layer:LambdaInsightsExtension:${var.cloudwatch_lambda_insights_extension_version}"
+  layers              = var.cloudwatch_lambda_insights_enabled && var.package_type != "Image" ? concat(var.layers, [local.lambda_insights_arn]) : var.layers
+}
+
 resource "aws_lambda_function" "lambda" {
   count = var.ignore_external_function_updates ? 0 : 1
 
@@ -7,7 +12,7 @@ resource "aws_lambda_function" "lambda" {
   handler                        = var.package_type != "Zip" ? null : var.handler
   image_uri                      = var.image_uri
   kms_key_arn                    = var.kms_key_arn
-  layers                         = var.layers
+  layers                         = local.layers
   memory_size                    = var.memory_size
   package_type                   = var.package_type
   publish                        = var.publish
@@ -67,7 +72,7 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
   handler                        = var.package_type != "Zip" ? null : var.handler
   image_uri                      = var.image_uri
   kms_key_arn                    = var.kms_key_arn
-  layers                         = var.layers
+  layers                         = local.layers
   memory_size                    = var.memory_size
   package_type                   = var.package_type
   publish                        = var.publish

@@ -7,7 +7,7 @@ development of Lambda functions like:
 
 - inline declaration of triggers for DynamodDb, EventBridge (CloudWatch Events), Kinesis, SNS or SQS including all required permissions
 - IAM role with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
-- CloudWatch Logs configuration
+- CloudWatch Logs and Lambda Insights configuration
 - blue/green deployments with AWS CodePipeline and CodeDeploy
 
 ## Features
@@ -20,6 +20,8 @@ development of Lambda functions like:
 - [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions to stream logs via another Lambda (e.g. to Elasticsearch)
 - Lambda@Edge support fulfilling [requirements for CloudFront triggers](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html#lambda-requirements-cloudfront-triggers). Functions need
 to be deployed to US East (N. Virginia) region (`us-east-1`)
+- configuration for [Amazon CloudWatch Lambda Insights](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html) including required
+  permissions and Lambda Layer, see [details](#with-cloudwatch-lambda-insights)
 - add-on [module](modules/deployment) for controlled blue/green deployments using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html)
   and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment)).
   Optionally ignore terraform state changes resulting from those deployments (using `ignore_external_function_updates`).
@@ -114,7 +116,7 @@ module "lambda" {
 ### with event source mappings
 
 [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger your Lambda function by DynamoDb,
-Kinesis and SQS can be declared inline. The module will add the required IAM permissions depending on the event source type to the Lambda role automatically.
+Kinesis and SQS can be declared inline. The module will add the required IAM permissions depending on the event source type to the function role automatically.
 
 see [examples](examples/with-event-source-mappings) for details
 
@@ -201,7 +203,35 @@ module "lambda" {
 }
 ```
 
-### Deployments
+### with CloudWatch Lambda Insights
+
+[Amazon CloudWatch Lambda Insights](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html) can be enabled for `zip` and `image` function
+deployment packages of these [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html#monitoring-insights-runtimes):
+
+```hcl
+module "lambda" {
+  // see above
+
+  cloudwatch_lambda_insights_enabled = true
+}
+```
+
+This module will add the required IAM permissions to the function role automatically for both package types.
+
+In case of a `zip` deployment package, this module will also add the appropriate [extension layer](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html)
+to your function (use `cloudwatch_lambda_insights_extension_version` to set the version of this layer).
+
+For `image` deployment packages, the Lambda Insights extension needs to be added to the container image:
+
+```dockerfile
+FROM public.ecr.aws/serverless/extensions/lambda-insights:12 AS lambda-insights
+
+FROM public.ecr.aws/lambda/nodejs:12
+COPY --from=lambda-insights /opt /opt
+COPY app.js /var/task/
+```
+
+## Deployments
 
 Controlled, blue/green deployments of Lambda functions with (automatic) rolebacks and traffic shifting can be implemented using
 Lambda [aliases](https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html) and AWS [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html).
@@ -209,7 +239,7 @@ Lambda [aliases](https://docs.aws.amazon.com/lambda/latest/dg/configuration-alia
 The optional [deployment](modules/deployment) submodule can be used to create the required AWS resources and permissions for creating and starting such
 CodeDeploy deployments as part of an AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), see [example](examples/deployment) for details.
 
-### Examples
+## Examples
 
 - [container-image](examples/container-image)
 - [deployment](examples/deployment)
@@ -219,7 +249,7 @@ CodeDeploy deployments as part of an AWS [CodePipeline](https://docs.aws.amazon.
 - [with-sns-subscriptions](examples/with-sns-subscriptions)
 
 
-### Bootstrap with func
+## Bootstrap new projects
 
 In case you are using [go](https://golang.org/) for developing your Lambda functions, you can also use [func](https://github.com/moritzzimmer/func) to bootstrap your project and get started quickly.
 
@@ -281,6 +311,8 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | cloudwatch\_event\_rules | Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated. | `map(any)` | `{}` | no |
+| cloudwatch\_lambda\_insights\_enabled | Enable CloudWatch Lambda Insights for your Lambda function. | `bool` | `false` | no |
+| cloudwatch\_lambda\_insights\_extension\_version | Version of the Lambda Insights extension for Lambda functions using `zip` deployment packages, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html. | `number` | `14` | no |
 | description | Description of what your Lambda Function does. | `string` | `""` | no |
 | environment | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
 | event | (deprecated - use `cloudwatch_event_rules` [EventBridge/CloudWatch Events], `event_source_mappings` [DynamoDb, Kinesis, SQS] or `sns_subscriptions` [SNS] instead) Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, kinesis, s3, sns, sqs | `map(string)` | `{}` | no |
