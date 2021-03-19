@@ -3,12 +3,20 @@ data "aws_region" "current" {
 }
 
 resource "aws_lambda_event_source_mapping" "stream_source" {
-  count             = var.enable ? 1 : 0
-  batch_size        = var.batch_size
-  enabled           = var.event_source_mapping_enabled
-  event_source_arn  = var.event_source_arn
-  function_name     = var.function_name
-  starting_position = var.starting_position
+  count                               = var.enable ? 1 : 0
+  batch_size                          = var.batch_size
+  bisect_batch_on_function_error      = var.bisect_batch_on_function_error
+  destination_config                  = var.destination_config
+  enabled                             = var.event_source_mapping_enabled
+  event_source_arn                    = var.event_source_arn
+  function_name                       = var.function_name
+  maximum_batching_window_in_seconds  = var.maximum_batching_window_in_seconds
+  maximum_record_age_in_seconds       = var.maximum_record_age_in_seconds
+  maximum_retry_attempts              = var.maximum_retry_attempts
+  parallelization_factor              = var.parallelization_factor
+  starting_position                   = var.starting_position
+  starting_position_timestamp         = var.starting_position_timestamp
+  topics                              = var.topics
 }
 
 // see https://github.com/awslabs/serverless-application-model/blob/develop/samtranslator/policy_templates_data/policy_templates.json
