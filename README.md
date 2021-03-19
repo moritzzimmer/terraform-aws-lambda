@@ -1,6 +1,7 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.12.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.12.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+!!! This project was highjacked from [moritzzimmer/terraform-aws-lambda](https://github.com/moritzzimmer/terraform-aws-lambda). All Kudos go to Moritz. I just highjacked it, because I already incorporated the way the event submodules were werking into my project stack and needed some changes on them.
+
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
 development of Lambda functions like:
