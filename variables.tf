@@ -13,6 +13,11 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "bisect_batch_on_function_error" {
+  default     = false
+  description = "If the function returns an error, split the batch in two and retry. Only available for stream sources (DynamoDB and Kinesis)."
+}
+
 variable "cloudwatch_event_rules" {
   description = "Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated."
   default     = {}
@@ -123,6 +128,16 @@ variable "logfilter_destination_arn" {
   type        = string
 }
 
+variable "maximum_batching_window_in_seconds" {
+  default     = 0
+  description = "he maximum amount of time to gather records before invoking the function, in seconds (between 0 and 300)."
+}
+
+variable "maximum_retry_attempts" {
+  default     = -1
+  description = "The maximum number of times to retry when the function returns an error. Minimum of 0, maximum and default of 10000"
+}
+
 variable "memory_size" {
   description = "Amount of memory in MB your Lambda Function can use at runtime."
   default     = 128
@@ -133,6 +148,11 @@ variable "package_type" {
   description = "The Lambda deployment package type. Valid values are Zip and Image."
   default     = "Zip"
   type        = string
+}
+
+variable "parallelization_factor" {
+  default     = 1
+  description = "The number of batches to process from each shard concurrently. Only available for stream sources (DynamoDB and Kinesis). Minimum and default of 1, maximum of 10."
 }
 
 variable "publish" {
