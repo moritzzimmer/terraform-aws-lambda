@@ -1,18 +1,19 @@
 package test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/lambda"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/stretchr/testify/assert"
 	"net/url"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/lambda"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	"github.com/stretchr/testify/assert"
 )
 
 const region = "eu-west-1"
@@ -76,11 +77,11 @@ func TestPolicyAttachments(t *testing.T) {
 		{name: "dynamodb", dir: "examples/with-event-source-mappings/dynamodb-with-alias", actions: []string{"dynamodb:ListStreams", "dynamodb:GetShardIterator", "dynamodb:GetRecords", "dynamodb:DescribeStream"}},
 	}
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
-	svc := iam.New(sess, &aws.Config{Region: aws.String(region)})
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	if err != nil {
+		t.Fatalf("failed to load config: %v", err)
+	}
+	svc := iam.NewFromConfig(cfg)
 
 	// Root folder where terraform files should be (relative to the test folder)
 	rootFolder := ".."
@@ -120,9 +121,9 @@ func TestPolicyAttachments(t *testing.T) {
 	}
 }
 
-func getPolicy(t *testing.T, svc *iam.IAM, options *terraform.Options) Policy {
+func getPolicy(t *testing.T, svc *iam.Client, options *terraform.Options) Policy {
 	rn := terraform.Output(t, options, "role_name")
-	policies, err := svc.ListAttachedRolePolicies(&iam.ListAttachedRolePoliciesInput{
+	policies, err := svc.ListAttachedRolePolicies(context.TODO(), &iam.ListAttachedRolePoliciesInput{
 		RoleName: aws.String(rn),
 	})
 	if err != nil {
@@ -131,7 +132,7 @@ func getPolicy(t *testing.T, svc *iam.IAM, options *terraform.Options) Policy {
 	assert.Len(t, policies.AttachedPolicies, 2)
 
 	// custom policy attachment for event source should always be after 'AWSLambdaBasicExecutionRole '
-	v, err := svc.GetPolicyVersion(&iam.GetPolicyVersionInput{
+	v, err := svc.GetPolicyVersion(context.TODO(), &iam.GetPolicyVersionInput{
 		PolicyArn: policies.AttachedPolicies[1].PolicyArn,
 		VersionId: aws.String("v1"),
 	})
@@ -140,7 +141,7 @@ func getPolicy(t *testing.T, svc *iam.IAM, options *terraform.Options) Policy {
 		t.Fatalf("failed to get policy version: %v", err)
 	}
 
-	decoded, err := url.QueryUnescape(aws.StringValue(v.PolicyVersion.Document))
+	decoded, err := url.QueryUnescape(*v.PolicyVersion.Document)
 	if err != nil {
 		t.Fatalf("failed to unescape policy document: %v", err)
 	}
@@ -165,10 +166,11 @@ func TestEventSourceMapping(t *testing.T) {
 		{name: "kinesis", dir: "examples/with-event-source-mappings/kinesis", alias: false},
 	}
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-	svc := lambda.New(sess, &aws.Config{Region: aws.String(region)})
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	if err != nil {
+		t.Fatalf("failed to load config: %v", err)
+	}
+	svc := lambda.NewFromConfig(cfg)
 
 	// Root folder where terraform files should be (relative to the test folder)
 	rootFolder := ".."
@@ -195,7 +197,7 @@ func TestEventSourceMapping(t *testing.T) {
 				arn = terraform.Output(t, terraformOptions, "arn")
 			}
 
-			resp, err := svc.ListEventSourceMappings(&lambda.ListEventSourceMappingsInput{
+			resp, err := svc.ListEventSourceMappings(context.TODO(), &lambda.ListEventSourceMappingsInput{
 				FunctionName: aws.String(fn),
 			})
 			if err != nil {
