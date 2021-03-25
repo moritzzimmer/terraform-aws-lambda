@@ -2,9 +2,9 @@ resource "aws_lambda_permission" "cloudwatch_events" {
   for_each = var.cloudwatch_event_rules
 
   action        = "lambda:InvokeFunction"
-  function_name = module.lambda.function_name
+  function_name = var.function_name
   principal     = "events.amazonaws.com"
-  qualifier     = contains(keys(each.value), "cloudwatch_event_target_arn") ? trimprefix(lookup(each.value, "cloudwatch_event_target_arn"), "${module.lambda.arn}:") : null
+  qualifier     = contains(keys(each.value), "cloudwatch_event_target_arn") ? trimprefix(lookup(each.value, "cloudwatch_event_target_arn"), "${local.function_arn}:") : null
   source_arn    = aws_cloudwatch_event_rule.lambda[each.key].arn
 }
 
@@ -25,6 +25,6 @@ resource "aws_cloudwatch_event_rule" "lambda" {
 resource "aws_cloudwatch_event_target" "lambda" {
   for_each = var.cloudwatch_event_rules
 
-  arn  = lookup(each.value, "cloudwatch_event_target_arn", module.lambda.arn)
+  arn  = lookup(each.value, "cloudwatch_event_target_arn", local.function_arn)
   rule = aws_cloudwatch_event_rule.lambda[each.key].name
 }
