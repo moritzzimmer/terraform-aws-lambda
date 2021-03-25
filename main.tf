@@ -1,113 +1,139 @@
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
-// Deprecated - will be moved to root module in the next major version, https://github.com/moritzzimmer/terraform-aws-lambda/issues/14
-module "lambda" {
-  source = "./modules/lambda"
-
-  cloudwatch_lambda_insights_enabled           = var.cloudwatch_lambda_insights_enabled
-  cloudwatch_lambda_insights_extension_version = var.cloudwatch_lambda_insights_extension_version
-  description                                  = var.description
-  environment                                  = var.environment
-  filename                                     = var.filename
-  function_name                                = var.function_name
-  handler                                      = var.handler
-  ignore_external_function_updates             = var.ignore_external_function_updates
-  image_config                                 = var.image_config
-  image_uri                                    = var.image_uri
-  kms_key_arn                                  = var.kms_key_arn
-  lambda_at_edge                               = var.lambda_at_edge
-  layers                                       = var.layers
-  memory_size                                  = var.memory_size
-  package_type                                 = var.package_type
-  publish                                      = var.lambda_at_edge ? true : var.publish
-  reserved_concurrent_executions               = var.reserved_concurrent_executions
-  runtime                                      = var.runtime
-  s3_bucket                                    = var.s3_bucket
-  s3_key                                       = var.s3_key
-  s3_object_version                            = var.s3_object_version
-  source_code_hash                             = var.source_code_hash
-  timeout                                      = var.lambda_at_edge ? min(var.timeout, 5) : var.timeout
-  tracing_config_mode                          = var.tracing_config_mode
-  tags                                         = var.tags
-  vpc_config                                   = var.vpc_config
+locals {
+  function_arn        = "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
+  handler             = var.package_type != "Zip" ? null : var.handler
+  lambda_insights_arn = "arn:aws:lambda:${data.aws_region.current.name}:580247275435:layer:LambdaInsightsExtension:${var.cloudwatch_lambda_insights_extension_version}"
+  layers              = var.cloudwatch_lambda_insights_enabled && var.package_type != "Image" ? concat(var.layers, [local.lambda_insights_arn]) : var.layers
+  publish             = var.lambda_at_edge ? true : var.publish
+  runtime             = var.package_type != "Zip" ? null : var.runtime
+  timeout             = var.lambda_at_edge ? min(var.timeout, 5) : var.timeout
 }
 
-// Deprecated - use `cloudwatch_event_rules` instead. This sub-module will be removed in the next major version.
-module "event-cloudwatch" {
-  source = "./modules/event/cloudwatch-event"
-  enable = lookup(var.event, "type", "") == "cloudwatch-event" ? true : false
+resource "aws_lambda_function" "lambda" {
+  count = var.ignore_external_function_updates ? 0 : 1
 
-  lambda_function_arn = module.lambda.arn
-  description         = lookup(var.event, "description", "")
-  event_pattern       = lookup(var.event, "event_pattern", "")
-  is_enabled          = lookup(var.event, "is_enabled", true)
-  name                = lookup(var.event, "name", null)
-  name_prefix         = lookup(var.event, "name_prefix", null)
-  schedule_expression = lookup(var.event, "schedule_expression", "")
-  tags                = var.tags
+  description                    = var.description
+  filename                       = var.filename
+  function_name                  = var.function_name
+  handler                        = local.handler
+  image_uri                      = var.image_uri
+  kms_key_arn                    = var.kms_key_arn
+  layers                         = local.layers
+  memory_size                    = var.memory_size
+  package_type                   = var.package_type
+  publish                        = local.publish
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  role                           = aws_iam_role.lambda.arn
+  runtime                        = local.runtime
+  s3_bucket                      = var.s3_bucket
+  s3_key                         = var.s3_key
+  s3_object_version              = var.s3_object_version
+  source_code_hash               = var.source_code_hash
+  tags                           = var.tags
+  timeout                        = local.timeout
+
+  dynamic "environment" {
+    for_each = var.environment == null ? [] : [var.environment]
+    content {
+      variables = environment.value.variables
+    }
+  }
+
+  dynamic "image_config" {
+    for_each = length(var.image_config) > 0 ? [true] : []
+    content {
+      command           = lookup(var.image_config, "command", null)
+      entry_point       = lookup(var.image_config, "entry_point", null)
+      working_directory = lookup(var.image_config, "working_directory", null)
+    }
+  }
+
+  dynamic "tracing_config" {
+    for_each = var.tracing_config_mode == null ? [] : [true]
+    content {
+      mode = var.tracing_config_mode
+    }
+  }
+
+  dynamic "vpc_config" {
+    for_each = var.vpc_config == null ? [] : [var.vpc_config]
+    content {
+      security_group_ids = vpc_config.value.security_group_ids
+      subnet_ids         = vpc_config.value.subnet_ids
+    }
+  }
 }
 
-// Deprecated - use `event_source_mappings` instead. This sub-module will be removed in the next major version.
-module "event-dynamodb" {
-  source = "./modules/event/dynamodb"
-  enable = lookup(var.event, "type", "") == "dynamodb" ? true : false
+// Copy of the original Lambda resource plus lifecycle configuration ignoring
+// external changes executed by CodeDeploy, aws CLI and others.
 
-  batch_size                   = lookup(var.event, "batch_size", 100)
-  event_source_mapping_enabled = lookup(var.event, "event_source_mapping_enabled", true)
-  function_name                = module.lambda.function_name
-  event_source_arn             = lookup(var.event, "event_source_arn", "")
-  iam_role_name                = module.lambda.role_name
-  starting_position            = lookup(var.event, "starting_position", "TRIM_HORIZON")
-}
+// We need this copy workaround lifecycle configuration must be static,
+// see https://github.com/hashicorp/terraform/issues/24188.
+resource "aws_lambda_function" "lambda_external_lifecycle" {
+  count = var.ignore_external_function_updates ? 1 : 0
 
-// Deprecated - use `event_source_mappings` instead. This sub-module will be removed in the next major version.
-module "event-kinesis" {
-  source = "./modules/event/kinesis"
-  enable = lookup(var.event, "type", "") == "kinesis" ? true : false
+  description                    = var.description
+  filename                       = var.filename
+  function_name                  = var.function_name
+  handler                        = local.handler
+  image_uri                      = var.image_uri
+  kms_key_arn                    = var.kms_key_arn
+  layers                         = local.layers
+  memory_size                    = var.memory_size
+  package_type                   = var.package_type
+  publish                        = local.publish
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  role                           = aws_iam_role.lambda.arn
+  runtime                        = local.runtime
+  s3_bucket                      = var.s3_bucket
+  s3_key                         = var.s3_key
+  s3_object_version              = var.s3_object_version
+  source_code_hash               = var.source_code_hash
+  tags                           = var.tags
+  timeout                        = local.timeout
 
-  batch_size                   = lookup(var.event, "batch_size", 100)
-  event_source_mapping_enabled = lookup(var.event, "event_source_mapping_enabled", true)
-  function_name                = module.lambda.function_name
-  event_source_arn             = lookup(var.event, "event_source_arn", "")
-  iam_role_name                = module.lambda.role_name
-  starting_position            = lookup(var.event, "starting_position", "TRIM_HORIZON")
-}
+  dynamic "environment" {
+    for_each = var.environment == null ? [] : [var.environment]
+    content {
+      variables = environment.value.variables
+    }
+  }
 
-// Deprecated - additional permissions will be generalized and moved to the root module. This sub-module will be removed in the next major version.
-module "event-s3" {
-  source = "./modules/event/s3"
-  enable = lookup(var.event, "type", "") == "s3" ? true : false
+  dynamic "image_config" {
+    for_each = length(var.image_config) > 0 ? [true] : []
+    content {
+      command           = lookup(var.image_config, "command", null)
+      entry_point       = lookup(var.image_config, "entry_point", null)
+      working_directory = lookup(var.image_config, "working_directory", null)
+    }
+  }
 
-  lambda_function_arn = module.lambda.arn
-  s3_bucket_arn       = lookup(var.event, "s3_bucket_arn", "")
-  s3_bucket_id        = lookup(var.event, "s3_bucket_id", "")
-}
+  dynamic "tracing_config" {
+    for_each = var.tracing_config_mode == null ? [] : [true]
+    content {
+      mode = var.tracing_config_mode
+    }
+  }
 
-// Deprecated - use `sns_subscriptions` instead. This sub-module will be removed in the next major version.
-module "event-sns" {
-  source = "./modules/event/sns"
-  enable = lookup(var.event, "type", "") == "sns" ? true : false
+  dynamic "vpc_config" {
+    for_each = var.vpc_config == null ? [] : [var.vpc_config]
+    content {
+      security_group_ids = vpc_config.value.security_group_ids
+      subnet_ids         = vpc_config.value.subnet_ids
+    }
+  }
 
-  endpoint      = module.lambda.arn
-  function_name = module.lambda.function_name
-  topic_arn     = lookup(var.event, "topic_arn", "")
-}
-
-// // Deprecated - use `event_source_mappings` instead. This sub-module will be removed in the next major version.
-module "event-sqs" {
-  source = "./modules/event/sqs"
-  enable = lookup(var.event, "type", "") == "sqs" ? true : false
-
-  batch_size                   = lookup(var.event, "batch_size", 10)
-  event_source_mapping_enabled = lookup(var.event, "event_source_mapping_enabled", true)
-  function_name                = module.lambda.function_name
-  event_source_arn             = lookup(var.event, "event_source_arn", "")
-  iam_role_name                = module.lambda.role_name
+  lifecycle {
+    ignore_changes = [
+      image_uri, last_modified, qualified_arn, version
+    ]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "lambda" {
-  name              = "/aws/lambda/${var.lambda_at_edge ? "us-east-1." : ""}${module.lambda.function_name}"
+  name              = "/aws/lambda/${var.lambda_at_edge ? "us-east-1." : ""}${var.function_name}"
   retention_in_days = var.log_retention_in_days
   tags              = var.tags
 }
@@ -133,97 +159,4 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
   filter_pattern  = ""
   destination_arn = var.logfilter_destination_arn
   distribution    = "ByLogStream"
-}
-
-data "aws_iam_policy_document" "ssm" {
-  count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
-
-  statement {
-    actions = [
-      "ssm:GetParameter",
-      "ssm:GetParameters",
-      "ssm:GetParametersByPath",
-    ]
-
-    resources = formatlist("arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter%s", var.ssm.parameter_names)
-  }
-}
-
-resource "aws_iam_policy" "ssm" {
-  count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
-
-  description = "Provides minimum SSM read permissions."
-  name        = "${var.function_name}-ssm-policy-${data.aws_region.current.name}"
-  policy      = data.aws_iam_policy_document.ssm[count.index].json
-}
-
-resource "aws_iam_role_policy_attachment" "ssm" {
-  count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
-
-  role       = module.lambda.role_name
-  policy_arn = aws_iam_policy.ssm[count.index].arn
-}
-
-
-// Deprecated - will be removed in the next major version
-data "aws_iam_policy_document" "ssm_policy_document" {
-  count = length(var.ssm_parameter_names)
-
-  statement {
-    actions = [
-      "ssm:GetParameters",
-      "ssm:GetParametersByPath",
-    ]
-
-    resources = [
-      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/${element(var.ssm_parameter_names, count.index)}",
-    ]
-  }
-}
-
-// Deprecated - will be removed in the next major version
-resource "aws_iam_policy" "ssm_policy" {
-  count       = length(var.ssm_parameter_names)
-  name        = "${var.function_name}-ssm-${count.index}-${data.aws_region.current.name}"
-  description = "Provides minimum Parameter Store permissions for ${var.function_name}."
-  policy      = data.aws_iam_policy_document.ssm_policy_document[count.index].json
-}
-
-// Deprecated - will be removed in the next major version
-resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
-  count      = length(var.ssm_parameter_names)
-  role       = module.lambda.role_name
-  policy_arn = aws_iam_policy.ssm_policy[count.index].arn
-}
-
-// Deprecated - will be removed in the next major version
-data "aws_iam_policy_document" "kms_policy_document" {
-  count = var.kms_key_arn != "" ? 1 : 0
-
-  statement {
-    actions = [
-      "kms:Decrypt",
-    ]
-
-    resources = [
-      var.kms_key_arn,
-    ]
-  }
-}
-
-// Deprecated - will be removed in the next major version
-resource "aws_iam_policy" "kms_policy" {
-  count = var.kms_key_arn != "" ? 1 : 0
-
-  name        = "${var.function_name}-kms-${data.aws_region.current.name}"
-  description = "Provides minimum KMS permissions for ${var.function_name}."
-  policy      = data.aws_iam_policy_document.kms_policy_document[count.index].json
-}
-
-// Deprecated - will be removed in the next major version
-resource "aws_iam_role_policy_attachment" "kms_policy_attachment" {
-  count = var.kms_key_arn != "" ? 1 : 0
-
-  role       = module.lambda.role_name
-  policy_arn = aws_iam_policy.kms_policy[count.index].arn
 }
