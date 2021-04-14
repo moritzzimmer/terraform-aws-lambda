@@ -221,13 +221,15 @@ This module will add the required IAM permissions to the function role automatic
 In case of a `zip` deployment package, this module will also add the appropriate [extension layer](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html)
 to your function (use `cloudwatch_lambda_insights_extension_version` to set the version of this layer).
 
-For `image` deployment packages, the Lambda Insights extension needs to be added to the container image:
+For `image` deployment packages, the Lambda Insights extension needs to be added to the [container image](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-Getting-Started-docker.html):
 
 ```dockerfile
-FROM public.ecr.aws/serverless/extensions/lambda-insights:12 AS lambda-insights
-
 FROM public.ecr.aws/lambda/nodejs:12
-COPY --from=lambda-insights /opt /opt
+
+RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
+    rpm -U lambda-insights-extension.rpm && \
+    rm -f lambda-insights-extension.rpm
+
 COPY app.js /var/task/
 ```
 
