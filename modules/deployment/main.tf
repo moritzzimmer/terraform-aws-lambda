@@ -7,7 +7,7 @@ resource "aws_codepipeline" "this" {
   tags     = var.tags
 
   artifact_store {
-    location = module.s3_bucket.this_s3_bucket_id
+    location = module.s3_bucket.s3_bucket_id
     type     = "S3"
   }
 
@@ -47,7 +47,8 @@ resource "aws_codepipeline" "this" {
 }
 
 module "s3_bucket" {
-  source = "terraform-aws-modules/s3-bucket/aws"
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "2.1.0"
 
   bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true

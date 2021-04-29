@@ -45,8 +45,8 @@ resource "aws_iam_role" "codepipeline_role" {
           ]
           Effect = "Allow"
           Resource = [
-            module.s3_bucket.this_s3_bucket_arn,
-            "${module.s3_bucket.this_s3_bucket_arn}/*"
+            module.s3_bucket.s3_bucket_arn,
+            "${module.s3_bucket.s3_bucket_arn}/*"
           ]
         }
       ]

@@ -143,8 +143,8 @@ variable "publish" {
 
 variable "reserved_concurrent_executions" {
   description = "The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations."
-  default     = "-1"
-  type        = string
+  default     = -1
+  type        = number
 }
 
 variable "runtime" {
