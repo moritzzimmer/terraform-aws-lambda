@@ -68,7 +68,7 @@ resource "aws_iam_role" "codebuild_role" {
             "s3:PutObject"
           ]
           Effect   = "Allow"
-          Resource = "${module.s3_bucket.this_s3_bucket_arn}/*"
+          Resource = "${module.s3_bucket.s3_bucket_arn}/*"
         }
       ]
     })
