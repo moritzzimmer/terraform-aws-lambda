@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 0.12"
 
   required_providers {
-    aws = ">= 3.19"
+    aws = ">= 3.36"
 
     docker = {
       source  = "kreuzwerker/docker"
