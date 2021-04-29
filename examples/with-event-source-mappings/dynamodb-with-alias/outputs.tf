@@ -10,7 +10,7 @@ output "arn" {
 
 output "event_source_arns" {
   description = "The Amazon Resource Names (ARNs) identifying the event sources."
-  value       = list(aws_dynamodb_table.table_1.stream_arn, aws_dynamodb_table.table_2.stream_arn)
+  value       = [aws_dynamodb_table.table_1.stream_arn, aws_dynamodb_table.table_2.stream_arn]
 }
 
 output "function_name" {

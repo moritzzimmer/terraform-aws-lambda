@@ -1,6 +1,7 @@
 VERSION := $(shell cat VERSION.txt)
 PREFIX?=$(shell pwd)
-EXAMPLES_DIR := examples
+MODULES = $(shell find . -not -path "*/\.*" -iname "*.tf" | sed -E "s|/[^/]+$$||" | sort --unique)
+ROOT_DIR := $(shell pwd)
 
 ## Tools
 BINDIR := $(PREFIX)/bin
@@ -11,7 +12,7 @@ SEMBUMP := $(BINDIR)/sembump
 all: init fmt validate tflint tfsec
 
 .PHONY: init
-init: ## Initialize a Terraform working directory
+init: ## Initialize the Terraform working directory
 	@echo "+ $@"
 	@terraform init
 
@@ -23,17 +24,25 @@ fmt: ## Rewrites terraform files to canonical format
 .PHONY: validate
 validate: ## Validates the Terraform files
 	@echo "+ $@"
-	@AWS_REGION=eu-west-1 terraform validate
+	@for d in $(MODULES); do \
+		echo "validating $$d"; \
+		cd $$d ; terraform init -backend=false > /dev/null; \
+		AWS_REGION=eu-west-1 terraform validate -no-color || exit 1; cd $(ROOT_DIR);\
+	done;
 
 .PHONY: tflint
 tflint: ## Runs tflint on all Terraform files
 	@echo "+ $@"
-	@tflint || exit 2
+	@for d in $(MODULES); do \
+		echo "linting $$d"; \
+		cd $$d ; terraform init -backend=false > /dev/null; \
+		AWS_REGION=eu-west-1 tflint --config $(ROOT_DIR)/.tflint.hcl || exit 2; cd $(ROOT_DIR);\
+	done;
 
 .PHONY: tfsec
 tfsec: ## Runs tfsec on all Terraform files
 	@echo "+ $@"
-	@tfsec || exit 1
+	@tfsec --exclude-downloaded-modules --concise-output || exit 1
 
 .PHONY: test
 test: ## Runs all terratests
