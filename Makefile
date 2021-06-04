@@ -16,10 +16,9 @@ init: ## Initialize a Terraform working directory
 	@terraform init
 
 .PHONY: fmt
-fmt: ## Rewrites files to canonical format
+fmt: ## Rewrites Terraform files to canonical format
 	@echo "+ $@"
 	@terraform fmt -check=true -recursive
-	@goimports -w test/
 
 .PHONY: validate
 validate: ## Validates the Terraform files
