@@ -13,15 +13,7 @@
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_event-cloudwatch"></a> [event-cloudwatch](#module\_event-cloudwatch) | ./modules/event/cloudwatch-event | n/a |
-| <a name="module_event-dynamodb"></a> [event-dynamodb](#module\_event-dynamodb) | ./modules/event/dynamodb | n/a |
-| <a name="module_event-kinesis"></a> [event-kinesis](#module\_event-kinesis) | ./modules/event/kinesis | n/a |
-| <a name="module_event-s3"></a> [event-s3](#module\_event-s3) | ./modules/event/s3 | n/a |
-| <a name="module_event-sns"></a> [event-sns](#module\_event-sns) | ./modules/event/sns | n/a |
-| <a name="module_event-sqs"></a> [event-sqs](#module\_event-sqs) | ./modules/event/sqs | n/a |
-| <a name="module_lambda"></a> [lambda](#module\_lambda) | ./modules/lambda | n/a |
+No modules.
 
 ## Resources
 
@@ -60,8 +52,7 @@
 | <a name="input_cloudwatch_lambda_insights_extension_version"></a> [cloudwatch\_lambda\_insights\_extension\_version](#input\_cloudwatch\_lambda\_insights\_extension\_version) | Version of the Lambda Insights extension for Lambda functions using `zip` deployment packages, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html. | `number` | `14` | no |
 | <a name="input_description"></a> [description](#input\_description) | Description of what your Lambda Function does. | `string` | `""` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
-| <a name="input_event"></a> [event](#input\_event) | (deprecated - use `cloudwatch_event_rules` [EventBridge/CloudWatch Events], `event_source_mappings` [DynamoDb, Kinesis, SQS] or `sns_subscriptions` [SNS] instead) Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, kinesis, s3, sns, sqs | `map(string)` | `{}` | no |
-| <a name="input_event_source_mappings"></a> [event\_source\_mappings](#input\_event\_source\_mappings) | Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `any` | `{}` | no |
+| <a name="input_event_source_mappings"></a> [event\_source\_mappings](#input\_event\_source\_mappings) | Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `map(any)` | `{}` | no |
 | <a name="input_filename"></a> [filename](#input\_filename) | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | A unique name for your Lambda Function. | `string` | n/a | yes |
 | <a name="input_handler"></a> [handler](#input\_handler) | The function entrypoint in your code. | `string` | `""` | no |
