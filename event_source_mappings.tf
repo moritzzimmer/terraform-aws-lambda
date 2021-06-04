@@ -101,7 +101,8 @@ resource "aws_iam_policy" "event_sources" {
 }
 
 resource "aws_iam_role_policy_attachment" "event_sources" {
-  count      = length(var.event_source_mappings) > 0 ? 1 : 0
-  role       = module.lambda.role_name
+  count = length(var.event_source_mappings) > 0 ? 1 : 0
+
   policy_arn = aws_iam_policy.event_sources[count.index].arn
+  role       = aws_iam_role.lambda.name
 }

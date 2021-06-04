@@ -3,6 +3,9 @@ repos:
     rev: v1.49.0
     hooks:
       - id: terraform_fmt
+      - id: terraform_validate
+        args: ['--envs=AWS_REGION="eu-west-1"']
+      - id: terraform_tflint
   - repo: git://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
     hooks:

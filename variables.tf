@@ -45,12 +45,6 @@ variable "environment" {
   })
 }
 
-variable "event" {
-  description = "(deprecated - use `cloudwatch_event_rules` [EventBridge/CloudWatch Events], `event_source_mappings` [DynamoDb, Kinesis, SQS] or `sns_subscriptions` [SNS] instead) Event source configuration which triggers the Lambda function. Supported events: cloudwatch-scheduled-event, dynamodb, kinesis, s3, sns, sqs"
-  default     = {}
-  type        = map(string)
-}
-
 variable "event_source_mappings" {
   description = "Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events."
   default     = {}
@@ -189,11 +183,6 @@ variable "ssm" {
   type = object({
     parameter_names = list(string)
   })
-}
-
-variable "ssm_parameter_names" {
-  description = "DEPRECATED: use `ssm` object instead. This variable will be removed in version 6 of this module. (List of AWS Systems Manager Parameter Store parameters this Lambda will have access to. In order to decrypt secure parameters, a kms_key_arn needs to be provided as well.)"
-  default     = []
 }
 
 variable "tags" {
