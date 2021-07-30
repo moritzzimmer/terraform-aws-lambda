@@ -8,6 +8,11 @@ output "cloudwatch_log_group_name" {
   value       = aws_cloudwatch_log_group.lambda.name
 }
 
+output "cloudwatch_log_group_arn" {
+  description = "The Amazon Resource Name (ARN) identifying the CloudWatch log group used by your Lambda function."
+  value       = aws_cloudwatch_log_group.lambda.arn
+}
+
 output "function_name" {
   description = "The unique name of your Lambda Function."
   value       = module.lambda.function_name
