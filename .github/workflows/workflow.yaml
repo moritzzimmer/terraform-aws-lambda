@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        terraform: [ ~0.12.0, ~0.13.0, ~0.14.0, ~0.15.0 ]
+        terraform: [ ~0.12.0, ~0.13.0, ~0.14.0, ~0.15.0, ~1.0 ]
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -25,6 +25,6 @@ jobs:
       - name: install tools
         run: |
           curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
-          curl -L "$(curl -s https://api.github.com/repos/tfsec/tfsec/releases/latest | grep -o -E "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
+          curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -m 1 -o -E "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
 
       - run: make
