@@ -1,6 +1,6 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.12.2-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.12.2) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.13.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.13.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
 development of Lambda functions like:
@@ -50,7 +50,7 @@ provider "aws" {
 
 module "lambda" {
   source           = "moritzzimmer/lambda/aws"
-  version          = "5.12.2"
+  version          = "5.13.0"
 
   filename         = "my-package.zip"
   function_name    = "my-function"
@@ -67,7 +67,7 @@ see [example](examples/container-image) for details
 ```hcl
 module "lambda" {
   source        = "moritzzimmer/lambda/aws"
-  version       = "5.12.2"
+  version       = "5.13.0"
 
   function_name = "my-function"
   image_uri     = "111111111111.dkr.ecr.eu-west-1.amazonaws.com/my-image"
@@ -277,19 +277,19 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.19 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.37.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_event-cloudwatch"></a> [event-cloudwatch](#module\_event-cloudwatch) | ./modules/event/cloudwatch-event |  |
-| <a name="module_event-dynamodb"></a> [event-dynamodb](#module\_event-dynamodb) | ./modules/event/dynamodb |  |
-| <a name="module_event-kinesis"></a> [event-kinesis](#module\_event-kinesis) | ./modules/event/kinesis |  |
-| <a name="module_event-s3"></a> [event-s3](#module\_event-s3) | ./modules/event/s3 |  |
-| <a name="module_event-sns"></a> [event-sns](#module\_event-sns) | ./modules/event/sns |  |
-| <a name="module_event-sqs"></a> [event-sqs](#module\_event-sqs) | ./modules/event/sqs |  |
-| <a name="module_lambda"></a> [lambda](#module\_lambda) | ./modules/lambda |  |
+| <a name="module_event-cloudwatch"></a> [event-cloudwatch](#module\_event-cloudwatch) | ./modules/event/cloudwatch-event | n/a |
+| <a name="module_event-dynamodb"></a> [event-dynamodb](#module\_event-dynamodb) | ./modules/event/dynamodb | n/a |
+| <a name="module_event-kinesis"></a> [event-kinesis](#module\_event-kinesis) | ./modules/event/kinesis | n/a |
+| <a name="module_event-s3"></a> [event-s3](#module\_event-s3) | ./modules/event/s3 | n/a |
+| <a name="module_event-sns"></a> [event-sns](#module\_event-sns) | ./modules/event/sns | n/a |
+| <a name="module_event-sqs"></a> [event-sqs](#module\_event-sqs) | ./modules/event/sqs | n/a |
+| <a name="module_lambda"></a> [lambda](#module\_lambda) | ./modules/lambda | n/a |
 
 ## Resources
 
