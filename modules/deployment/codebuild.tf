@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/aws/codebuild/${var.function_name}-deployment"
-  retention_in_days = var.cloudwatch_logs_retention_in_days
+  retention_in_days = var.codebuild_cloudwatch_logs_retention_in_days
   tags              = var.tags
 }
 
@@ -27,9 +27,9 @@ resource "aws_codebuild_project" "this" {
   }
 
   environment {
-    compute_type = "BUILD_GENERAL1_SMALL"
-    image        = "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
-    type         = "LINUX_CONTAINER"
+    compute_type = var.codebuild_environment_compute_type
+    image        = var.codebuild_environment_image
+    type         = var.codebuild_environment_type
 
     environment_variable {
       name  = "FUNCTION_NAME"
@@ -50,6 +50,21 @@ resource "aws_codebuild_project" "this" {
       name  = "DEPLOYMENT_GROUP_NAME"
       value = aws_codedeploy_deployment_group.this.deployment_group_name
     }
+
+    environment_variable {
+      name  = "S3_BUCKET"
+      value = var.s3_bucket
+    }
+
+    environment_variable {
+      name  = "S3_KEY"
+      value = var.s3_key
+    }
+
+    environment_variable {
+      name  = "PACKAGE_TYPE"
+      value = var.ecr_repository_name != "" ? "Image" : "Zip"
+    }
   }
 
   source {
@@ -58,34 +73,26 @@ resource "aws_codebuild_project" "this" {
 version: 0.2
 phases:
   install:
+    on-failure: ABORT
     runtime-versions:
-      python: 3.8
-    commands:
-      - pip install --upgrade pip
-      - pip install 'boto3>=1.16.52' --force-reinstall
+      python: 3.9
   build:
     commands:
       - |
         cat << BUILD > build.py
         import boto3
         import json
-        import sys
         import os
         import hashlib
 
         print(f"boto3 version {boto3.__version__}")
-        ecr_push_json = json.load(sys.stdin)
+        lambda_client = boto3.client("lambda", region_name=os.environ.get("REGION"))
+        deploy_client = boto3.client("codedeploy", region_name=os.environ.get("REGION"))
 
-        img_uri = ecr_push_json["ImageURI"]
-        img_digest = ecr_push_json["ImageDigest"].split(":")[1]
-        print(f"Received Event from ECR img_uri={img_uri} and code_sha/digest={img_digest}")
-
+        # common Lambda function vars
         lambda_function_name = os.environ.get("FUNCTION_NAME")
         lambda_alias = os.environ.get("ALIAS_NAME")
         deployment_group_name = os.environ.get("DEPLOYMENT_GROUP_NAME")
-
-        lambda_client = boto3.client("lambda", region_name=os.environ.get("REGION"))
-        deploy_client = boto3.client("codedeploy", region_name=os.environ.get("REGION"))
 
         if lambda_alias:
             current_version = lambda_client.get_alias(
@@ -93,18 +100,25 @@ phases:
         else:
             current_version = lambda_client.get_function(FunctionName=lambda_function_name)["Configuration"]["Version"]
 
-        update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, ImageUri=img_uri)
-        updated_version = update_response["Version"]
-        # wait until the function becomes active after being updated (prevents ResourceConflictException)
-        waiter = lambda_client.get_waiter("function_updated")
-        waiter.wait(FunctionName=lambda_function_name, Qualifier=updated_version)
+        target_version = ""
+        if ("Zip" == os.environ.get("PACKAGE_TYPE")):
+          # S3 deployment
+          s3_bucket = os.environ.get("S3_BUCKET")
+          s3_key = os.environ.get("S3_KEY")
+          versionId = os.environ.get("SOURCEVARIABLES_VERSIONID")
+          print(f"starting S3 deployment: {s3_bucket}/{s3_key} (versionId={versionId})")
 
-        # publish the new version, verifying that the code_sha is equal to the incoming digest
-        publish_response = lambda_client.publish_version(FunctionName=lambda_function_name, CodeSha256=img_digest)
-        target_version = publish_response["Version"]
-        print(f"publish_version() response: version={publish_response['Version']} sha={publish_response['CodeSha256']} state={publish_response['State']}")
-        print(f"Done. Triggering CodeDeploy with:  current_version={current_version} target_version={target_version}")
+          update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, S3Bucket=s3_bucket, S3Key=s3_key, S3ObjectVersion=versionId, Publish=True)
+          target_version = update_response["Version"]
+        else:
+          # ECR/image deployment
+          image_uri = os.environ.get("SOURCEVARIABLES_IMAGE_URI")
 
+          print(f"starting ECR/image deployment: {image_uri}")
+          update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, ImageUri=image_uri, Publish=True)
+          target_version = update_response["Version"]
+
+        print(f"Updated function code. Triggering CodeDeploy with: current_version={current_version} target_version={target_version}")
         data = {
             "version": 0.0,
             "Resources": [{
@@ -146,48 +160,7 @@ phases:
 
         print(f"deployment was created. id = {deployment_id}")
         BUILD
-        cat imageDetail.json | python build.py
+        python build.py
 EOF
   }
 }
-
-/* Sample Input imageDetail.json
-{
-    "ImageSizeInBytes": "50801513",
-    "ImageDigest": "sha256:c3f76d75ee2150c7732b2b9c563234563550855c9f25f35cdd6754114c180cf9",
-    "Version": "1.0",
-    "ImagePushedAt": "Thu Oct 31 13:19:48 UTC 2019",
-    "RegistryId": "053041861227",
-    "RepositoryName": "code-deploy-sample",
-    "ImageURI": "053041861227.dkr.ecr.eu-west-1.amazonaws.com/peruggia-pub@sha256:b607a430c21198a5583ecf573bfabedd2641960b20dcd0501d6f332bcce57716",
-    "ImageTags": [
-        "latest"
-    ]
-}
-*/
-
-/* Sample output https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-example.html#appspec-file-example-lambda
-
-{
- 	"version": 0.0,
- 	"Resources": [{
- 		"myLambdaFunction": {
- 			"Type": "AWS::Lambda::Function",
- 			"Properties": {
- 				"Name": "myLambdaFunction",
- 				"Alias": "myLambdaFunctionAlias",
- 				"CurrentVersion": "1",
- 				"TargetVersion": "2"
- 			}
- 		}
- 	}],
- 	"Hooks": [{
- 			"BeforeAllowTraffic": "LambdaFunctionToValidateBeforeTrafficShift"
-      },
-      {
- 			"AfterAllowTraffic": "LambdaFunctionToValidateAfterTrafficShift"
- 		}
- 	]
- }
-
-*/

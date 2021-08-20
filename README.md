@@ -241,11 +241,11 @@ COPY app.js /var/task/
 
 ## Deployments
 
-Controlled, blue/green deployments of Lambda functions with (automatic) rolebacks and traffic shifting can be implemented using
+Controlled, blue/green deployments of Lambda functions with (automatic) rollbacks and traffic shifting can be implemented using
 Lambda [aliases](https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html) and AWS [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html).
 
 The optional [deployment](modules/deployment) submodule can be used to create the required AWS resources and permissions for creating and starting such
-CodeDeploy deployments as part of an AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), see [example](examples/deployment) for details.
+CodeDeploy deployments as part of an AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), see [examples](examples/deployment) for details.
 
 ## Examples
 
@@ -283,7 +283,7 @@ MINOR, and PATCH versions on each release to indicate any incompatibilities.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.37.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.54.0 |
 
 ## Modules
 

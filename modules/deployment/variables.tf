@@ -8,11 +8,6 @@ variable "alias_name" {
   type        = string
 }
 
-variable "ecr_repository_name" {
-  description = "Name of the ECR repository source used for deployments."
-  type        = string
-}
-
 variable "function_name" {
   description = "The name of your Lambda Function to deploy."
   type        = string
@@ -23,6 +18,7 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+
 variable "codepipeline_role_arn" {
   description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
@@ -32,6 +28,30 @@ variable "codepipeline_role_arn" {
 variable "codebuild_role_arn" {
   description = "ARN of an existing IAM role for CodeBuild execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
+  type        = string
+}
+
+variable "codebuild_cloudwatch_logs_retention_in_days" {
+  description = "Specifies the number of days you want to retain log events in the CodeBuild log group."
+  default     = 14
+  type        = number
+}
+
+variable "codebuild_environment_compute_type" {
+  description = "Information about the compute resources the build project will use."
+  default     = "BUILD_GENERAL1_SMALL"
+  type        = string
+}
+
+variable "codebuild_environment_image" {
+  description = "Docker image to use for this build project."
+  default     = "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+  type        = string
+}
+
+variable "codebuild_environment_type" {
+  description = "Type of build environment to use for related builds."
+  default     = "LINUX_CONTAINER"
   type        = string
 }
 
@@ -66,15 +86,27 @@ variable "deployment_config_name" {
 }
 
 variable "ecr_image_tag" {
-  description = "The tag used for the Lambda container image."
+  description = "The container tag used for ECR/container based deployments."
   default     = "latest"
   type        = string
 }
 
-variable "cloudwatch_logs_retention_in_days" {
-  description = "Specifies the number of days you want to retain log events in the specified log group."
-  default     = 14
-  type        = number
+variable "ecr_repository_name" {
+  description = "Name of the ECR repository source used for ECR/container based deployments, required for `package_type=Image`."
+  default     = ""
+  type        = string
+}
+
+variable "s3_bucket" {
+  description = "Name of the bucket used for S3 based deployments, required for `package_type=Zip`."
+  default     = ""
+  type        = string
+}
+
+variable "s3_key" {
+  description = "Object key used for S3 based deployments, required for `package_type=Zip`."
+  default     = ""
+  type        = string
 }
 
 variable "tags" {
