@@ -68,9 +68,31 @@ resource "aws_iam_role" "codebuild_role" {
             "s3:PutObject"
           ]
           Effect   = "Allow"
-          Resource = "${module.s3_bucket.s3_bucket_arn}/*"
+          Resource = "${aws_s3_bucket.pipeline.arn}/*"
         }
       ]
     })
+  }
+
+  dynamic "inline_policy" {
+    for_each = var.s3_bucket != "" ? [true] : []
+    content {
+      name = "${var.function_name}-codebuild-s3-${data.aws_region.current.name}"
+
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action = [
+              "s3:GetObjectVersion"
+            ]
+            Effect = "Allow"
+            Resource = [
+              "arn:aws:s3:::${var.s3_bucket}/${var.s3_key}"
+            ]
+          }
+        ]
+      })
+    }
   }
 }

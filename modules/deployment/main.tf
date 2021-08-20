@@ -7,51 +7,96 @@ resource "aws_codepipeline" "this" {
   tags     = var.tags
 
   artifact_store {
-    location = module.s3_bucket.s3_bucket_id
+    location = aws_s3_bucket.pipeline.bucket
     type     = "S3"
   }
 
   stage {
     name = "Source"
 
-    action {
-      name             = "ECR"
-      category         = "Source"
-      owner            = "AWS"
-      provider         = "ECR"
-      version          = "1"
-      output_artifacts = ["ecr_source"]
+    dynamic "action" {
+      for_each = var.ecr_repository_name != "" ? [true] : []
+      content {
+        name             = "ECR"
+        category         = "Source"
+        owner            = "AWS"
+        provider         = "ECR"
+        version          = "1"
+        namespace        = "SourceVariables"
+        input_artifacts  = []
+        output_artifacts = ["source"]
 
-      configuration = {
-        "ImageTag" : var.ecr_image_tag,
-        "RepositoryName" : var.ecr_repository_name
+        configuration = {
+          "ImageTag" : var.ecr_image_tag,
+          "RepositoryName" : var.ecr_repository_name
+        }
+      }
+    }
+
+    dynamic "action" {
+      for_each = var.s3_bucket != "" ? [true] : []
+      content {
+        name             = "S3"
+        category         = "Source"
+        owner            = "AWS"
+        provider         = "S3"
+        version          = "1"
+        namespace        = "SourceVariables"
+        input_artifacts  = []
+        output_artifacts = ["source"]
+
+        configuration = {
+          S3Bucket : var.s3_bucket,
+          S3ObjectKey : var.s3_key,
+          PollForSourceChanges : "false"
+        }
       }
     }
   }
 
   stage {
     name = "Build"
+
     action {
-      name            = "CodeBuild"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      version         = "1"
-      input_artifacts = ["ecr_source"]
+      name             = "CodeBuild"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source"]
+      output_artifacts = []
 
       configuration = {
-        "ProjectName" : aws_codebuild_project.this.name
+        ProjectName : aws_codebuild_project.this.name
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "SOURCEVARIABLES_VERSIONID"
+            value = var.s3_bucket != "" ? "#{SourceVariables.VersionId}" : ""
+            type  = "PLAINTEXT"
+          },
+          {
+            name  = "SOURCEVARIABLES_IMAGE_URI"
+            value = var.ecr_repository_name != "" ? "#{SourceVariables.ImageURI}" : ""
+            type  = "PLAINTEXT"
+          }
+        ])
       }
     }
   }
 }
 
-module "s3_bucket" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "2.1.0"
-
+resource "aws_s3_bucket" "pipeline" {
+  acl           = "private"
   bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
   tags          = var.tags
 }
 
+resource "aws_s3_bucket_public_access_block" "source" {
+  bucket = aws_s3_bucket.pipeline.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}

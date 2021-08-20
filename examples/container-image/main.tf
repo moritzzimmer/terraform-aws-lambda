@@ -1,18 +1,6 @@
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-data "aws_ecr_authorization_token" "token" {}
-
 locals {
-  ecr           = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com"
+  environment   = "production"
   function_name = "example-with-container-images"
-}
-
-provider "docker" {
-  registry_auth {
-    address  = local.ecr
-    password = data.aws_ecr_authorization_token.token.password
-    username = data.aws_ecr_authorization_token.token.user_name
-  }
 }
 
 resource "aws_ecr_repository" "this" {
@@ -20,23 +8,25 @@ resource "aws_ecr_repository" "this" {
 }
 
 module "lambda" {
-  source        = "../../"
+  source     = "../../"
+  depends_on = [null_resource.initial_image]
+
   description   = "Example usage for an AWS Lambda using container images."
   function_name = local.function_name
-  image_uri     = docker_registry_image.image.name
+  image_uri     = "${aws_ecr_repository.this.repository_url}:${local.environment}"
   package_type  = "Image"
-
-  image_config = {
-    // optionally overwrite arguments like 'command'
-    // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#image_config
-    command = ["app.handler"]
-  }
 }
 
-resource "docker_registry_image" "image" {
-  name = "${aws_ecr_repository.this.repository_url}:latest"
+resource "null_resource" "initial_image" {
+  depends_on = [aws_ecr_repository.this]
 
-  build {
-    context = "../fixtures/context"
+  provisioner "local-exec" {
+    command     = "docker build --tag ${aws_ecr_repository.this.repository_url}:${local.environment} ."
+    working_dir = "${path.module}/../fixtures/context"
+  }
+
+  provisioner "local-exec" {
+    command     = "docker push --all-tags ${aws_ecr_repository.this.repository_url}"
+    working_dir = "${path.module}/../fixtures/context"
   }
 }
