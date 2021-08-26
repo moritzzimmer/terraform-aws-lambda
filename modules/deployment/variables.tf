@@ -18,6 +18,11 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "create_codepipeline_cloudtrail" {
+  description = "Create a CloudTrail to detect S3 package uploads. Since AWS has a hard limit of 5 trails/account, it's recommended to create one central trail for all S3 packaged Lambda functions external to this module."
+  default     = false
+  type        = bool
+}
 
 variable "codepipeline_role_arn" {
   description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."

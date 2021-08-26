@@ -3,7 +3,7 @@ locals {
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
-  count      = var.s3_bucket != "" ? 1 : 0
+  count      = var.s3_bucket != "" && var.create_codepipeline_cloudtrail ? 1 : 0
   depends_on = [aws_s3_bucket_policy.cloudtrail]
 
   name                          = "${var.function_name}-s3-trail"
@@ -24,14 +24,14 @@ resource "aws_cloudtrail" "cloudtrail" {
 }
 
 resource "aws_s3_bucket_policy" "cloudtrail" {
-  count = var.s3_bucket != "" ? 1 : 0
+  count = var.s3_bucket != "" && var.create_codepipeline_cloudtrail ? 1 : 0
 
   bucket = var.s3_bucket
   policy = data.aws_iam_policy_document.cloudtrail[count.index].json
 }
 
 data "aws_iam_policy_document" "cloudtrail" {
-  count = var.s3_bucket != "" ? 1 : 0
+  count = var.s3_bucket != "" && var.create_codepipeline_cloudtrail ? 1 : 0
 
   statement {
     actions = ["s3:GetBucketAcl"]
