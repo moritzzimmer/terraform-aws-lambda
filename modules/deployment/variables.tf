@@ -19,7 +19,7 @@ variable "function_name" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 variable "create_codepipeline_cloudtrail" {
-  description = "Create a CloudTrail to detect S3 package uploads. Since AWS has a hard limit of 5 trails/account, it's recommended to create one central trail for all S3 packaged Lambda functions external to this module."
+  description = "Create a CloudTrail to detect S3 package uploads. Since AWS has a hard limit of 5 trails/region, it's recommended to create one central trail for all S3 packaged Lambda functions external to this module."
   default     = false
   type        = bool
 }

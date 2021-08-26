@@ -43,7 +43,7 @@ module "deployment" {
   source = "../../../modules/deployment"
 
   alias_name                     = aws_lambda_alias.this.name
-  create_codepipeline_cloudtrail = true // for brevity only, it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module (see below)
+  create_codepipeline_cloudtrail = false // for brevity only, it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module (see below)
   function_name                  = local.function_name
   s3_bucket                      = aws_s3_bucket_object.source.bucket
   s3_key                         = local.s3_key
@@ -86,19 +86,37 @@ resource "aws_s3_bucket_object" "source" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# CloudTrail resources - beware of the hard account limit of 5 trails!
+# CloudTrail resources - beware of the hard account limit of 5 trails/region!
 #
 # only necessary if the target AWS account doesn't contain a CloudTrail with S3 bucket
 # policy as described here: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html
 # ---------------------------------------------------------------------------------------------------------------------
 
+//resource "aws_s3_bucket" "cloudtrail" {
+//  acl           = "private"
+//  bucket        = "cloudtrail-s3-operations"
+//  force_destroy = true
+//}
+//
+//resource "aws_s3_bucket_public_access_block" "source" {
+//  bucket = aws_s3_bucket.cloudtrail.id
+//
+//  block_public_acls       = true
+//  block_public_policy     = true
+//  ignore_public_acls      = true
+//  restrict_public_buckets = true
+//}
+//
+//// AWS CodePipline with S3 sources integrates with CloudTrail to start pipelines
+//// after S3 upload events, see https://docs.aws.amazon.com/codepipeline/latest/userguide/update-change-detection.html
+////
+//// Since AWS has a hard limit of 5 trails/region
 //resource "aws_cloudtrail" "cloudtrail" {
 //  depends_on = [aws_s3_bucket_policy.cloudtrail]
 //
-//  name                          = "${local.function_name}-s3-trail"
+//  name                          = "s3-bucket-writeonly-trail"
 //  include_global_service_events = false
-//  s3_bucket_name                = aws_s3_bucket.source.bucket
-//  s3_key_prefix                 = local.cloudtrail_s3_prefix
+//  s3_bucket_name                = aws_s3_bucket.cloudtrail.bucket
 //
 //  event_selector {
 //    read_write_type           = "WriteOnly"
@@ -106,16 +124,17 @@ resource "aws_s3_bucket_object" "source" {
 //
 //    data_resource {
 //      type   = "AWS::S3::Object"
-//      values = ["arn:aws:s3:::${aws_s3_bucket.source.bucket}/${local.s3_key}"]
+//      values = ["arn:aws:s3:::"]
 //    }
 //  }
 //}
 //
 //resource "aws_s3_bucket_policy" "cloudtrail" {
-//  bucket = aws_s3_bucket.source.bucket
+//  bucket = aws_s3_bucket.cloudtrail.bucket
 //  policy = data.aws_iam_policy_document.cloudtrail.json
 //}
 //
+//// see https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html
 //data "aws_iam_policy_document" "cloudtrail" {
 //  statement {
 //    actions = ["s3:GetBucketAcl"]
@@ -126,7 +145,7 @@ resource "aws_s3_bucket_object" "source" {
 //    }
 //
 //    resources = [
-//      "arn:aws:s3:::${aws_s3_bucket.source.bucket}"
+//      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.bucket}"
 //    ]
 //  }
 //
@@ -145,7 +164,7 @@ resource "aws_s3_bucket_object" "source" {
 //    }
 //
 //    resources = [
-//      "arn:aws:s3:::${aws_s3_bucket.source.bucket}/${local.cloudtrail_s3_prefix}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+//      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.bucket}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
 //    ]
 //  }
 //}
