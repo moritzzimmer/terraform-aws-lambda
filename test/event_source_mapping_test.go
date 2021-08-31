@@ -1,14 +1,15 @@
 package test
 
 import (
-	"github.com/aws/aws-sdk-go/service/lambda"
-	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/stretchr/testify/assert"
+	"context"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/lambda"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
+	"github.com/stretchr/testify/assert"
 )
 
 const region = "eu-west-1"
@@ -24,10 +25,11 @@ func TestEventSourceMapping(t *testing.T) {
 		{name: "kinesis", dir: "examples/with-event-source-mappings/kinesis", alias: false},
 	}
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-	svc := lambda.New(sess, &aws.Config{Region: aws.String(region)})
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	if err != nil {
+		t.Fatalf("failed to load config: %v", err)
+	}
+	svc := lambda.NewFromConfig(cfg)
 
 	// Root folder where terraform files should be (relative to the test folder)
 	rootFolder := ".."
@@ -54,7 +56,7 @@ func TestEventSourceMapping(t *testing.T) {
 				arn = terraform.Output(t, terraformOptions, "arn")
 			}
 
-			resp, err := svc.ListEventSourceMappings(&lambda.ListEventSourceMappingsInput{
+			resp, err := svc.ListEventSourceMappings(context.TODO(), &lambda.ListEventSourceMappingsInput{
 				FunctionName: aws.String(fn),
 			})
 			if err != nil {
