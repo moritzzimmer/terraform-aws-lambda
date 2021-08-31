@@ -12,7 +12,8 @@ locals {
 }
 
 resource "aws_lambda_function" "lambda" {
-  count = var.ignore_external_function_updates ? 0 : 1
+  count      = var.ignore_external_function_updates ? 0 : 1
+  depends_on = [aws_cloudwatch_log_group.lambda]
 
   description                    = var.description
   filename                       = var.filename
@@ -72,7 +73,8 @@ resource "aws_lambda_function" "lambda" {
 // We need this copy workaround lifecycle configuration must be static,
 // see https://github.com/hashicorp/terraform/issues/24188.
 resource "aws_lambda_function" "lambda_external_lifecycle" {
-  count = var.ignore_external_function_updates ? 1 : 0
+  count      = var.ignore_external_function_updates ? 1 : 0
+  depends_on = [aws_cloudwatch_log_group.lambda]
 
   description                    = var.description
   filename                       = var.filename
@@ -130,30 +132,4 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
       image_uri, last_modified, qualified_arn, s3_object_version, version
     ]
   }
-}
-
-resource "aws_cloudwatch_log_group" "lambda" {
-  name              = "/aws/lambda/${var.lambda_at_edge ? "us-east-1." : ""}${var.function_name}"
-  retention_in_days = var.log_retention_in_days
-  tags              = var.tags
-}
-
-resource "aws_lambda_permission" "cloudwatch_logs" {
-  count = var.logfilter_destination_arn != "" ? 1 : 0
-
-  action        = "lambda:InvokeFunction"
-  function_name = var.logfilter_destination_arn
-  principal     = "logs.${data.aws_region.current.name}.amazonaws.com"
-  source_arn    = "${aws_cloudwatch_log_group.lambda.arn}:*"
-}
-
-resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
-  count      = var.logfilter_destination_arn != "" ? 1 : 0
-  depends_on = [aws_lambda_permission.cloudwatch_logs]
-
-  name            = "elasticsearch-stream-filter"
-  log_group_name  = aws_cloudwatch_log_group.lambda.name
-  filter_pattern  = ""
-  destination_arn = var.logfilter_destination_arn
-  distribution    = "ByLogStream"
 }

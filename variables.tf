@@ -31,6 +31,24 @@ variable "cloudwatch_lambda_insights_extension_version" {
   type        = number
 }
 
+variable "cloudwatch_logs_kms_key_id" {
+  description = "The ARN of the KMS Key to use when encrypting log data."
+  type        = string
+  default     = null
+}
+
+variable "cloudwatch_logs_retention_in_days" {
+  description = "Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire."
+  default     = null
+  type        = number
+}
+
+variable "cloudwatch_log_subscription_filters" {
+  description = "CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations."
+  default     = {}
+  type        = map(any)
+}
+
 variable "description" {
   description = "Description of what your Lambda Function does."
   default     = ""
@@ -103,18 +121,6 @@ variable "layers" {
   description = "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function."
   default     = []
   type        = list(string)
-}
-
-variable "log_retention_in_days" {
-  description = "Specifies the number of days you want to retain log events in the specified log group."
-  default     = 14
-  type        = number
-}
-
-variable "logfilter_destination_arn" {
-  description = "The ARN of the destination to deliver matching log events to. Kinesis stream or Lambda function ARN."
-  default     = ""
-  type        = string
 }
 
 variable "memory_size" {

@@ -17,7 +17,8 @@ development of Lambda functions like:
 - inline declaration of [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
 - inline declaration of [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-cloudwatch-event-rules))
 - IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
-- [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions to stream logs via another Lambda (e.g. to Elasticsearch)
+- [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions
+to stream logs to other Lambda functions (e.g. forwarding logs to Elasticsearch)
 - Lambda@Edge support fulfilling [requirements for CloudFront triggers](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html#lambda-requirements-cloudfront-triggers). Functions need
 to be deployed to US East (N. Virginia) region (`us-east-1`)
 - configuration for [Amazon CloudWatch Lambda Insights](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html) including required
@@ -195,17 +196,29 @@ module "lambda" {
 ### with CloudWatch Logs configuration
 
 The module will create a [CloudWatch Log Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group)
-for your Lambda function.
+for your Lambda function. It's retention period and [CloudWatch Logs subscription filters](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter)
+to stream logs to other Lambda functions (e.g. to forward logs to Amazon Elasticsearch Service) can be declared inline.
 
-The retention period and a [CloudWatch Logs subscription filter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter)
-(e.g. to stream logs to Amazon Elasticsearch Service) including required permissions can be declared inline:
+The module will create the required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) automatically.
+
+see [example](examples/with-cloudwatch-logs-subscription) for details
 
 ```hcl
 module "lambda" {
   // see above
 
-  log_retention_in_days     = 7
-  logfilter_destination_arn = "arn:aws:lambda:eu-west-1:647379381847:function:cloudwatch_logs_to_es_production"
+  cloudwatch_logs_retention_in_days = 14
+
+  cloudwatch_log_subscription_filters = {
+    lambda_1 = {
+      //see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter for available arguments
+      destination_arn = module.destination_1.arn // required
+    }
+
+    lambda_2 = {
+      destination_arn = module.destination_2.arn // required
+    }
+  }
 }
 ```
 
@@ -253,6 +266,7 @@ CodeDeploy deployments as part of an AWS [CodePipeline](https://docs.aws.amazon.
 - [deployment](examples/deployment)
 - [simple](examples/simple)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
+- [with-cloudwatch-logs-subscription](examples/with-cloudwatch-logs-subscription)
 - [with-event-source-mappings](examples/with-event-source-mappings)
 - [with-sns-subscriptions](examples/with-sns-subscriptions)
 
