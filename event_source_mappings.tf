@@ -26,14 +26,13 @@ locals {
 }
 
 resource "aws_lambda_event_source_mapping" "event_source" {
-  for_each   = var.event_source_mappings
-  depends_on = [module.lambda]
+  for_each = var.event_source_mappings
 
   batch_size                         = lookup(each.value, "batch_size", null)
   bisect_batch_on_function_error     = lookup(each.value, "bisect_batch_on_function_error", null)
   enabled                            = lookup(each.value, "enabled", null)
   event_source_arn                   = lookup(each.value, "event_source_arn", null)
-  function_name                      = lookup(each.value, "function_name", var.function_name)
+  function_name                      = lookup(each.value, "function_name", null) != null ? each.value["function_name"] : (var.ignore_external_function_updates ? aws_lambda_function.lambda_external_lifecycle[0].arn : aws_lambda_function.lambda[0].arn)
   maximum_batching_window_in_seconds = lookup(each.value, "maximum_batching_window_in_seconds", null)
   maximum_retry_attempts             = lookup(each.value, "maximum_retry_attempts", null)
   maximum_record_age_in_seconds      = lookup(each.value, "maximum_record_age_in_seconds", null)
