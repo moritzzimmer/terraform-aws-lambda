@@ -1,5 +1,8 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
+data "aws_s3_bucket" "artefacts" {
+  bucket = var.s3_bucket
+}
 
 resource "aws_codepipeline" "this" {
   name     = var.function_name
@@ -7,7 +10,7 @@ resource "aws_codepipeline" "this" {
   tags     = var.tags
 
   artifact_store {
-    location = aws_s3_bucket.pipeline.bucket
+    location = var.s3_bucket
     type     = "S3"
   }
 
@@ -83,20 +86,4 @@ resource "aws_codepipeline" "this" {
       }
     }
   }
-}
-
-resource "aws_s3_bucket" "pipeline" {
-  acl           = "private"
-  bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
-  force_destroy = true
-  tags          = var.tags
-}
-
-resource "aws_s3_bucket_public_access_block" "source" {
-  bucket = aws_s3_bucket.pipeline.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
 }

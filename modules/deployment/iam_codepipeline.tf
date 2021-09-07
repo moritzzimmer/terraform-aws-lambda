@@ -19,30 +19,6 @@ resource "aws_iam_role" "codepipeline_role" {
   })
 
   dynamic "inline_policy" {
-    for_each = var.s3_bucket != "" ? [true] : []
-    content {
-      name = "${var.function_name}-codepipeline-s3-${data.aws_region.current.name}"
-
-      policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Action = [
-              "s3:Get*",
-              "s3:ListBucket"
-            ]
-            Effect = "Allow"
-            Resource = [
-              "arn:aws:s3:::${var.s3_bucket}",
-              "arn:aws:s3:::${var.s3_bucket}/*",
-            ]
-          }
-        ]
-      })
-    }
-  }
-
-  dynamic "inline_policy" {
     for_each = var.ecr_repository_name != "" ? [true] : []
     content {
       name = "${var.function_name}-codepipeline-ecr-${data.aws_region.current.name}"
@@ -76,14 +52,14 @@ resource "aws_iam_role" "codepipeline_role" {
         },
         {
           Action = [
-            "s3:GetObject",
-            "s3:ListBucket",
-            "s3:PutObject"
+            "s3:Get*",
+            "s3:PutObject*",
+            "s3:ListBucket"
           ]
           Effect = "Allow"
           Resource = [
-            aws_s3_bucket.pipeline.arn,
-            "${aws_s3_bucket.pipeline.arn}/*"
+            data.aws_s3_bucket.artefacts.arn,
+            "${data.aws_s3_bucket.artefacts.arn}/${substr(var.function_name, 0, 21)}/*"
           ]
         }
       ]

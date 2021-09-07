@@ -103,8 +103,7 @@ variable "ecr_repository_name" {
 }
 
 variable "s3_bucket" {
-  description = "Name of the bucket used for S3 based deployments, required for `package_type=Zip`."
-  default     = ""
+  description = "Name of the bucket used for S3 based deployments, this bucket will also used for pipeline artefacts. A folder to contain the pipeline artifacts is created for you based on the name of the pipeline."
   type        = string
 }
 
