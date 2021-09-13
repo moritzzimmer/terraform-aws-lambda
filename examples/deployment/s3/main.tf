@@ -8,8 +8,8 @@ module "function" {
 locals {
   cloudtrail_s3_prefix = "cloudtrail"
   environment          = "production"
-  function_name        = "example-with-s3-codepipeline"
-  s3_key               = "package/lambda.zip"
+  function_name        = "with-s3-codepipeline"
+  s3_key               = "${local.function_name}/package/lambda.zip"
 }
 
 module "lambda" {
@@ -20,9 +20,9 @@ module "lambda" {
   ignore_external_function_updates = true
   publish                          = true
   runtime                          = "nodejs14.x"
-  s3_bucket                        = aws_s3_bucket_object.source.bucket
+  s3_bucket                        = aws_s3_bucket.source.bucket
   s3_key                           = local.s3_key
-  s3_object_version                = aws_s3_bucket_object.source.version_id
+  s3_object_version                = aws_s3_bucket_object.initial.version_id
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -42,11 +42,12 @@ resource "aws_lambda_alias" "this" {
 module "deployment" {
   source = "../../../modules/deployment"
 
-  alias_name                     = aws_lambda_alias.this.name
-  create_codepipeline_cloudtrail = false // for brevity only, it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module (see below)
-  function_name                  = local.function_name
-  s3_bucket                      = aws_s3_bucket_object.source.bucket
-  s3_key                         = local.s3_key
+  alias_name                         = aws_lambda_alias.this.name
+  create_codepipeline_cloudtrail     = false                       // for brevity only, it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module (see resources below)
+  codepipeline_artifact_store_bucket = aws_s3_bucket.source.bucket // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
+  function_name                      = local.function_name
+  s3_bucket                          = aws_s3_bucket.source.bucket
+  s3_key                             = local.s3_key
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@ module "deployment" {
 
 resource "aws_s3_bucket" "source" {
   acl           = "private"
-  bucket        = "${local.function_name}-sources-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  bucket        = "example-ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
 
   versioning {
@@ -74,7 +75,7 @@ resource "aws_s3_bucket_public_access_block" "source" {
 
 // this resource is only used for the initial `terraform apply` - all further
 // deployments are running on CodePipeline
-resource "aws_s3_bucket_object" "source" {
+resource "aws_s3_bucket_object" "initial" {
   bucket = aws_s3_bucket.source.bucket
   key    = local.s3_key
   source = module.function.output_path

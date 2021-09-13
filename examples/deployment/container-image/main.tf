@@ -1,6 +1,6 @@
 locals {
   environment   = "production"
-  function_name = "example-with-ecr-codepipeline"
+  function_name = "with-ecr-codepipeline"
 }
 
 module "lambda" {

@@ -1,13 +1,18 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+locals {
+  artifact_store_bucket     = var.codepipeline_artifact_store_bucket != "" ? var.codepipeline_artifact_store_bucket : aws_s3_bucket.pipeline[0].bucket
+  artifact_store_bucket_arn = "arn:aws:s3:::${local.artifact_store_bucket}"
+}
+
 resource "aws_codepipeline" "this" {
   name     = var.function_name
   role_arn = var.codepipeline_role_arn == "" ? aws_iam_role.codepipeline_role[0].arn : var.codepipeline_role_arn
   tags     = var.tags
 
   artifact_store {
-    location = aws_s3_bucket.pipeline.bucket
+    location = local.artifact_store_bucket
     type     = "S3"
   }
 
@@ -86,6 +91,8 @@ resource "aws_codepipeline" "this" {
 }
 
 resource "aws_s3_bucket" "pipeline" {
+  count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
+
   acl           = "private"
   bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
@@ -93,8 +100,9 @@ resource "aws_s3_bucket" "pipeline" {
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {
-  bucket = aws_s3_bucket.pipeline.id
+  count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
 
+  bucket                  = aws_s3_bucket.pipeline[count.index].id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true

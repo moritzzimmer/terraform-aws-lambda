@@ -82,8 +82,8 @@ resource "aws_iam_role" "codepipeline_role" {
           ]
           Effect = "Allow"
           Resource = [
-            aws_s3_bucket.pipeline.arn,
-            "${aws_s3_bucket.pipeline.arn}/*"
+            local.artifact_store_bucket_arn,
+            "${local.artifact_store_bucket_arn}/*"
           ]
         }
       ]

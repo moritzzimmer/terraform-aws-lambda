@@ -11,6 +11,14 @@ terraform plan
 
 Note that this example may create resources which cost money. Run `terraform destroy` to destroy those resources.
 
+### deploy
+
+Upload a new `zip` package to S3 to start the deployment pipeline:
+
+```shell
+aws s3api put-object --bucket example-ci-{account_id}-{region} --key with-s3-codepipeline/package/lambda.zip --body lambda.zip
+```
+
 ## Requirements
 
 | Name | Version |
