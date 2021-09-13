@@ -11,6 +11,17 @@ terraform plan
 
 Note that this example may create resources which cost money. Run `terraform destroy` to destroy those resources.
 
+### deploy
+
+Push an updated container image to `ECR` to start the deployment pipeline:
+
+```shell
+aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {account_id}.dkr.ecr.{region}.amazonaws.com
+docker build --tag {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipeline:production {context}
+docker push {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipeline:production
+```
+
+
 ## Requirements
 
 | Name | Version |

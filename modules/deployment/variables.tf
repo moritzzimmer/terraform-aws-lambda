@@ -24,6 +24,12 @@ variable "create_codepipeline_cloudtrail" {
   type        = bool
 }
 
+variable "codepipeline_artifact_store_bucket" {
+  description = "Name of an existing S3 bucket used by AWS CodePipeline to store pipeline artifacts. Use the same bucket name as in `s3_bucket` to store deployment packages and pipeline artifacts in one bucket for `package_type=Zip` functions. If empty, a dedicated S3 bucket for your Lambda function will be created."
+  default     = ""
+  type        = string
+}
+
 variable "codepipeline_role_arn" {
   description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""

@@ -64,11 +64,10 @@ resource "aws_iam_role" "codebuild_role" {
         },
         {
           Action = [
-            "s3:Get*",
-            "s3:PutObject"
+            "s3:Get*"
           ]
           Effect   = "Allow"
-          Resource = "${aws_s3_bucket.pipeline.arn}/*"
+          Resource = "${local.artifact_store_bucket_arn}/*"
         }
       ]
     })
