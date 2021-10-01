@@ -6,6 +6,7 @@ locals {
 resource "aws_lambda_function" "lambda" {
   count = var.ignore_external_function_updates ? 0 : 1
 
+  architectures                  = var.architectures
   description                    = var.description
   filename                       = var.filename
   function_name                  = var.function_name
@@ -66,6 +67,7 @@ resource "aws_lambda_function" "lambda" {
 resource "aws_lambda_function" "lambda_external_lifecycle" {
   count = var.ignore_external_function_updates ? 1 : 0
 
+  architectures                  = var.architectures
   description                    = var.description
   filename                       = var.filename
   function_name                  = var.function_name

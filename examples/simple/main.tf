@@ -3,7 +3,9 @@ module "source" {
 }
 
 module "lambda" {
-  source           = "../../"
+  source = "../../"
+
+  architectures    = ["arm64"]
   description      = "Example usage for an AWS Lambda without an event trigger."
   filename         = module.source.output_path
   function_name    = "example-without-event"
