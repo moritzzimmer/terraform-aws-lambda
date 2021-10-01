@@ -5,6 +5,7 @@ data "aws_caller_identity" "current" {}
 module "lambda" {
   source = "./modules/lambda"
 
+  architectures                                = var.architectures
   cloudwatch_lambda_insights_enabled           = var.cloudwatch_lambda_insights_enabled
   cloudwatch_lambda_insights_extension_version = var.cloudwatch_lambda_insights_extension_version
   description                                  = var.description

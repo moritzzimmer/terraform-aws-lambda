@@ -12,6 +12,12 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "architectures" {
+  default     = null
+  description = "Instruction set architecture for your Lambda function. Valid values are [\"x86_64\"] and [\"arm64\"]. Removing this attribute, function's architecture stay the same."
+  type        = list(string)
+}
+
 variable "cloudwatch_lambda_insights_enabled" {
   description = "Enable CloudWatch Lambda Insights for your Lambda function."
   default     = false

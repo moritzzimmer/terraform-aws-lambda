@@ -13,6 +13,12 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "architectures" {
+  default     = null
+  description = "Instruction set architecture for your Lambda function. Valid values are [\"x86_64\"] and [\"arm64\"]. Removing this attribute, function's architecture stay the same."
+  type        = list(string)
+}
+
 variable "cloudwatch_event_rules" {
   description = "Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated."
   default     = {}
@@ -33,7 +39,7 @@ variable "cloudwatch_lambda_insights_extension_version" {
 
 variable "description" {
   description = "Description of what your Lambda Function does."
-  default     = ""
+  default     = "Instruction set architecture for your Lambda function. Valid values are [\"x86_64\"] and [\"arm64\"]."
   type        = string
 }
 
