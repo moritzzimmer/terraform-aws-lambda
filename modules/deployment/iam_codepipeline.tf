@@ -33,8 +33,8 @@ resource "aws_iam_role" "codepipeline_role" {
             ]
             Effect = "Allow"
             Resource = [
-              "arn:aws:s3:::${var.s3_bucket}",
-              "arn:aws:s3:::${var.s3_bucket}/*",
+              "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}",
+              "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/*",
             ]
           }
         ]
@@ -53,7 +53,7 @@ resource "aws_iam_role" "codepipeline_role" {
           {
             Action   = ["ecr:DescribeImages"]
             Effect   = "Allow"
-            Resource = "arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${var.ecr_repository_name}"
+            Resource = "arn:${data.aws_partition.current.partition}:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${var.ecr_repository_name}"
           }
         ]
       })

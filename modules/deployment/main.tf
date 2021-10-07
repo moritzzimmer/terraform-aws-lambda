@@ -1,9 +1,10 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
+data "aws_partition" "current" {}
 
 locals {
   artifact_store_bucket     = var.codepipeline_artifact_store_bucket != "" ? var.codepipeline_artifact_store_bucket : aws_s3_bucket.pipeline[0].bucket
-  artifact_store_bucket_arn = "arn:aws:s3:::${local.artifact_store_bucket}"
+  artifact_store_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::${local.artifact_store_bucket}"
 }
 
 resource "aws_codepipeline" "this" {

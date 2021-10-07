@@ -27,12 +27,12 @@ resource "aws_iam_role" "codebuild_role" {
         {
           Action   = ["codedeploy:CreateDeployment"]
           Effect   = "Allow"
-          Resource = "arn:aws:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.this.name}/${aws_codedeploy_deployment_group.this.deployment_group_name}"
+          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.this.name}/${aws_codedeploy_deployment_group.this.deployment_group_name}"
         },
         {
           Action   = ["codedeploy:GetDeploymentConfig"]
           Effect   = "Allow"
-          Resource = "arn:aws:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentconfig:${var.deployment_config_name}"
+          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentconfig:${var.deployment_config_name}"
         },
         {
           Action = [
@@ -40,7 +40,7 @@ resource "aws_iam_role" "codebuild_role" {
             "codedeploy:RegisterApplicationRevision"
           ]
           Effect   = "Allow"
-          Resource = "arn:aws:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.this.name}"
+          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.this.name}"
         },
         {
           Action = [
@@ -51,7 +51,7 @@ resource "aws_iam_role" "codebuild_role" {
             "lambda:UpdateFunctionCode"
           ]
           Effect   = "Allow"
-          Resource = "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
+          Resource = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
         },
         {
           Action = [
@@ -60,7 +60,7 @@ resource "aws_iam_role" "codebuild_role" {
             "logs:PutLogEvents"
           ]
           Effect   = "Allow"
-          Resource = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"
+          Resource = "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"
         },
         {
           Action = [
@@ -87,7 +87,7 @@ resource "aws_iam_role" "codebuild_role" {
             ]
             Effect = "Allow"
             Resource = [
-              "arn:aws:s3:::${var.s3_bucket}/${var.s3_key}"
+              "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/${var.s3_key}"
             ]
           }
         ]
