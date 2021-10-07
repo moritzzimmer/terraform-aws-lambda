@@ -1,6 +1,6 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.15.1-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.15.1) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/Terraform%20CI/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-5.17.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/5.17.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
 development of Lambda functions like:
@@ -27,11 +27,6 @@ to be deployed to US East (N. Virginia) region (`us-east-1`)
   and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment)).
   Optionally ignore terraform state changes resulting from those deployments (using `ignore_external_function_updates`).
 
-## History
-
-Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
-should migrate to this module as a drop-in replacement to benefit from new features and bugfixes.
-
 ## How do I use this module?
 
 The module can be used for all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) supported by AWS Lambda.
@@ -51,7 +46,7 @@ provider "aws" {
 
 module "lambda" {
   source           = "moritzzimmer/lambda/aws"
-  version          = "5.15.1"
+  version          = "5.17.0"
 
   filename         = "my-package.zip"
   function_name    = "my-function"
@@ -68,7 +63,7 @@ see [example](examples/container-image) for details
 ```hcl
 module "lambda" {
   source        = "moritzzimmer/lambda/aws"
-  version       = "5.15.1"
+  version       = "5.17.0"
 
   function_name = "my-function"
   image_uri     = "111111111111.dkr.ecr.eu-west-1.amazonaws.com/my-image"
@@ -286,18 +281,23 @@ This Module follows the principles of [Semantic Versioning](http://semver.org/).
 During initial development, the major version will be 0 (e.g., `0.x.y`), which indicates the code does not yet have a
 stable API. Once we hit `1.0.0`, we will make every effort to maintain a backwards compatible API and use the MAJOR,
 MINOR, and PATCH versions on each release to indicate any incompatibilities.
+
+## History
+
+Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
+should migrate to this module as a drop-in replacement to benefit from new features and bugfixes.
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.19 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.61 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.56.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.61 |
 
 ## Modules
 
@@ -337,13 +337,14 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_architectures"></a> [architectures](#input\_architectures) | Instruction set architecture for your Lambda function. Valid values are ["x86\_64"] and ["arm64"]. Removing this attribute, function's architecture stay the same. | `list(string)` | `null` | no |
 | <a name="input_cloudwatch_event_rules"></a> [cloudwatch\_event\_rules](#input\_cloudwatch\_event\_rules) | Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated. | `map(any)` | `{}` | no |
 | <a name="input_cloudwatch_lambda_insights_enabled"></a> [cloudwatch\_lambda\_insights\_enabled](#input\_cloudwatch\_lambda\_insights\_enabled) | Enable CloudWatch Lambda Insights for your Lambda function. | `bool` | `false` | no |
 | <a name="input_cloudwatch_lambda_insights_extension_version"></a> [cloudwatch\_lambda\_insights\_extension\_version](#input\_cloudwatch\_lambda\_insights\_extension\_version) | Version of the Lambda Insights extension for Lambda functions using `zip` deployment packages, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html. | `number` | `14` | no |
-| <a name="input_cloudwatch_log_subscription_filters"></a> [cloudwatch\_log\_subscription\_filters](#input\_cloudwatch\_log\_subscription\_filters) | CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations. | `map` | `{}` | no |
+| <a name="input_cloudwatch_log_subscription_filters"></a> [cloudwatch\_log\_subscription\_filters](#input\_cloudwatch\_log\_subscription\_filters) | CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations. | `map(any)` | `{}` | no |
 | <a name="input_cloudwatch_logs_kms_key_id"></a> [cloudwatch\_logs\_kms\_key\_id](#input\_cloudwatch\_logs\_kms\_key\_id) | The ARN of the KMS Key to use when encrypting log data. | `string` | `null` | no |
 | <a name="input_cloudwatch_logs_retention_in_days"></a> [cloudwatch\_logs\_retention\_in\_days](#input\_cloudwatch\_logs\_retention\_in\_days) | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `number` | `null` | no |
-| <a name="input_description"></a> [description](#input\_description) | Description of what your Lambda Function does. | `string` | `""` | no |
+| <a name="input_description"></a> [description](#input\_description) | Description of what your Lambda Function does. | `string` | `"Instruction set architecture for your Lambda function. Valid values are [\"x86_64\"] and [\"arm64\"]."` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br>    variables = map(string)<br>  })</pre> | `null` | no |
 | <a name="input_event_source_mappings"></a> [event\_source\_mappings](#input\_event\_source\_mappings) | Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `any` | `{}` | no |
 | <a name="input_filename"></a> [filename](#input\_filename) | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
