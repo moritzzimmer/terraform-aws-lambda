@@ -1,4 +1,4 @@
-# Example with CloduWatch logs configuration
+# Example with CloudWatch logs configuration
 
 Creates an AWS Lambda function with CloudWatch logs subscription filters and configured retention time.
 

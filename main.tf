@@ -72,7 +72,7 @@ resource "aws_lambda_function" "lambda" {
 // Copy of the original Lambda resource plus lifecycle configuration ignoring
 // external changes executed by CodeDeploy, aws CLI and others.
 
-// We need this copy workaround lifecycle configuration must be static,
+// We need this copy workaround, since lifecycle configuration must be static,
 // see https://github.com/hashicorp/terraform/issues/24188.
 resource "aws_lambda_function" "lambda_external_lifecycle" {
   count      = var.ignore_external_function_updates ? 1 : 0

@@ -15,7 +15,7 @@ output "cloudwatch_log_group_arn" {
 
 output "function_name" {
   description = "The unique name of your Lambda Function."
-  value       = var.function_name
+  value       = var.ignore_external_function_updates ? aws_lambda_function.lambda_external_lifecycle[0].function_name : aws_lambda_function.lambda[0].function_name
 }
 
 output "invoke_arn" {
