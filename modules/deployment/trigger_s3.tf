@@ -18,7 +18,7 @@ resource "aws_cloudtrail" "cloudtrail" {
 
     data_resource {
       type   = "AWS::S3::Object"
-      values = ["arn:aws:s3:::${var.s3_bucket}/${var.s3_key}"]
+      values = ["arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/${var.s3_key}"]
     }
   }
 }
@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     }
 
     resources = [
-      "arn:aws:s3:::${var.s3_bucket}"
+      "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}"
     ]
   }
 
@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     }
 
     resources = [
-      "arn:aws:s3:::${var.s3_bucket}/${local.cloudtrail_s3_prefix}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+      "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/${local.cloudtrail_s3_prefix}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
     ]
   }
 }

@@ -168,4 +168,3 @@ resource "aws_s3_bucket_object" "initial" {
 //      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.bucket}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
 //    ]
 //  }
-//}
