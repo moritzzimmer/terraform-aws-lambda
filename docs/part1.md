@@ -27,11 +27,6 @@ to be deployed to US East (N. Virginia) region (`us-east-1`)
   and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment)).
   Optionally ignore terraform state changes resulting from those deployments (using `ignore_external_function_updates`).
 
-## History
-
-Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
-should migrate to this module as a drop-in replacement to benefit from new features and bugfixes.
-
 ## How do I use this module?
 
 The module can be used for all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) supported by AWS Lambda.
@@ -286,3 +281,8 @@ This Module follows the principles of [Semantic Versioning](http://semver.org/).
 During initial development, the major version will be 0 (e.g., `0.x.y`), which indicates the code does not yet have a
 stable API. Once we hit `1.0.0`, we will make every effort to maintain a backwards compatible API and use the MAJOR,
 MINOR, and PATCH versions on each release to indicate any incompatibilities.
+
+## History
+
+Implementation of this module started at [Spring Media/Welt](https://github.com/spring-media/terraform-aws-lambda). Users of `spring-media/lambda/aws`
+should migrate to this module as a drop-in replacement to benefit from new features and bugfixes.

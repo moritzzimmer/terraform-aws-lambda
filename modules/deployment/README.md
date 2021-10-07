@@ -173,7 +173,7 @@ resource "aws_s3_bucket_object" "source" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.37.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.19 |
 
 ## Modules
 
