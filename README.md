@@ -46,7 +46,6 @@ provider "aws" {
 
 module "lambda" {
   source           = "moritzzimmer/lambda/aws"
-  version          = "5.17.0"
 
   filename         = "my-package.zip"
   function_name    = "my-function"
@@ -63,7 +62,6 @@ see [example](examples/container-image) for details
 ```hcl
 module "lambda" {
   source        = "moritzzimmer/lambda/aws"
-  version       = "5.17.0"
 
   function_name = "my-function"
   image_uri     = "111111111111.dkr.ecr.eu-west-1.amazonaws.com/my-image"
