@@ -1,10 +1,11 @@
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
 
 locals {
-  function_arn        = "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
+  function_arn        = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
   handler             = var.package_type != "Zip" ? null : var.handler
-  lambda_insights_arn = "arn:aws:lambda:${data.aws_region.current.name}:580247275435:layer:LambdaInsightsExtension:${var.cloudwatch_lambda_insights_extension_version}"
+  lambda_insights_arn = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:580247275435:layer:LambdaInsightsExtension:${var.cloudwatch_lambda_insights_extension_version}"
   layers              = var.cloudwatch_lambda_insights_enabled && var.package_type != "Image" ? concat(var.layers, [local.lambda_insights_arn]) : var.layers
   publish             = var.lambda_at_edge ? true : var.publish
   runtime             = var.package_type != "Zip" ? null : var.runtime
@@ -15,7 +16,7 @@ resource "aws_lambda_function" "lambda" {
   count      = var.ignore_external_function_updates ? 0 : 1
   depends_on = [aws_cloudwatch_log_group.lambda]
 
-  architectures                                = var.architectures
+  architectures                  = var.architectures
   description                    = var.description
   filename                       = var.filename
   function_name                  = var.function_name
@@ -77,7 +78,7 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
   count      = var.ignore_external_function_updates ? 1 : 0
   depends_on = [aws_cloudwatch_log_group.lambda]
 
-  architectures                                = var.architectures
+  architectures                  = var.architectures
   description                    = var.description
   filename                       = var.filename
   function_name                  = var.function_name

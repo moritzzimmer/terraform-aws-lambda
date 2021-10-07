@@ -19,5 +19,5 @@ resource "aws_iam_role" "codedeploy" {
 
 resource "aws_iam_role_policy_attachment" "codedeploy" {
   role       = aws_iam_role.codedeploy.id
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"
 }
