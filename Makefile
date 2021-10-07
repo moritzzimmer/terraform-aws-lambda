@@ -28,7 +28,7 @@ validate: ## Validates the Terraform files
 .PHONY: tflint
 tflint: ## Runs tflint on all Terraform files
 	@echo "+ $@"
-	@tflint || exit 2
+	@tflint -f compact || exit 1
 
 .PHONY: tfsec
 tfsec: ## Runs tfsec on all Terraform files
