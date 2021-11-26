@@ -3,13 +3,11 @@ data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 
 locals {
-  function_arn        = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
-  handler             = var.package_type != "Zip" ? null : var.handler
-  lambda_insights_arn = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:580247275435:layer:LambdaInsightsExtension:${var.cloudwatch_lambda_insights_extension_version}"
-  layers              = var.cloudwatch_lambda_insights_enabled && var.package_type != "Image" ? concat(var.layers, [local.lambda_insights_arn]) : var.layers
-  publish             = var.lambda_at_edge ? true : var.publish
-  runtime             = var.package_type != "Zip" ? null : var.runtime
-  timeout             = var.lambda_at_edge ? min(var.timeout, 5) : var.timeout
+  function_arn = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
+  handler      = var.package_type != "Zip" ? null : var.handler
+  publish      = var.lambda_at_edge ? true : var.publish
+  runtime      = var.package_type != "Zip" ? null : var.runtime
+  timeout      = var.lambda_at_edge ? min(var.timeout, 5) : var.timeout
 }
 
 resource "aws_lambda_function" "lambda" {
@@ -23,7 +21,7 @@ resource "aws_lambda_function" "lambda" {
   handler                        = local.handler
   image_uri                      = var.image_uri
   kms_key_arn                    = var.kms_key_arn
-  layers                         = local.layers
+  layers                         = var.layers
   memory_size                    = var.memory_size
   package_type                   = var.package_type
   publish                        = local.publish
@@ -85,7 +83,7 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
   handler                        = local.handler
   image_uri                      = var.image_uri
   kms_key_arn                    = var.kms_key_arn
-  layers                         = local.layers
+  layers                         = var.layers
   memory_size                    = var.memory_size
   package_type                   = var.package_type
   publish                        = local.publish
