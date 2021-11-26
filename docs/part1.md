@@ -218,20 +218,24 @@ module "lambda" {
 ### with CloudWatch Lambda Insights
 
 [Amazon CloudWatch Lambda Insights](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html) can be enabled for `zip` and `image` function
-deployment packages of these [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html#monitoring-insights-runtimes):
+deployment packages of all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-extensions-api.html) supporting Lambda extensions.
+
+This module will add the required IAM permissions to the function role automatically for both package types. In case of a `zip` deployment package, 
+the region and architecture specific [layer version](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html)
+needs to specified in `layers`.
 
 ```hcl
 module "lambda" {
   // see above
 
   cloudwatch_lambda_insights_enabled = true
+  
+  // see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html
+  layers = "arn:aws:lambda:eu-west-1:580247275435:layer:LambdaInsightsExtension:16"
 }
 ```
 
-This module will add the required IAM permissions to the function role automatically for both package types.
 
-In case of a `zip` deployment package, this module will also add the appropriate [extension layer](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html)
-to your function (use `cloudwatch_lambda_insights_extension_version` to set the version of this layer).
 
 For `image` deployment packages, the Lambda Insights extension needs to be added to the [container image](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-Getting-Started-docker.html):
 

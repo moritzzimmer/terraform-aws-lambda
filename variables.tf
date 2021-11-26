@@ -31,12 +31,6 @@ variable "cloudwatch_lambda_insights_enabled" {
   type        = bool
 }
 
-variable "cloudwatch_lambda_insights_extension_version" {
-  description = "Version of the Lambda Insights extension for Lambda functions using `zip` deployment packages, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html."
-  default     = 14
-  type        = number
-}
-
 variable "cloudwatch_logs_kms_key_id" {
   description = "The ARN of the KMS Key to use when encrypting log data."
   type        = string

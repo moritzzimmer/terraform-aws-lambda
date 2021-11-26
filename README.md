@@ -218,20 +218,24 @@ module "lambda" {
 ### with CloudWatch Lambda Insights
 
 [Amazon CloudWatch Lambda Insights](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html) can be enabled for `zip` and `image` function
-deployment packages of these [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html#monitoring-insights-runtimes):
+deployment packages of all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-extensions-api.html) supporting Lambda extensions.
+
+This module will add the required IAM permissions to the function role automatically for both package types. In case of a `zip` deployment package, 
+the region and architecture specific [layer version](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html)
+needs to specified in `layers`.
 
 ```hcl
 module "lambda" {
   // see above
 
   cloudwatch_lambda_insights_enabled = true
+  
+  // see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html
+  layers = "arn:aws:lambda:eu-west-1:580247275435:layer:LambdaInsightsExtension:16"
 }
 ```
 
-This module will add the required IAM permissions to the function role automatically for both package types.
 
-In case of a `zip` deployment package, this module will also add the appropriate [extension layer](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html)
-to your function (use `cloudwatch_lambda_insights_extension_version` to set the version of this layer).
 
 For `image` deployment packages, the Lambda Insights extension needs to be added to the [container image](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-Getting-Started-docker.html):
 
@@ -339,7 +343,6 @@ No modules.
 | <a name="input_architectures"></a> [architectures](#input\_architectures) | Instruction set architecture for your Lambda function. Valid values are ["x86\_64"] and ["arm64"]. Removing this attribute, function's architecture stay the same. | `list(string)` | `null` | no |
 | <a name="input_cloudwatch_event_rules"></a> [cloudwatch\_event\_rules](#input\_cloudwatch\_event\_rules) | Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated. | `map(any)` | `{}` | no |
 | <a name="input_cloudwatch_lambda_insights_enabled"></a> [cloudwatch\_lambda\_insights\_enabled](#input\_cloudwatch\_lambda\_insights\_enabled) | Enable CloudWatch Lambda Insights for your Lambda function. | `bool` | `false` | no |
-| <a name="input_cloudwatch_lambda_insights_extension_version"></a> [cloudwatch\_lambda\_insights\_extension\_version](#input\_cloudwatch\_lambda\_insights\_extension\_version) | Version of the Lambda Insights extension for Lambda functions using `zip` deployment packages, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html. | `number` | `14` | no |
 | <a name="input_cloudwatch_log_subscription_filters"></a> [cloudwatch\_log\_subscription\_filters](#input\_cloudwatch\_log\_subscription\_filters) | CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations. | `map(any)` | `{}` | no |
 | <a name="input_cloudwatch_logs_kms_key_id"></a> [cloudwatch\_logs\_kms\_key\_id](#input\_cloudwatch\_logs\_kms\_key\_id) | The ARN of the KMS Key to use when encrypting log data. | `string` | `null` | no |
 | <a name="input_cloudwatch_logs_retention_in_days"></a> [cloudwatch\_logs\_retention\_in\_days](#input\_cloudwatch\_logs\_retention\_in\_days) | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `number` | `null` | no |
