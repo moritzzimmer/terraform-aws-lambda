@@ -115,7 +115,8 @@ data "aws_iam_policy_document" "event_sources" {
         "kinesis:DescribeStream",
         "kinesis:DescribeStreamSummary",
         "kinesis:GetRecords",
-        "kinesis:GetShardIterator"
+        "kinesis:GetShardIterator",
+        "kinesis:ListShards"
       ]
 
       resources = [
