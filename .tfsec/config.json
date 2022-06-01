@@ -1,0 +1,5 @@
+{
+  "exclude": [
+    "aws-lambda-enable-tracing"
+  ]
+}
