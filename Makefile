@@ -33,7 +33,7 @@ tflint: ## Runs tflint on all Terraform files
 .PHONY: tfsec
 tfsec: ## Runs tfsec on all Terraform files
 	@echo "+ $@"
-	@tfsec || exit 1
+	@tfsec . --exclude-downloaded-modules --concise-output || exit 1
 
 .PHONY: test
 test: ## Runs all terratests
