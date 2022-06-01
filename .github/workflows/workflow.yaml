@@ -16,13 +16,13 @@ jobs:
         terraform: [ ~0.12.0, ~0.13.0, ~0.14.0, ~0.15.0, ~1.0 ]
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: hashicorp/setup-terraform@v1.3.2
+      - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ matrix.terraform }}
 
-      - uses: terraform-linters/setup-tflint@v1
+      - uses: terraform-linters/setup-tflint@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
