@@ -190,9 +190,10 @@ module "lambda" {
 
 The module will create a [CloudWatch Log Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group)
 for your Lambda function. It's retention period and [CloudWatch Logs subscription filters](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter)
-to stream logs to other Lambda functions (e.g. to forward logs to Amazon Elasticsearch Service) can be declared inline.
+to stream logs to other Lambda functions (e.g. to forward logs to Amazon OpenSearch Service) can be declared inline.
 
 The module will create the required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) automatically.
+Sending logs to CloudWatch can be disabled with `cloudwatch_logs_enabled = false`
 
 see [example](examples/with-cloudwatch-logs-subscription) for details
 
@@ -200,16 +201,19 @@ see [example](examples/with-cloudwatch-logs-subscription) for details
 module "lambda" {
   // see above
 
+  // disable CloudWatch logs 
+  // cloudwatch_logs_enabled = false 
+  
   cloudwatch_logs_retention_in_days = 14
 
   cloudwatch_log_subscription_filters = {
     lambda_1 = {
       //see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter for available arguments
-      destination_arn = module.destination_1.arn // required
+      destination_arn = module.destination_1.arn
     }
 
     lambda_2 = {
-      destination_arn = module.destination_2.arn // required
+      destination_arn = module.destination_2.arn
     }
   }
 }
@@ -344,6 +348,7 @@ No modules.
 | <a name="input_cloudwatch_event_rules"></a> [cloudwatch\_event\_rules](#input\_cloudwatch\_event\_rules) | Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated. | `map(any)` | `{}` | no |
 | <a name="input_cloudwatch_lambda_insights_enabled"></a> [cloudwatch\_lambda\_insights\_enabled](#input\_cloudwatch\_lambda\_insights\_enabled) | Enable CloudWatch Lambda Insights for your Lambda function. | `bool` | `false` | no |
 | <a name="input_cloudwatch_log_subscription_filters"></a> [cloudwatch\_log\_subscription\_filters](#input\_cloudwatch\_log\_subscription\_filters) | CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations. | `map(any)` | `{}` | no |
+| <a name="input_cloudwatch_logs_enabled"></a> [cloudwatch\_logs\_enabled](#input\_cloudwatch\_logs\_enabled) | Enables your Lambda function to send logs to CloudWatch. The IAM role of this Lambda function will be enhanced with required permissions. | `bool` | `true` | no |
 | <a name="input_cloudwatch_logs_kms_key_id"></a> [cloudwatch\_logs\_kms\_key\_id](#input\_cloudwatch\_logs\_kms\_key\_id) | The ARN of the KMS Key to use when encrypting log data. | `string` | `null` | no |
 | <a name="input_cloudwatch_logs_retention_in_days"></a> [cloudwatch\_logs\_retention\_in\_days](#input\_cloudwatch\_logs\_retention\_in\_days) | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `number` | `null` | no |
 | <a name="input_description"></a> [description](#input\_description) | Description of what your Lambda Function does. | `string` | `"Instruction set architecture for your Lambda function. Valid values are [\"x86_64\"] and [\"arm64\"]."` | no |

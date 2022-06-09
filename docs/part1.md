@@ -190,9 +190,10 @@ module "lambda" {
 
 The module will create a [CloudWatch Log Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group)
 for your Lambda function. It's retention period and [CloudWatch Logs subscription filters](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter)
-to stream logs to other Lambda functions (e.g. to forward logs to Amazon Elasticsearch Service) can be declared inline.
+to stream logs to other Lambda functions (e.g. to forward logs to Amazon OpenSearch Service) can be declared inline.
 
 The module will create the required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) automatically.
+Sending logs to CloudWatch can be disabled with `cloudwatch_logs_enabled = false`
 
 see [example](examples/with-cloudwatch-logs-subscription) for details
 
@@ -200,16 +201,19 @@ see [example](examples/with-cloudwatch-logs-subscription) for details
 module "lambda" {
   // see above
 
+  // disable CloudWatch logs 
+  // cloudwatch_logs_enabled = false 
+  
   cloudwatch_logs_retention_in_days = 14
 
   cloudwatch_log_subscription_filters = {
     lambda_1 = {
       //see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter for available arguments
-      destination_arn = module.destination_1.arn // required
+      destination_arn = module.destination_1.arn
     }
 
     lambda_2 = {
-      destination_arn = module.destination_2.arn // required
+      destination_arn = module.destination_2.arn
     }
   }
 }
