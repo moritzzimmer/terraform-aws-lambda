@@ -60,6 +60,13 @@ module "lambda" {
       batch_size             = 50
       maximum_retry_attempts = 3
 
+      // Lambda event filtering, see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html
+      filter_criteria = {
+        pattern = jsonencode({
+          eventName : ["MODIFY"]
+        })
+      }
+
       // optionally configure a SNS or SQS destination for discarded batches, required IAM
       // permissions will be added automatically by this module,
       // see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
