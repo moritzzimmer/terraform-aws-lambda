@@ -128,6 +128,13 @@ module "lambda" {
       batch_size        = 50
       starting_position = "LATEST"
 
+      // Lambda event filtering, see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html
+      filter_criteria = {
+        pattern = jsonencode({
+          eventName : ["MODIFY"]
+        })
+      }
+
       // optionally configure a SNS or SQS destination for discarded batches, required IAM
       // permissions will be added automatically by this module,
       // see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
@@ -201,9 +208,9 @@ see [example](examples/with-cloudwatch-logs-subscription) for details
 module "lambda" {
   // see above
 
-  // disable CloudWatch logs 
-  // cloudwatch_logs_enabled = false 
-  
+  // disable CloudWatch logs
+  // cloudwatch_logs_enabled = false
+
   cloudwatch_logs_retention_in_days = 14
 
   cloudwatch_log_subscription_filters = {
@@ -238,8 +245,6 @@ module "lambda" {
   layers = "arn:aws:lambda:eu-west-1:580247275435:layer:LambdaInsightsExtension:16"
 }
 ```
-
-
 
 For `image` deployment packages, the Lambda Insights extension needs to be added to the [container image](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-Getting-Started-docker.html):
 

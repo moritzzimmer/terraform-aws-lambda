@@ -48,6 +48,16 @@ resource "aws_lambda_event_source_mapping" "event_source" {
       }
     }
   }
+
+  dynamic "filter_criteria" {
+    for_each = try(each.value["filter_criteria"], null) != null ? [true] : []
+
+    content {
+      filter {
+        pattern = try(each.value["filter_criteria"].pattern, null)
+      }
+    }
+  }
 }
 
 // type specific minimal permissions for supported event_sources,
