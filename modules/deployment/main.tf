@@ -94,10 +94,16 @@ resource "aws_codepipeline" "this" {
 resource "aws_s3_bucket" "pipeline" {
   count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
 
-  acl           = "private"
   bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
   tags          = var.tags
+}
+
+resource "aws_s3_bucket_acl" "pipeline" {
+  count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
+
+  acl    = "private"
+  bucket = aws_s3_bucket.pipeline[count.index].id
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {
