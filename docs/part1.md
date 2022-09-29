@@ -286,7 +286,7 @@ In case you are using [go](https://golang.org/) for developing your Lambda funct
 
 ## How do I contribute to this module?
 
-Contributions are very welcome! Check out the [Contribution Guidelines](https://github.com/moritzzimmer/terraform-aws-lambda/blob/master/CONTRIBUTING.md) for instructions.
+Contributions are very welcome! Check out the [Contribution Guidelines](https://github.com/moritzzimmer/terraform-aws-lambda/blob/main/CONTRIBUTING.md) for instructions.
 
 ## How is this module versioned?
 

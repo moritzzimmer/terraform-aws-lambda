@@ -76,7 +76,7 @@ check-git-clean:
 check-git-branch: check-git-clean
 	@echo "+ $@"
 	git fetch --all --tags --prune
-	git checkout master
+	git checkout main
 
 release: check-git-branch bump-version documentation ## Releases a new module version
 	@echo "+ $@"
