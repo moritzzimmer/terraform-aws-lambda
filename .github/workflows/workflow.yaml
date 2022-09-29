@@ -8,6 +8,10 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -26,9 +30,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: setup tools
+      - name: check
         run: |
-          curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -m 1 -o -E "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec && sudo mv tfsec /usr/bin/
           tflint --init
+          make init fmt validate tflint
 
-      - run: make
+      - name: tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          additional_args: --exclude-downloaded-modules
