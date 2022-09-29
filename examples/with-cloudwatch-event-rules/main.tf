@@ -29,7 +29,7 @@ module "lambda" {
       cloudwatch_event_target_arn = aws_lambda_alias.example.arn
 
       // optionally add `cloudwatch_event_target_input` for event input
-      cloudwatch_event_target_input = jsonencode({"key": "value"})
+      cloudwatch_event_target_input = jsonencode({ "key" : "value" })
     }
 
     pattern = {
