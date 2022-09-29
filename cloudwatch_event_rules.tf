@@ -25,6 +25,7 @@ resource "aws_cloudwatch_event_rule" "lambda" {
 resource "aws_cloudwatch_event_target" "lambda" {
   for_each = var.cloudwatch_event_rules
 
-  arn  = lookup(each.value, "cloudwatch_event_target_arn", local.function_arn)
-  rule = aws_cloudwatch_event_rule.lambda[each.key].name
+  arn   = lookup(each.value, "cloudwatch_event_target_arn", local.function_arn)
+  rule  = aws_cloudwatch_event_rule.lambda[each.key].name
+  input = lookup(each.value, "cloudwatch_event_target_input", null)
 }

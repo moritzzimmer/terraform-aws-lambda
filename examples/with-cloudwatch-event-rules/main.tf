@@ -27,6 +27,9 @@ module "lambda" {
 
       // optionally overwrite `cloudwatch_event_target_arn` in case an alias should be used for the event rule
       cloudwatch_event_target_arn = aws_lambda_alias.example.arn
+
+      // optionally add `cloudwatch_event_target_input` for event input
+      cloudwatch_event_target_input = jsonencode({ "key" : "value" })
     }
 
     pattern = {
