@@ -92,7 +92,7 @@ module "lambda" {
 
       // optionally overwrite `cloudwatch_event_target_arn` in case an alias should be used for the event rule
       cloudwatch_event_target_arn = aws_lambda_alias.example.arn
-      
+
       // optionally add `cloudwatch_event_target_input` for event input
       cloudwatch_event_target_input = jsonencode({"key": "value"})
     }
@@ -114,9 +114,13 @@ module "lambda" {
 
 [Event Source Mappings](https://www.terraform.io/docs/providers/aws/r/lambda_event_source_mapping.html) to trigger your Lambda function by DynamoDb,
 Kinesis and SQS can be declared inline. The module will add the required read-only IAM permissions depending on the event source type to
-the function role automatically. In addition, permissions to send discarded batches to SNS or SQS will be added automatically, if `destination_arn_on_failure` is configured.
+the function role automatically (including support for [dedicated-throughput consumers](https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html#services-kinesis-configure) using enhanced fan-out).
+
+Permissions to send discarded batches to SNS or SQS will be added automatically, if `destination_arn_on_failure` is configured.
 
 see [examples](examples/with-event-source-mappings) for details
+
+#### DynamoDb
 
 ```hcl
 module "lambda" {
@@ -153,6 +157,27 @@ module "lambda" {
     }
   }
 }
+```
+
+#### Kinesis
+
+```hcl
+resource "aws_kinesis_stream_consumer" "this" {
+  name       = module.lambda.function_name
+  stream_arn = aws_kinesis_stream.stream_2.arn
+}
+
+module "lambda" {
+  // see above
+
+  event_source_mappings = {
+    stream_1 = {
+      // To use a dedicated-throughput consumer with enhanced fan-out, specify the consumer's ARN instead of the stream's ARN, see https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html#services-kinesis-configure
+      event_source_arn = aws_kinesis_stream_consumer.this.arn
+    }
+  }
+}
+
 ```
 
 ### with SNS subscriptions

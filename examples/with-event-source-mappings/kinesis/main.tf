@@ -42,7 +42,14 @@ module "lambda" {
     }
 
     stream_2 = {
-      event_source_arn = aws_kinesis_stream.stream_2.arn
+      // To use a dedicated-throughput consumer with enhanced fan-out, specify the consumer's ARN instead of the stream's ARN, see https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html#services-kinesis-configure
+      event_source_arn = aws_kinesis_stream_consumer.this.arn
     }
   }
 }
+
+resource "aws_kinesis_stream_consumer" "this" {
+  name       = module.lambda.function_name
+  stream_arn = aws_kinesis_stream.stream_2.arn
+}
+
