@@ -9,6 +9,11 @@ locals {
     for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:kinesis:.*", lookup(v, "event_source_arn", null))) > 0
   ]
 
+  // compute all Kinesis consumers for enhanced fan-out
+  kinesis_consumers = [
+    for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:kinesis:.*/consumer/.*", lookup(v, "event_source_arn", null))) > 0
+  ]
+
   // compute all event source mappings for SQS
   sqs_event_sources = [
     for k, v in var.event_source_mappings : lookup(v, "event_source_arn", null) if length(regexall(".*:sqs:.*", lookup(v, "event_source_arn", null))) > 0
@@ -113,7 +118,7 @@ data "aws_iam_policy_document" "event_sources" {
       resources = [
         // extracting 'arn:${Partition}:kinesis:${Region}:${Account}:stream/' from the kinesis stream ARN
         // see https://docs.aws.amazon.com/IAM/latest/UserGuide/list_amazonkinesis.html#amazonkinesis-resources-for-iam-policies
-        length(regexall("arn.*\\/", local.kinesis_event_sources[0])) > 0 ? "${regex("arn.*\\/", local.kinesis_event_sources[0])}*" : ""
+        length(regexall("arn:.*:kinesis:.*:.*:stream/", local.kinesis_event_sources[0])) > 0 ? "${regex("arn:.*:kinesis:.*:.*:stream/", local.kinesis_event_sources[0])}*" : ""
       ]
     }
   }
@@ -130,8 +135,16 @@ data "aws_iam_policy_document" "event_sources" {
       ]
 
       resources = [
-        for arn in local.kinesis_event_sources : arn
+        for arn in local.kinesis_event_sources : replace(arn, "/\\/consumer.*/", "")
       ]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(local.kinesis_consumers) > 0 ? [true] : []
+    content {
+      actions   = ["kinesis:SubscribeToShard"]
+      resources = [for arn in local.kinesis_consumers : arn]
     }
   }
 
