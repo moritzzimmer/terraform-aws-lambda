@@ -223,3 +223,9 @@ variable "vpc_config" {
     subnet_ids         = list(string)
   })
 }
+
+variable "iam_role_name" {
+  description = "Override the name of the IAM role for the function. Otherwise the default will be your function name with the region as a suffix (or the sha256 hash if that exceeds 64 characters)"
+  default     = null
+  type        = string
+}
