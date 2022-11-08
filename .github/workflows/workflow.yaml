@@ -36,7 +36,7 @@ jobs:
           make init fmt validate tflint
 
       - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           additional_args: --exclude-downloaded-modules
