@@ -6,10 +6,9 @@ module "function" {
 }
 
 locals {
-  cloudtrail_s3_prefix = "cloudtrail"
-  environment          = "production"
-  function_name        = "with-s3-codepipeline"
-  s3_key               = "${local.function_name}/package/lambda.zip"
+  environment   = "production"
+  function_name = "with-s3-codepipeline"
+  s3_key        = "${local.function_name}/package/lambda.zip"
 }
 
 module "lambda" {
