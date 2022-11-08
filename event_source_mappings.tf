@@ -44,7 +44,7 @@ resource "aws_lambda_event_source_mapping" "event_source" {
   parallelization_factor             = lookup(each.value, "parallelization_factor", null)
   starting_position                  = lookup(each.value, "starting_position", length(regexall(".*:sqs:.*", lookup(each.value, "event_source_arn", null))) > 0 ? null : "TRIM_HORIZON")
   starting_position_timestamp        = lookup(each.value, "starting_position_timestamp", null)
-  function_response_types            = lookup(each.value, "function_response_types", [])
+  function_response_types            = lookup(each.value, "function_response_types", null)
 
   dynamic "destination_config" {
     for_each = lookup(each.value, "destination_arn_on_failure", null) != null ? [true] : []
