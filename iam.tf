@@ -1,7 +1,5 @@
 locals {
-  generated_iam_role_name = "${var.function_name}-${data.aws_region.current.name}"
-  safe_generated_iam_role_name = length(local.generated_iam_role_name) > 64 ? sha256(local.generated_iam_role_name) : local.generated_iam_role_name
-  iam_role_name = var.iam_role_name != null ? var.iam_role_name : local.safe_generated_iam_role_name
+  iam_role_name = coalesce(var.iam_role_name, "${var.function_name}-${data.aws_region.current.name}")
 }
 
 data "aws_iam_policy_document" "assume_role_policy" {
