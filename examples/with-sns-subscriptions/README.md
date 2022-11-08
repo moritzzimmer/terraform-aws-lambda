@@ -24,19 +24,36 @@ $ cd example-with-sns && make init package plan
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12 |
-| aws | >= 3.19 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.2 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.9 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 3.19 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.38.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_lambda"></a> [lambda](#module\_lambda) | ../../ | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_lambda_alias.example](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_alias) | resource |
+| [aws_sns_topic.topic_1](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [aws_sns_topic.topic_2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
+| [archive_file.sns_handler](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
-No input.
+No inputs.
 
 ## Outputs
 
-No output.
+No outputs.
