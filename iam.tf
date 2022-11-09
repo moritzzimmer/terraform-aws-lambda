@@ -1,3 +1,7 @@
+locals {
+  iam_role_name = coalesce(var.iam_role_name, "${var.function_name}-${data.aws_region.current.name}")
+}
+
 data "aws_iam_policy_document" "assume_role_policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -10,7 +14,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
 }
 
 resource "aws_iam_role" "lambda" {
-  name               = "${var.function_name}-${data.aws_region.current.name}"
+  name               = local.iam_role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
