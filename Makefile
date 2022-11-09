@@ -48,12 +48,6 @@ documentation: ## Generates README.md from static snippets and Terraform variabl
 	terraform-docs markdown table modules/deployment > docs/deployment/part2.md
 	cat docs/deployment/*.md > modules/deployment/README.md
 
-.PHONY: tag
-tag: ## Create a new git tag to prepare to build a release
-	@echo "+ $@"
-	git tag -a $(VERSION) -m "$(VERSION)"
-	@echo "Run git push origin $(VERSION) to push your new tag to GitHub and trigger a build."
-
 $(SEMBUMP):
 	GO111MODULE=off go get -u github.com/jessfraz/junk/sembump
 
@@ -82,7 +76,18 @@ release: check-git-branch bump-version documentation ## Releases a new module ve
 	@echo "+ $@"
 	git add VERSION.txt README.md docs/part1.md
 	git commit -vsam "Bump version to $(NEW_VERSION)"
-	@echo "Run make tag to create and push the tag for new version $(NEW_VERSION)"
+	git tag -a $(NEW_VERSION) -m "$(NEW_VERSION)"
+	git push origin $(NEW_VERSION)
+	git push
+	# create GH release if GITHUB_TOKEN is set
+	if [ ! -z "${GITHUB_TOKEN}" ] ; then 												\
+    	curl 																		\
+    		-H "Authorization: token ${GITHUB_TOKEN}" 								\
+    		-X POST 																\
+    		-H "Accept: application/vnd.github.v3+json"								\
+    		https://api.github.com/repos/moritzzimmer/terraform-aws-lambda/releases \
+    		-d "{\"tag_name\":\"$(NEXT_TAG)\",\"generate_release_notes\":true}"; 									\
+	fi;
 
 .PHONY: help
 help: ## Display this help screen
