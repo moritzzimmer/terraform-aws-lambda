@@ -69,6 +69,12 @@ variable "environment" {
   })
 }
 
+variable "ephemeral_storage_size" {
+  description = "The size of your Lambda functions ephemeral storage (/tmp) represented in MB. Valid value between 512 MB to 10240 MB."
+  default     = 512
+  type        = number
+}
+
 variable "event_source_mappings" {
   description = "Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events."
   default     = {}

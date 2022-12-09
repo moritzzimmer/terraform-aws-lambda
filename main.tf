@@ -35,6 +35,10 @@ resource "aws_lambda_function" "lambda" {
   tags                           = var.tags
   timeout                        = local.timeout
 
+  ephemeral_storage {
+    size = var.ephemeral_storage_size
+  }
+
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
@@ -96,6 +100,10 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
   source_code_hash               = var.source_code_hash
   tags                           = var.tags
   timeout                        = local.timeout
+
+  ephemeral_storage {
+    size = var.ephemeral_storage_size
+  }
 
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
