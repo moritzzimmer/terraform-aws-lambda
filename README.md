@@ -1,4 +1,4 @@
-# AWS Lambda Terraform module
+# AWS Lambda Terraform module - TEST
 
 ![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/static%20analysis/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-6.6.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/6.6.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
