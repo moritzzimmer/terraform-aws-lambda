@@ -13,6 +13,7 @@ $ terraform apply
 
 Note that this example may create resources which cost money. Run `terraform destroy` to destroy those resources.
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -46,3 +47,4 @@ No inputs.
 ## Outputs
 
 No outputs.
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

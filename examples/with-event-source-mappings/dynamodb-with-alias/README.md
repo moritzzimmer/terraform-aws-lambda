@@ -13,6 +13,7 @@ $ terraform apply
 
 Note that this example may create resources which cost money. Run `terraform destroy` to destroy those resources.
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -57,3 +58,4 @@ No inputs.
 | <a name="output_event_source_arns"></a> [event\_source\_arns](#output\_event\_source\_arns) | The Amazon Resource Names (ARNs) identifying the event sources. |
 | <a name="output_function_name"></a> [function\_name](#output\_function\_name) | The unique name of your Lambda Function. |
 | <a name="output_role_name"></a> [role\_name](#output\_role\_name) | The name of the IAM role attached to the Lambda Function. |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
