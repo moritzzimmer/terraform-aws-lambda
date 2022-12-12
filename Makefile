@@ -1,12 +1,25 @@
-VERSION := $(shell cat VERSION.txt)
-PREFIX?=$(shell pwd)
-EXAMPLES_DIR := examples
+DESCRIBE           := $(shell git fetch --all > /dev/null && git describe --match "v*" --always --tags)
+DESCRIBE_PARTS     := $(subst -, ,$(DESCRIBE))
+# 'v0.2.0'
+VERSION_TAG        := $(word 1,$(DESCRIBE_PARTS))
+# '0.2.0'
+VERSION            := $(subst v,,$(VERSION_TAG))
+# '0 2 0'
+VERSION_PARTS      := $(subst ., ,$(VERSION))
 
-## Tools
-BINDIR := $(PREFIX)/bin
-export GOBIN :=$(BINDIR)
-export PATH := $(GOBIN):$(PATH)
-SEMBUMP := $(BINDIR)/sembump
+MAJOR              := $(word 1,$(VERSION_PARTS))
+MINOR              := $(word 2,$(VERSION_PARTS))
+PATCH              := $(word 3,$(VERSION_PARTS))
+
+BUMP ?= patch
+ifeq ($(BUMP), major)
+NEXT_VERSION		:= $(shell echo $$(($(MAJOR)+1)).0.0)
+else ifeq ($(BUMP), minor)
+NEXT_VERSION		:= $(shell echo $(MAJOR).$$(($(MINOR)+1)).0)
+else
+NEXT_VERSION		:= $(shell echo $(MAJOR).$(MINOR).$$(($(PATCH)+1)))
+endif
+NEXT_TAG 			:= v$(NEXT_VERSION)
 
 all: init fmt validate tflint tfsec
 
@@ -48,18 +61,12 @@ documentation: ## Generates README.md from static snippets and Terraform variabl
 	terraform-docs markdown table modules/deployment > docs/deployment/part2.md
 	cat docs/deployment/*.md > modules/deployment/README.md
 
-$(SEMBUMP):
-	GO111MODULE=off go get -u github.com/jessfraz/junk/sembump
-
 .PHONY: bump-version
 BUMP ?= patch
-bump-version: $(SEMBUMP) ## Bump the version in the version file. Set BUMP to [ patch | major | minor ].
-	@echo "+ $@"
-	$(eval NEW_VERSION = $(shell $(BINDIR)/sembump --kind $(BUMP) $(VERSION)))
-	@echo "Bumping VERSION.txt from $(VERSION) to $(NEW_VERSION)"
-	echo $(NEW_VERSION) > VERSION.txt
+bump-version: ## Bumps the version of this module. Set BUMP to [ patch | major | minor ].
+	@echo bumping version from $(VERSION_TAG) to $(NEXT_TAG)
 	@echo "Updating links in README.md"
-	sed -i '' s/$(subst v,,$(VERSION))/$(subst v,,$(NEW_VERSION))/g docs/part1.md
+	@sed -i '' s/$(subst v,,$(VERSION))/$(subst v,,$(NEXT_VERSION))/g docs/part1.md
 
 .PHONY: check-git-clean
 check-git-clean:
@@ -74,10 +81,10 @@ check-git-branch: check-git-clean
 
 release: check-git-branch bump-version documentation ## Releases a new module version
 	@echo "+ $@"
-	git add VERSION.txt README.md docs/part1.md
-	git commit -vsam "Bump version to $(NEW_VERSION)"
-	git tag -a $(NEW_VERSION) -m "$(NEW_VERSION)"
-	git push origin $(NEW_VERSION)
+	git add README.md docs/part1.md
+	git commit -vsam "Bump version to $(NEXT_TAG)"
+	git tag -a $(NEXT_TAG) -m "$(NEXT_TAG)"
+	git push origin $(NEXT_TAG)
 	git push
 	# create GH release if GITHUB_TOKEN is set
 	if [ ! -z "${GITHUB_TOKEN}" ] ; then 												\
@@ -86,7 +93,7 @@ release: check-git-branch bump-version documentation ## Releases a new module ve
     		-X POST 																\
     		-H "Accept: application/vnd.github.v3+json"								\
     		https://api.github.com/repos/moritzzimmer/terraform-aws-lambda/releases \
-    		-d "{\"tag_name\":\"$(NEW_VERSION)\",\"generate_release_notes\":true}"; 									\
+    		-d "{\"tag_name\":\"$(NEXT_TAG)\",\"generate_release_notes\":true}"; 									\
 	fi;
 
 .PHONY: help
