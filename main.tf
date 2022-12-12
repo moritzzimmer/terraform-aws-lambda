@@ -138,7 +138,7 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
 
   lifecycle {
     ignore_changes = [
-      image_uri, qualified_arn, s3_object_version, version
+      image_uri, s3_object_version
     ]
   }
 }
