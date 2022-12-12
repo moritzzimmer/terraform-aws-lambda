@@ -20,6 +20,7 @@ $ func new example-with-sns -e sns
 $ cd example-with-sns && make init package plan
 ```
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -57,3 +58,4 @@ No inputs.
 ## Outputs
 
 No outputs.
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

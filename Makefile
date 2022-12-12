@@ -54,19 +54,16 @@ test: ## Runs all terratests
 	@cd test && go test -v -count=1 -timeout 30m
 
 .PHONY: documentation
-documentation: ## Generates README.md from static snippets and Terraform variables
+documentation: ## Updates README.md Terraform variables
 	@echo "+ $@"
-	terraform-docs markdown table . > docs/part2.md
-	cat docs/*.md > README.md
-	terraform-docs markdown table modules/deployment > docs/deployment/part2.md
-	cat docs/deployment/*.md > modules/deployment/README.md
+	pre-commit run terraform_docs
 
 .PHONY: bump-version
 BUMP ?= patch
 bump-version: ## Bumps the version of this module. Set BUMP to [ patch | major | minor ].
 	@echo bumping version from $(VERSION_TAG) to $(NEXT_TAG)
 	@echo "Updating links in README.md"
-	@sed -i '' s/$(subst v,,$(VERSION))/$(subst v,,$(NEXT_VERSION))/g docs/part1.md
+	@sed -i '' s/$(subst v,,$(VERSION))/$(subst v,,$(NEXT_VERSION))/g README.md
 
 .PHONY: check-git-clean
 check-git-clean:
@@ -81,7 +78,7 @@ check-git-branch: check-git-clean
 
 release: check-git-branch bump-version documentation ## Releases a new module version
 	@echo "+ $@"
-	git add README.md docs/part1.md
+	git add README.md
 	git commit -vsam "Bump version to $(NEXT_TAG)"
 	git tag -a $(NEXT_TAG) -m "$(NEXT_TAG)"
 	git push origin $(NEXT_TAG)

@@ -162,6 +162,7 @@ resource "aws_s3_bucket_object" "source" {
 - [container-image (ECR)](../../examples/deployment/container-image)
 - [zipped package (S3)](../../examples/deployment/s3)
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -173,7 +174,7 @@ resource "aws_s3_bucket_object" "source" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.38.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.40 |
 
 ## Modules
 
@@ -216,6 +217,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_alias_name"></a> [alias\_name](#input\_alias\_name) | Name of the Lambda alias used in CodeDeploy. | `string` | n/a | yes |
+| <a name="input_bar"></a> [bar](#input\_bar) | buzz | `string` | `"bar"` | no |
 | <a name="input_codebuild_cloudwatch_logs_retention_in_days"></a> [codebuild\_cloudwatch\_logs\_retention\_in\_days](#input\_codebuild\_cloudwatch\_logs\_retention\_in\_days) | Specifies the number of days you want to retain log events in the CodeBuild log group. | `number` | `14` | no |
 | <a name="input_codebuild_environment_compute_type"></a> [codebuild\_environment\_compute\_type](#input\_codebuild\_environment\_compute\_type) | Information about the compute resources the build project will use. | `string` | `"BUILD_GENERAL1_SMALL"` | no |
 | <a name="input_codebuild_environment_image"></a> [codebuild\_environment\_image](#input\_codebuild\_environment\_image) | Docker image to use for this build project. | `string` | `"aws/codebuild/amazonlinux2-x86_64-standard:3.0"` | no |
@@ -239,3 +241,4 @@ No modules.
 ## Outputs
 
 No outputs.
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

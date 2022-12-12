@@ -21,6 +21,7 @@ docker build --tag {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipe
 docker push {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipeline:production
 ```
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -58,3 +59,4 @@ No inputs.
 ## Outputs
 
 No outputs.
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

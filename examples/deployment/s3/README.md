@@ -19,6 +19,7 @@ Upload a new `zip` package to S3 to start the deployment pipeline:
 aws s3api put-object --bucket example-ci-{account_id}-{region} --key with-s3-codepipeline/package/lambda.zip --body lambda.zip
 ```
 
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -58,3 +59,4 @@ No inputs.
 ## Outputs
 
 No outputs.
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
