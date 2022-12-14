@@ -46,9 +46,7 @@ Note that this example may create resources which cost money. Run `terraform des
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_foo"></a> [foo](#input\_foo) | n/a | `string` | `"bar"` | no |
+No inputs.
 
 ## Outputs
 
@@ -56,7 +54,6 @@ Note that this example may create resources which cost money. Run `terraform des
 |------|-------------|
 | <a name="output_arn"></a> [arn](#output\_arn) | The Amazon Resource Name (ARN) identifying your Lambda Function. |
 | <a name="output_event_source_arns"></a> [event\_source\_arns](#output\_event\_source\_arns) | The Amazon Resource Names (ARNs) identifying the event sources. |
-| <a name="output_foo"></a> [foo](#output\_foo) | n/a |
 | <a name="output_function_name"></a> [function\_name](#output\_function\_name) | The unique name of your Lambda Function. |
 | <a name="output_role_name"></a> [role\_name](#output\_role\_name) | The name of the IAM role attached to the Lambda Function. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
