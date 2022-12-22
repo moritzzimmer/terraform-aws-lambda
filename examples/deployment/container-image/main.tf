@@ -1,6 +1,6 @@
 locals {
   environment   = "production"
-  function_name = "with-ecr-codepipeline"
+  function_name = "with-ecr-deployment"
 }
 
 module "lambda" {
@@ -38,14 +38,22 @@ module "deployment" {
   function_name       = local.function_name
 }
 
+#tfsec:ignore:aws-ecr-enforce-immutable-repository
 resource "aws_ecr_repository" "this" {
-  name = local.function_name
+  force_delete = true
+  name         = local.function_name
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
 
 // this resource is only used for the initial `terraform apply` - all further
 // deployments are running on CodePipeline
 resource "null_resource" "initial_image" {
-  depends_on = [aws_ecr_repository.this]
+  provisioner "local-exec" {
+    command = "aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${aws_ecr_repository.this.repository_url}"
+  }
 
   provisioner "local-exec" {
     command     = "docker build --tag ${aws_ecr_repository.this.repository_url}:${local.environment} ."

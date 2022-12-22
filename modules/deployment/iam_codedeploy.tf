@@ -15,6 +15,24 @@ resource "aws_iam_role" "codedeploy" {
       },
     ]
   })
+
+  inline_policy {
+    name = "${var.function_name}-codebuild-${data.aws_region.current.name}"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "s3:GetObject",
+            "s3:GetObjectVersion"
+          ]
+          Effect   = "Allow"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/${local.deploy_output}/*"
+        }
+      ]
+    })
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "codedeploy" {

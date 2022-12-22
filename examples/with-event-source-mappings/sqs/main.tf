@@ -1,9 +1,11 @@
 resource "aws_sqs_queue" "queue_1" {
-  name = "example-sqs-queue-1"
+  kms_master_key_id = "alias/aws/sqs"
+  name              = "example-sqs-queue-1"
 }
 
 resource "aws_sqs_queue" "queue_2" {
-  name = "example-sqs-queue-2"
+  kms_master_key_id = "alias/aws/sqs"
+  name              = "example-sqs-queue-2"
 }
 
 data "archive_file" "sqs_handler" {
@@ -23,7 +25,7 @@ module "lambda" {
   filename         = data.archive_file.sqs_handler.output_path
   function_name    = "example-with-sqs-event-source-mapping"
   handler          = "index.handler"
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   source_code_hash = data.archive_file.sqs_handler.output_base64sha256
 
   event_source_mappings = {

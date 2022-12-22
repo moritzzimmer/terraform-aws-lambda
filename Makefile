@@ -21,12 +21,10 @@ NEXT_VERSION		:= $(shell echo $(MAJOR).$(MINOR).$$(($(PATCH)+1)))
 endif
 NEXT_TAG 			:= v$(NEXT_VERSION)
 
-all: init fmt validate tflint tfsec
+STACKS = $(shell find . -not -path "*/\.*" -iname "*.tf" | sed -E "s|/[^/]+$$||" | sort --unique)
+ROOT_DIR := $(shell pwd)
 
-.PHONY: init
-init: ## Initialize a Terraform working directory
-	@echo "+ $@"
-	@terraform init
+all: fmt validate tflint tfsec
 
 .PHONY: fmt
 fmt: ## Rewrites Terraform files to canonical format
@@ -36,27 +34,35 @@ fmt: ## Rewrites Terraform files to canonical format
 .PHONY: validate
 validate: ## Validates the Terraform files
 	@echo "+ $@"
-	@AWS_REGION=eu-west-1 terraform validate
+	@for s in $(STACKS); do \
+		echo "validating $$s"; \
+		terraform -chdir=$$s init -backend=false > /dev/null; \
+		terraform -chdir=$$s validate || exit 1 ;\
+    done;
 
 .PHONY: tflint
 tflint: ## Runs tflint on all Terraform files
 	@echo "+ $@"
-	@tflint -f compact || exit 1
+	@tflint --init
+	@for s in $(STACKS); do \
+		echo "tflint $$s"; \
+		cd $$s; terraform init -backend=false > /dev/null; \
+		tflint -f compact --config $(ROOT_DIR)/.tflint.hcl || exit 1; cd $(ROOT_DIR);\
+	done;
 
 .PHONY: tfsec
 tfsec: ## Runs tfsec on all Terraform files
 	@echo "+ $@"
-	@tfsec . --exclude-downloaded-modules --concise-output || exit 1
+	@for s in $(STACKS); do \
+		echo "tfsec $$s"; \
+		cd $$s; terraform init -backend=false > /dev/null; \
+		tfsec --concise-output --minimum-severity HIGH --exclude aws-s3-encryption-customer-key,aws-sns-topic-encryption-use-cmk,aws-sqs-queue-encryption-use-cmk || exit 1; cd $(ROOT_DIR);\
+	done;
 
 .PHONY: test
 test: ## Runs all terratests
 	@echo "+ $@"
 	@cd test && go test -v -count=1 -timeout 30m
-
-.PHONY: documentation
-documentation: ## Updates README.md Terraform variables
-	@echo "+ $@"
-	pre-commit run terraform_docs
 
 .PHONY: bump-version
 BUMP ?= patch
@@ -76,7 +82,7 @@ check-git-branch: check-git-clean
 	git fetch --all --tags --prune
 	git checkout main
 
-release: check-git-branch bump-version documentation ## Releases a new module version
+release: check-git-branch bump-version ## Releases a new module version
 	@echo "+ $@"
 	git add README.md
 	git commit -vsam "Bump version to $(NEXT_TAG)"

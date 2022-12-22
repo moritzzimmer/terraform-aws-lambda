@@ -283,7 +283,7 @@ RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/am
     rpm -U lambda-insights-extension.rpm && \
     rm -f lambda-insights-extension.rpm
 
-COPY app.js /var/task/
+COPY index.js /var/task/
 ```
 
 ## Deployments

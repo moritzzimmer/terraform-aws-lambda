@@ -3,8 +3,13 @@ locals {
   function_name = "example-with-container-images"
 }
 
+#tfsec:ignore:aws-ecr-enforce-immutable-repository
 resource "aws_ecr_repository" "this" {
   name = local.function_name
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
 
 module "lambda" {
@@ -18,7 +23,9 @@ module "lambda" {
 }
 
 resource "null_resource" "initial_image" {
-  depends_on = [aws_ecr_repository.this]
+  provisioner "local-exec" {
+    command = "aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${aws_ecr_repository.this.repository_url}"
+  }
 
   provisioner "local-exec" {
     command     = "docker build --tag ${aws_ecr_repository.this.repository_url}:${local.environment} ."

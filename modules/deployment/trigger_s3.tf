@@ -2,12 +2,16 @@ locals {
   cloudtrail_s3_prefix = "cloudtrail"
 }
 
+# It's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module
+# which might use KMS encryption on log files, see https://docs.aws.amazon.com/awscloudtrail/latest/userguide/encrypting-cloudtrail-log-files-with-aws-kms.html
+#tfsec:ignore:aws-cloudtrail-enable-at-rest-encryption
 resource "aws_cloudtrail" "cloudtrail" {
   count      = var.s3_bucket != "" && var.create_codepipeline_cloudtrail ? 1 : 0
   depends_on = [aws_s3_bucket_policy.cloudtrail]
 
-  name                          = "${var.function_name}-s3-trail"
+  enable_log_file_validation    = true
   include_global_service_events = false
+  name                          = "${var.function_name}-s3-trail"
   s3_bucket_name                = var.s3_bucket
   s3_key_prefix                 = local.cloudtrail_s3_prefix
   tags                          = var.tags

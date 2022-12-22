@@ -1,9 +1,11 @@
 resource "aws_sns_topic" "topic_1" {
-  name = "example-sns-topic-1"
+  kms_master_key_id = "alias/aws/sns"
+  name              = "example-sns-topic-1"
 }
 
 resource "aws_sns_topic" "topic_2" {
-  name = "example-sns-topic-2"
+  kms_master_key_id = "alias/aws/sns"
+  name              = "example-sns-topic-2"
 }
 
 resource "aws_lambda_alias" "example" {
@@ -28,7 +30,7 @@ module "lambda" {
   filename         = data.archive_file.sns_handler.output_path
   function_name    = "example-with-sns-event"
   handler          = "index.handler"
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   source_code_hash = data.archive_file.sns_handler.output_base64sha256
 
   sns_subscriptions = {

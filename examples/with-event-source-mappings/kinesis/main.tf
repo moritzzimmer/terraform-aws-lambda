@@ -1,11 +1,15 @@
 resource "aws_kinesis_stream" "stream_1" {
-  name        = "example-kinesis-stream-1"
-  shard_count = 1
+  encryption_type = "KMS"
+  kms_key_id      = "alias/aws/kinesis"
+  name            = "example-kinesis-stream-1"
+  shard_count     = 1
 }
 
 resource "aws_kinesis_stream" "stream_2" {
-  name        = "example-kinesis-stream-2"
-  shard_count = 1
+  encryption_type = "KMS"
+  kms_key_id      = "alias/aws/kinesis"
+  name            = "example-kinesis-stream-2"
+  shard_count     = 1
 }
 
 data "archive_file" "kinesis_handler" {
@@ -25,7 +29,7 @@ module "lambda" {
   filename         = data.archive_file.kinesis_handler.output_path
   function_name    = "example-with-kinesis-event-source-mapping"
   handler          = "index.handler"
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   source_code_hash = data.archive_file.kinesis_handler.output_base64sha256
 
   event_source_mappings = {

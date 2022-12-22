@@ -1,18 +1,16 @@
 resource "aws_cloudwatch_log_group" "this" {
-  name              = "/aws/codebuild/${var.function_name}-deployment"
+  name              = "/aws/codebuild/${var.function_name}"
   retention_in_days = var.codebuild_cloudwatch_logs_retention_in_days
   tags              = var.tags
 }
 
 resource "aws_codebuild_project" "this" {
-  name         = "${var.function_name}-deployment"
+  name         = var.function_name
   service_role = var.codebuild_role_arn == "" ? aws_iam_role.codebuild_role[0].arn : var.codebuild_role_arn
   tags         = var.tags
 
   artifacts {
-    type                = "CODEPIPELINE"
-    artifact_identifier = "deploy_output"
-    location            = "appspec.json"
+    type = "CODEPIPELINE"
   }
 
   logs_config {
@@ -44,11 +42,6 @@ resource "aws_codebuild_project" "this" {
     environment_variable {
       name  = "ALIAS_NAME"
       value = var.alias_name
-    }
-
-    environment_variable {
-      name  = "DEPLOYMENT_GROUP_NAME"
-      value = aws_codedeploy_deployment_group.this.deployment_group_name
     }
 
     environment_variable {
@@ -87,26 +80,19 @@ phases:
 
         print(f"boto3 version {boto3.__version__}")
         lambda_client = boto3.client("lambda", region_name=os.environ.get("REGION"))
-        deploy_client = boto3.client("codedeploy", region_name=os.environ.get("REGION"))
 
         # common Lambda function vars
         lambda_function_name = os.environ.get("FUNCTION_NAME")
         lambda_alias = os.environ.get("ALIAS_NAME")
-        deployment_group_name = os.environ.get("DEPLOYMENT_GROUP_NAME")
 
-        if lambda_alias:
-            current_version = lambda_client.get_alias(
-                FunctionName=lambda_function_name, Name=lambda_alias)["FunctionVersion"]
-        else:
-            current_version = lambda_client.get_function(FunctionName=lambda_function_name)["Configuration"]["Version"]
-
+        current_version = lambda_client.get_alias(FunctionName=lambda_function_name, Name=lambda_alias)["FunctionVersion"]
         target_version = ""
         if ("Zip" == os.environ.get("PACKAGE_TYPE")):
           # S3 deployment
           s3_bucket = os.environ.get("S3_BUCKET")
           s3_key = os.environ.get("S3_KEY")
           versionId = os.environ.get("SOURCEVARIABLES_VERSIONID")
-          print(f"starting S3 deployment: {s3_bucket}/{s3_key} (versionId={versionId})")
+          print(f"S3 deployment: {s3_bucket}/{s3_key} (versionId={versionId})")
 
           update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, S3Bucket=s3_bucket, S3Key=s3_key, S3ObjectVersion=versionId, Publish=True)
           target_version = update_response["Version"]
@@ -114,53 +100,37 @@ phases:
           # ECR/image deployment
           image_uri = os.environ.get("SOURCEVARIABLES_IMAGE_URI")
 
-          print(f"starting ECR/image deployment: {image_uri}")
+          print(f"ECR deployment: {image_uri}")
           update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, ImageUri=image_uri, Publish=True)
           target_version = update_response["Version"]
 
-        print(f"Updated function code. Triggering CodeDeploy with: current_version={current_version} target_version={target_version}")
+        if (current_version == target_version):
+          print(f"we should probably skip deployment: current_version={current_version} target_version={target_version}")
+
         data = {
             "version": 0.0,
             "Resources": [{
                 lambda_function_name: {
                     "Type": "AWS::Lambda::Function",
                     "Properties": {
+                        "Alias": lambda_alias,
                         "Name": lambda_function_name,
                         "CurrentVersion": current_version,
                         "TargetVersion": target_version
                     }
                 }
-            }],
-            # "Hooks": [{
-            #     "BeforeAllowTraffic": "LambdaFunctionToValidateBeforeTrafficShift"
-            # },
-            #     {
-            #         "AfterAllowTraffic": "LambdaFunctionToValidateAfterTrafficShift"
-            #     }
-            # ]
-        }
-        if lambda_alias:
-            data["Resources"][0][lambda_function_name]["Properties"].update(
-                {"Alias": lambda_alias})
-
-        revision = {
-            "revisionType": "AppSpecContent",
-            "appSpecContent": {
-                "content": json.dumps(data),
-                "sha256": hashlib.sha256(json.dumps(data).encode("utf-8")).hexdigest()
-            }
+            }]
         }
 
-        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/codedeploy.html#CodeDeploy.Client.create_deployment
-        deployment_id = deploy_client.create_deployment(
-            applicationName=lambda_function_name,
-            deploymentGroupName=deployment_group_name,
-            revision=revision
-        )["deploymentId"]
-
-        print(f"deployment was created. id = {deployment_id}")
+        print(f"Updated function code, transitioning to CodeDeploy with: current_version={current_version} target_version={target_version}")
+        with open('appspec.json','w') as spec:
+          spec.write(json.dumps(data))
         BUILD
         python build.py
+      - cat appspec.json
+artifacts:
+  files:
+    - appspec.json
 EOF
   }
 }

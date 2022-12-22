@@ -10,7 +10,7 @@ module "lambda" {
   filename         = module.source.output_path
   function_name    = "example-without-event"
   handler          = "index.handler"
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   source_code_hash = module.source.output_base64sha256
 
   environment = {

@@ -25,24 +25,6 @@ resource "aws_iam_role" "codebuild_role" {
       Version = "2012-10-17"
       Statement = [
         {
-          Action   = ["codedeploy:CreateDeployment"]
-          Effect   = "Allow"
-          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.this.name}/${aws_codedeploy_deployment_group.this.deployment_group_name}"
-        },
-        {
-          Action   = ["codedeploy:GetDeploymentConfig"]
-          Effect   = "Allow"
-          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentconfig:${var.deployment_config_name}"
-        },
-        {
-          Action = [
-            "codedeploy:GetApplicationRevision",
-            "codedeploy:RegisterApplicationRevision"
-          ]
-          Effect   = "Allow"
-          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.this.name}"
-        },
-        {
           Action = [
             "lambda:GetAlias",
             "lambda:GetFunction",
@@ -64,10 +46,18 @@ resource "aws_iam_role" "codebuild_role" {
         },
         {
           Action = [
-            "s3:Get*"
+            "s3:GetObject",
+            "s3:GetObjectVersion"
           ]
           Effect   = "Allow"
-          Resource = "${local.artifact_store_bucket_arn}/*"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/source/*"
+        },
+        {
+          Action = [
+            "s3:PutObject",
+          ]
+          Effect   = "Allow"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/${local.deploy_output}/*"
         }
       ]
     })

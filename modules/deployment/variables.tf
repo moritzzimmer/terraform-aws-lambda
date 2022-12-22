@@ -30,6 +30,12 @@ variable "codepipeline_artifact_store_bucket" {
   type        = string
 }
 
+variable "codepipeline_artifact_store_encryption_key_id" {
+  description = "The KMS key ARN or ID of a key block AWS CodePipeline uses to encrypt the data in the artifact store, such as an AWS Key Management Service (AWS KMS) key. If you don't specify a key, AWS CodePipeline uses the default key for Amazon Simple Storage Service (Amazon S3)."
+  default     = ""
+  type        = string
+}
+
 variable "codepipeline_role_arn" {
   description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
@@ -79,7 +85,7 @@ variable "codestar_notifications_enabled" {
 }
 
 variable "codestar_notifications_event_type_ids" {
-  description = "A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#concepts-api."
+  description = "A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline."
   default     = ["codepipeline-pipeline-pipeline-execution-succeeded", "codepipeline-pipeline-pipeline-execution-failed"]
   type        = list(string)
 }
@@ -91,7 +97,7 @@ variable "codestar_notifications_target_arn" {
 }
 
 variable "deployment_config_name" {
-  description = "The name of the deployment config used in the CodeDeploy deployment group."
+  description = "The name of the deployment config used in the CodeDeploy deployment group, see https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html for all available default configurations or provide a custom one."
   default     = "CodeDeployDefault.LambdaAllAtOnce"
   type        = string
 }
