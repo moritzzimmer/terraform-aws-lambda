@@ -1,6 +1,8 @@
-# Example of blue/green deployment of a S3 packaged function
+# Complete example of blue/green deployments of Lambda functions
 
-Creates a S3 packaged AWS Lambda function deployed using AWS CodePipeline and CodeDeploy.
+Creates a S3 packaged AWS Lambda function deployed using AWS CodePipeline and CodeDeploy using a
+custom [deployment configuration](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) to shift traffic to the new version and executes traffic [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#reference-appspec-file-structure-hooks-section-structure-ecs-sample-function)
+before and after traffic is allowed to the deployed Lambda version.
 
 ## usage
 
@@ -25,12 +27,14 @@ aws s3api put-object --bucket example-ci-{account_id}-{region} --key with-s3-dep
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.2 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.40 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.2 |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.40 |
 
 ## Modules
@@ -40,16 +44,22 @@ aws s3api put-object --bucket example-ci-{account_id}-{region} --key with-s3-dep
 | <a name="module_deployment"></a> [deployment](#module\_deployment) | ../../../modules/deployment | n/a |
 | <a name="module_function"></a> [function](#module\_function) | ../../fixtures | n/a |
 | <a name="module_lambda"></a> [lambda](#module\_lambda) | ../../../ | n/a |
+| <a name="module_traffic_hook"></a> [traffic\_hook](#module\_traffic\_hook) | ../../../ | n/a |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_codedeploy_deployment_config.custom](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codedeploy_deployment_config) | resource |
+| [aws_iam_policy.traffic_hook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role_policy_attachment.traffic_hook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_alias.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_alias) | resource |
 | [aws_s3_bucket.source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_public_access_block.source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_object.initial](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
+| [archive_file.traffic_hook](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.traffic_hook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs

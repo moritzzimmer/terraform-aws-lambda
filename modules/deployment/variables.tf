@@ -72,6 +72,18 @@ variable "codebuild_environment_type" {
   type        = string
 }
 
+variable "codedeploy_appspec_hooks_after_allow_traffic_arn" {
+  description = "Lambda function ARN to run after traffic is shifted to the deployed Lambda function version."
+  default     = ""
+  type        = string
+}
+
+variable "codedeploy_appspec_hooks_before_allow_traffic_arn" {
+  description = "Lambda function ARN to run before traffic is shifted to the deployed Lambda function version."
+  default     = ""
+  type        = string
+}
+
 variable "codestar_notifications_detail_type" {
   description = "The level of detail to include in the notifications for this resource. Possible values are BASIC and FULL."
   default     = "BASIC"

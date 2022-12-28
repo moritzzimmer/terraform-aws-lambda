@@ -17,7 +17,7 @@ resource "aws_iam_role" "codedeploy" {
   })
 
   inline_policy {
-    name = "${var.function_name}-codebuild-${data.aws_region.current.name}"
+    name = "s3"
 
     policy = jsonencode({
       Version = "2012-10-17"
@@ -32,6 +32,40 @@ resource "aws_iam_role" "codedeploy" {
         }
       ]
     })
+  }
+
+  dynamic "inline_policy" {
+    for_each = var.codedeploy_appspec_hooks_after_allow_traffic_arn != "" ? [true] : []
+    content {
+      name = "hooks-after-allow-traffic"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = ["lambda:InvokeFunction"]
+            Effect   = "Allow"
+            Resource = var.codedeploy_appspec_hooks_after_allow_traffic_arn
+          }
+        ]
+      })
+    }
+  }
+
+  dynamic "inline_policy" {
+    for_each = var.codedeploy_appspec_hooks_before_allow_traffic_arn != "" ? [true] : []
+    content {
+      name = "hooks-after-before-traffic"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = ["lambda:InvokeFunction"]
+            Effect   = "Allow"
+            Resource = var.codedeploy_appspec_hooks_before_allow_traffic_arn
+          }
+        ]
+      })
+    }
   }
 }
 

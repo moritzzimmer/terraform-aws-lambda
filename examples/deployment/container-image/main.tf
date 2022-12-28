@@ -1,6 +1,6 @@
 locals {
   environment   = "production"
-  function_name = "with-ecr-deployment"
+  function_name = "ecr-deployment"
 }
 
 module "lambda" {

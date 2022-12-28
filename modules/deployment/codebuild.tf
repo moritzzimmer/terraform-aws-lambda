@@ -58,6 +58,16 @@ resource "aws_codebuild_project" "this" {
       name  = "PACKAGE_TYPE"
       value = var.ecr_repository_name != "" ? "Image" : "Zip"
     }
+
+    environment_variable {
+      name  = "HOOK_BEFORE_ALLOW_TRAFFIC"
+      value = var.codedeploy_appspec_hooks_before_allow_traffic_arn
+    }
+
+    environment_variable {
+      name  = "HOOK_AFTER_ALLOW_TRAFFIC"
+      value = var.codedeploy_appspec_hooks_after_allow_traffic_arn
+    }
   }
 
   source {
@@ -76,7 +86,6 @@ phases:
         import boto3
         import json
         import os
-        import hashlib
 
         print(f"boto3 version {boto3.__version__}")
         lambda_client = boto3.client("lambda", region_name=os.environ.get("REGION"))
@@ -119,8 +128,19 @@ phases:
                         "TargetVersion": target_version
                     }
                 }
-            }]
+            }],
+            "Hooks": []
         }
+
+        before_traffic = os.environ.get("HOOK_BEFORE_ALLOW_TRAFFIC")
+        if before_traffic:
+          print(f"adding before allow traffic hook={before_traffic}")
+          data["Hooks"].append({"BeforeAllowTraffic": before_traffic})
+
+        after_traffic = os.environ.get("HOOK_AFTER_ALLOW_TRAFFIC")
+        if after_traffic:
+          print(f"adding after allow traffic hook={after_traffic}")
+          data["Hooks"].append({"AfterAllowTraffic": after_traffic})
 
         print(f"Updated function code, transitioning to CodeDeploy with: current_version={current_version} target_version={target_version}")
         with open('appspec.json','w') as spec:

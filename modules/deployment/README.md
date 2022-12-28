@@ -1,27 +1,25 @@
 # Lambda function deployments using AWS CodePipeline and AWS CodeDeploy
 
-Terraform module to create AWS resources for blue/green deployments of [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) functions
-using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html) and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html).
+Terraform module to create AWS resources for secure blue/green deployments of [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) functions
+using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html).
 
 Basic principle for this module is to separate the infrastructure/configuration aspect of Lambda functions (e.g. IAM role, timeouts, runtime, CloudWatch logs)
 from continuous deployments of the actual function code.
 
-The latter should be build, tested and packaged (`Zip` or `Image`) on CI systems like GitHub actions and uploaded to S3/pushed ECR. Controlled,
-blue/green deployments of the function code with (automatic) rollbacks and traffic shifting will then be executed on AWS CodePipline using CodeBuild
-(updating function code) and CodeDeploy.
+The latter should be build, tested and packaged on CI systems like GitHub actions and uploaded to S3 (`package_type=Zip`) or pushed to ECR (`package_type=Image`).
+Controlled and secure blue/green deployments of the function code with (automatic) rollbacks and traffic shifting will then be executed in an AWS CodePipline using CodeBuild
+to update the function code and CodeDeploy to deploy the new function version.
 
 <img src="../../docs/deployment/deployment.png" />
 
 ## Features
 
-- fully automated AWS CodePipelines as code to deploy containerized Lambda functions from ECR or zipped packages from S3
+- fully automated AWS CodePipelines with CodeBuild and CodeDeploy stages to deploy containerized Lambda functions from ECR or zipped packages from S3
 - creation of IAM roles with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) for CodePipeline, CodeBuild and CodeDeploy
   or bring your own roles
 - SNS topic for [AWS CodeStar Notifications](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome.html) of CodePipeline events, or bring your own SNS topic
-
-(currently) not supported:
-
-- `BeforeAllowTraffic` and `AfterAllowTraffic` hooks in CodeDeploy
+- `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) CodeDeploy
+- AWS predefined and custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) for CodeDeploy
 
 ## How do I use this module?
 
@@ -44,10 +42,12 @@ It's recommended to build, test, package and upload all further function code ch
 
 ### using container images
 
-```hcl
+see [ECR example](../../examples/deployment/container-image) for details:
+
+```terraform
 locals {
   environment   = "production"
-  function_name = "example-with-ecr-codepipeline"
+  function_name = "with-ecr-codepipeline"
 }
 
 resource "aws_lambda_alias" "this" {
@@ -86,10 +86,12 @@ module "lambda" {
 
 ### using S3 packages
 
-```hcl
+see [S3 example](../../examples/deployment/s3) for details:
+
+```terraform
 locals {
   environment   = "production"
-  function_name = "example-with-s3-codepipeline"
+  function_name = "with-s3-codepipeline"
   s3_key        = "package/lambda.zip"
 }
 
@@ -158,9 +160,23 @@ resource "aws_s3_object" "source" {
 }
 ```
 
+**Note**: the [Amazon S3 source action](https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-S3.html)
+of the CodePipeline needs an AWS CloudTrail trail for logging events in your Amazon S3 source bucket and sending filtered events
+to an Amazon CloudWatch Events rule to get triggered (see [docs](https://docs.aws.amazon.com/codepipeline/latest/userguide/create-cloudtrail-S3-source.html)
+for details).
+
+Those resources can be created by this module using `create_codepipeline_cloudtrail=true`, however it's recommended
+to create those externally to this module since AWS has a hard account limit of 5 trails per region.
+
 ### with custom deployment configuration
 
+This module supports all predefined [default deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html)
+for the AWS Lambda compute platform as well as custom defined configs, see [complete example](../../examples/deployment/complete)
+for details:
+
 ```terraform
+// see above
+
 module "deployment" {
   source = "moritzzimmer/lambda/aws//modules/deployment"
 
@@ -185,8 +201,59 @@ resource "aws_codedeploy_deployment_config" "custom" {
   }
 }
 ```
+
+### with before and after allow traffic hooks
+
+see [complete example](../../examples/deployment/complete) for details:
+
+```terraform
+// see above
+
+module "deployment" {
+  source = "moritzzimmer/lambda/aws//modules/deployment"
+
+  alias_name                                        = aws_lambda_alias.this.name
+  codedeploy_appspec_hooks_after_allow_traffic_arn  = module.traffic_hook.arn
+  codedeploy_appspec_hooks_before_allow_traffic_arn = module.traffic_hook.arn
+  codepipeline_artifact_store_bucket                = aws_s3_bucket.source.bucket
+  function_name                                     = local.function_name
+  s3_bucket                                         = aws_s3_bucket.source.bucket
+  s3_key                                            = local.s3_key
+}
+
+module "traffic_hook" {
+  source = "moritzzimmer/lambda/aws"
+
+  architectures    = ["arm64"]
+  description      = "Lambda function executed by CodeDeploy before and/or after allow traffic to deployed version."
+  filename         = data.archive_file.traffic_hook.output_path
+  function_name    = "codedeploy-hook-example"
+  handler          = "hook.handler"
+  runtime          = "python3.9"
+  source_code_hash = data.archive_file.traffic_hook.output_base64sha256
+}
+
+data "aws_iam_policy_document" "traffic_hook" {
+  statement {
+    actions   = ["codedeploy:PutLifecycleEventHookExecutionStatus"]
+    resources = [module.deployment.codedeploy_deployment_group_arn]
+  }
+}
+
+resource "aws_iam_policy" "traffic_hook" {
+  name   = "codedeploy-hook-policy"
+  policy = data.aws_iam_policy_document.traffic_hook.json
+}
+
+resource "aws_iam_role_policy_attachment" "traffic_hook" {
+  role       = module.traffic_hook.role_name
+  policy_arn = aws_iam_policy.traffic_hook.arn
+}
+```
+
 ### Examples
 
+- [complete](../../examples/deployment/complete)
 - [container-image (ECR)](../../examples/deployment/container-image)
 - [zipped package (S3)](../../examples/deployment/s3)
 
@@ -251,6 +318,8 @@ No modules.
 | <a name="input_codebuild_environment_image"></a> [codebuild\_environment\_image](#input\_codebuild\_environment\_image) | Docker image to use for this build project. | `string` | `"aws/codebuild/amazonlinux2-x86_64-standard:4.0"` | no |
 | <a name="input_codebuild_environment_type"></a> [codebuild\_environment\_type](#input\_codebuild\_environment\_type) | Type of build environment to use for related builds. | `string` | `"LINUX_CONTAINER"` | no |
 | <a name="input_codebuild_role_arn"></a> [codebuild\_role\_arn](#input\_codebuild\_role\_arn) | ARN of an existing IAM role for CodeBuild execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created. | `string` | `""` | no |
+| <a name="input_codedeploy_appspec_hooks_after_allow_traffic_arn"></a> [codedeploy\_appspec\_hooks\_after\_allow\_traffic\_arn](#input\_codedeploy\_appspec\_hooks\_after\_allow\_traffic\_arn) | Lambda function ARN to run after traffic is shifted to the deployed Lambda function version. | `string` | `""` | no |
+| <a name="input_codedeploy_appspec_hooks_before_allow_traffic_arn"></a> [codedeploy\_appspec\_hooks\_before\_allow\_traffic\_arn](#input\_codedeploy\_appspec\_hooks\_before\_allow\_traffic\_arn) | Lambda function ARN to run before traffic is shifted to the deployed Lambda function version. | `string` | `""` | no |
 | <a name="input_codepipeline_artifact_store_bucket"></a> [codepipeline\_artifact\_store\_bucket](#input\_codepipeline\_artifact\_store\_bucket) | Name of an existing S3 bucket used by AWS CodePipeline to store pipeline artifacts. Use the same bucket name as in `s3_bucket` to store deployment packages and pipeline artifacts in one bucket for `package_type=Zip` functions. If empty, a dedicated S3 bucket for your Lambda function will be created. | `string` | `""` | no |
 | <a name="input_codepipeline_artifact_store_encryption_key_id"></a> [codepipeline\_artifact\_store\_encryption\_key\_id](#input\_codepipeline\_artifact\_store\_encryption\_key\_id) | The KMS key ARN or ID of a key block AWS CodePipeline uses to encrypt the data in the artifact store, such as an AWS Key Management Service (AWS KMS) key. If you don't specify a key, AWS CodePipeline uses the default key for Amazon Simple Storage Service (Amazon S3). | `string` | `""` | no |
 | <a name="input_codepipeline_role_arn"></a> [codepipeline\_role\_arn](#input\_codepipeline\_role\_arn) | ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created. | `string` | `""` | no |
@@ -269,5 +338,7 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_codedeploy_deployment_group_arn"></a> [codedeploy\_deployment\_group\_arn](#output\_codedeploy\_deployment\_group\_arn) | The Amazon Resource Name (ARN) of the CodeDeploy deployment group. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

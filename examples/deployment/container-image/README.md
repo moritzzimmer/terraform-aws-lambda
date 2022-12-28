@@ -1,4 +1,4 @@
-# Example using CodePipeline deployment of containerized function
+# Example of blue/green deployment of a containerized function
 
 Creates a containerized AWS Lambda function deployed using AWS CodePipeline and CodeDeploy.
 
