@@ -43,15 +43,17 @@ resource "aws_lambda_alias" "this" {
 module "deployment" {
   source = "../../../modules/deployment"
 
-  alias_name                                        = aws_lambda_alias.this.name
-  create_codepipeline_cloudtrail                    = true // it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module
-  codedeploy_appspec_hooks_after_allow_traffic_arn  = module.traffic_hook.arn
-  codedeploy_appspec_hooks_before_allow_traffic_arn = module.traffic_hook.arn
-  codepipeline_artifact_store_bucket                = aws_s3_bucket.source.bucket                // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
-  deployment_config_name                            = aws_codedeploy_deployment_config.custom.id // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
-  function_name                                     = local.function_name
-  s3_bucket                                         = aws_s3_bucket.source.bucket
-  s3_key                                            = local.s3_key
+  alias_name                                                      = aws_lambda_alias.this.name
+  create_codepipeline_cloudtrail                                  = true // it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module
+  codedeploy_appspec_hooks_after_allow_traffic_arn                = module.traffic_hook.arn
+  codedeploy_appspec_hooks_before_allow_traffic_arn               = module.traffic_hook.arn
+  codedeploy_deployment_group_auto_rollback_configuration_enabled = true
+  codedeploy_deployment_group_auto_rollback_configuration_events  = ["DEPLOYMENT_FAILURE", "DEPLOYMENT_STOP_ON_ALARM"]
+  codepipeline_artifact_store_bucket                              = aws_s3_bucket.source.bucket                // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
+  deployment_config_name                                          = aws_codedeploy_deployment_config.custom.id // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
+  function_name                                                   = local.function_name
+  s3_bucket                                                       = aws_s3_bucket.source.bucket
+  s3_key                                                          = local.s3_key
 }
 
 resource "aws_codedeploy_deployment_config" "custom" {

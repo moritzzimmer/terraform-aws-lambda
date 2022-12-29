@@ -84,6 +84,18 @@ variable "codedeploy_appspec_hooks_before_allow_traffic_arn" {
   type        = string
 }
 
+variable "codedeploy_deployment_group_auto_rollback_configuration_enabled" {
+  description = "Indicates whether a defined automatic rollback configuration is currently enabled for this deployment group. If you enable automatic rollback, you must specify at least one event type."
+  default     = false
+  type        = bool
+}
+
+variable "codedeploy_deployment_group_auto_rollback_configuration_events" {
+  description = "The event type or types that trigger a rollback. Supported types are `DEPLOYMENT_FAILURE` and `DEPLOYMENT_STOP_ON_ALARM`"
+  default     = []
+  type        = list(string)
+}
+
 variable "codestar_notifications_detail_type" {
   description = "The level of detail to include in the notifications for this resource. Possible values are BASIC and FULL."
   default     = "BASIC"
