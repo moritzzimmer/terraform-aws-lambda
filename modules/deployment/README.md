@@ -20,6 +20,7 @@ to update the function code and CodeDeploy to deploy the new function version.
 - SNS topic for [AWS CodeStar Notifications](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome.html) of CodePipeline events, or bring your own SNS topic
 - `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) CodeDeploy
 - AWS predefined and custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) for CodeDeploy
+- automatic [rollbacks](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html#deployments-rollback-and-redeploy-automatic-rollbacks) and support of [CloudWatch alarms](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-configure-advanced-options.html) to stop deployments
 
 ## How do I use this module?
 
@@ -251,6 +252,55 @@ resource "aws_iam_role_policy_attachment" "traffic_hook" {
 }
 ```
 
+### with rollbacks based on CloudWatch alarms
+
+see [complete example](../../examples/deployment/complete) for details:
+
+```terraform
+// see above
+
+resource "aws_cloudwatch_metric_alarm" "error_rate" {
+  alarm_description   = "${module.lambda.function_name} has a high error rate"
+  alarm_name          = "${module.lambda.function_name}-error-rate"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm = 1
+  evaluation_periods  = 1
+  threshold           = 5
+  treat_missing_data  = "notBreaching"
+
+  // calculate error rate here
+}
+
+module "deployment" {
+  source = "moritzzimmer/lambda/aws//modules/deployment"
+
+  alias_name                                                      = aws_lambda_alias.this.name
+  create_codepipeline_cloudtrail                                  = true
+  codedeploy_deployment_group_alarm_configuration_enabled         = true
+  codedeploy_deployment_group_alarm_configuration_alarms          = [aws_cloudwatch_metric_alarm.error_rate.id]
+  codedeploy_deployment_group_auto_rollback_configuration_enabled = true
+  codedeploy_deployment_group_auto_rollback_configuration_events  = ["DEPLOYMENT_FAILURE", "DEPLOYMENT_STOP_ON_ALARM"]
+  codepipeline_artifact_store_bucket                              = aws_s3_bucket.source.bucket
+  deployment_config_name                                          = aws_codedeploy_deployment_config.canary.id
+  function_name                                                   = local.function_name
+  s3_bucket                                                       = aws_s3_bucket.source.bucket
+  s3_key                                                          = local.s3_key
+}
+
+resource "aws_codedeploy_deployment_config" "canary" {
+  deployment_config_name = "custom-lambda-canary-deployment-config"
+  compute_platform       = "Lambda"
+
+  traffic_routing_config {
+    type = "TimeBasedCanary"
+
+    time_based_canary {
+      interval   = 5
+      percentage = 50
+    }
+  }
+}
+```
 ### Examples
 
 - [complete](../../examples/deployment/complete)
@@ -320,6 +370,9 @@ No modules.
 | <a name="input_codebuild_role_arn"></a> [codebuild\_role\_arn](#input\_codebuild\_role\_arn) | ARN of an existing IAM role for CodeBuild execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created. | `string` | `""` | no |
 | <a name="input_codedeploy_appspec_hooks_after_allow_traffic_arn"></a> [codedeploy\_appspec\_hooks\_after\_allow\_traffic\_arn](#input\_codedeploy\_appspec\_hooks\_after\_allow\_traffic\_arn) | Lambda function ARN to run after traffic is shifted to the deployed Lambda function version. | `string` | `""` | no |
 | <a name="input_codedeploy_appspec_hooks_before_allow_traffic_arn"></a> [codedeploy\_appspec\_hooks\_before\_allow\_traffic\_arn](#input\_codedeploy\_appspec\_hooks\_before\_allow\_traffic\_arn) | Lambda function ARN to run before traffic is shifted to the deployed Lambda function version. | `string` | `""` | no |
+| <a name="input_codedeploy_deployment_group_alarm_configuration_alarms"></a> [codedeploy\_deployment\_group\_alarm\_configuration\_alarms](#input\_codedeploy\_deployment\_group\_alarm\_configuration\_alarms) | A list of alarms configured for the deployment group. A maximum of 10 alarms can be added to a deployment group. | `list(string)` | `[]` | no |
+| <a name="input_codedeploy_deployment_group_alarm_configuration_enabled"></a> [codedeploy\_deployment\_group\_alarm\_configuration\_enabled](#input\_codedeploy\_deployment\_group\_alarm\_configuration\_enabled) | Indicates whether the alarm configuration is enabled. This option is useful when you want to temporarily deactivate alarm monitoring for a deployment group without having to add the same alarms again later. | `bool` | `false` | no |
+| <a name="input_codedeploy_deployment_group_alarm_configuration_ignore_poll_alarm_failure"></a> [codedeploy\_deployment\_group\_alarm\_configuration\_ignore\_poll\_alarm\_failure](#input\_codedeploy\_deployment\_group\_alarm\_configuration\_ignore\_poll\_alarm\_failure) | Indicates whether a deployment should continue if information about the current state of alarms cannot be retrieved from CloudWatch. | `bool` | `false` | no |
 | <a name="input_codedeploy_deployment_group_auto_rollback_configuration_enabled"></a> [codedeploy\_deployment\_group\_auto\_rollback\_configuration\_enabled](#input\_codedeploy\_deployment\_group\_auto\_rollback\_configuration\_enabled) | Indicates whether a defined automatic rollback configuration is currently enabled for this deployment group. If you enable automatic rollback, you must specify at least one event type. | `bool` | `false` | no |
 | <a name="input_codedeploy_deployment_group_auto_rollback_configuration_events"></a> [codedeploy\_deployment\_group\_auto\_rollback\_configuration\_events](#input\_codedeploy\_deployment\_group\_auto\_rollback\_configuration\_events) | The event type or types that trigger a rollback. Supported types are `DEPLOYMENT_FAILURE` and `DEPLOYMENT_STOP_ON_ALARM` | `list(string)` | `[]` | no |
 | <a name="input_codepipeline_artifact_store_bucket"></a> [codepipeline\_artifact\_store\_bucket](#input\_codepipeline\_artifact\_store\_bucket) | Name of an existing S3 bucket used by AWS CodePipeline to store pipeline artifacts. Use the same bucket name as in `s3_bucket` to store deployment packages and pipeline artifacts in one bucket for `package_type=Zip` functions. If empty, a dedicated S3 bucket for your Lambda function will be created. | `string` | `""` | no |
@@ -342,5 +395,13 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_codebuild_project_arn"></a> [codebuild\_project\_arn](#output\_codebuild\_project\_arn) | The Amazon Resource Name (ARN) of the CodeBuild project. |
+| <a name="output_codebuild_project_id"></a> [codebuild\_project\_id](#output\_codebuild\_project\_id) | The Id of the CodeBuild project. |
+| <a name="output_codedeploy_app_arn"></a> [codedeploy\_app\_arn](#output\_codedeploy\_app\_arn) | The Amazon Resource Name (ARN) of the CodeDeploy application. |
+| <a name="output_codedeploy_app_name"></a> [codedeploy\_app\_name](#output\_codedeploy\_app\_name) | The name of the CodeDeploy application. |
 | <a name="output_codedeploy_deployment_group_arn"></a> [codedeploy\_deployment\_group\_arn](#output\_codedeploy\_deployment\_group\_arn) | The Amazon Resource Name (ARN) of the CodeDeploy deployment group. |
+| <a name="output_codedeploy_deployment_group_deployment_group_id"></a> [codedeploy\_deployment\_group\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_deployment\_group\_id) | The ID of the CodeDeploy deployment group. |
+| <a name="output_codedeploy_deployment_group_id"></a> [codedeploy\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_id) | Application name and deployment group name. |
+| <a name="output_codepipeline_arn"></a> [codepipeline\_arn](#output\_codepipeline\_arn) | The Amazon Resource Name (ARN) of the CodePipeline. |
+| <a name="output_codepipeline_id"></a> [codepipeline\_id](#output\_codepipeline\_id) | The ID of the CodePipeline. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

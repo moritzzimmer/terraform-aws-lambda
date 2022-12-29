@@ -84,6 +84,24 @@ variable "codedeploy_appspec_hooks_before_allow_traffic_arn" {
   type        = string
 }
 
+variable "codedeploy_deployment_group_alarm_configuration_alarms" {
+  description = "A list of alarms configured for the deployment group. A maximum of 10 alarms can be added to a deployment group."
+  default     = []
+  type        = list(string)
+}
+
+variable "codedeploy_deployment_group_alarm_configuration_enabled" {
+  description = "Indicates whether the alarm configuration is enabled. This option is useful when you want to temporarily deactivate alarm monitoring for a deployment group without having to add the same alarms again later."
+  default     = false
+  type        = bool
+}
+
+variable "codedeploy_deployment_group_alarm_configuration_ignore_poll_alarm_failure" {
+  description = "Indicates whether a deployment should continue if information about the current state of alarms cannot be retrieved from CloudWatch."
+  default     = false
+  type        = bool
+}
+
 variable "codedeploy_deployment_group_auto_rollback_configuration_enabled" {
   description = "Indicates whether a defined automatic rollback configuration is currently enabled for this deployment group. If you enable automatic rollback, you must specify at least one event type."
   default     = false

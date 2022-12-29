@@ -1,8 +1,11 @@
 # Complete example of blue/green deployments of Lambda functions
 
-Creates a S3 packaged AWS Lambda function deployed using AWS CodePipeline and CodeDeploy using a
-custom [deployment configuration](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) to shift traffic to the new version and executes traffic [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#reference-appspec-file-structure-hooks-section-structure-ecs-sample-function)
-before and after traffic is allowed to the deployed Lambda version.
+Creates a S3 packaged AWS Lambda function deployed using AWS CodePipeline, CodeBuild and CodeDeploy showcasing all
+available features:
+
+* custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) to shift traffic to the new version and executes traffic [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#reference-appspec-file-structure-hooks-section-structure-ecs-sample-function)
+* before and after traffic hooks
+* rollback and CloudWatch alarms configuration
 
 ## usage
 
@@ -50,7 +53,8 @@ aws s3api put-object --bucket example-ci-{account_id}-{region} --key with-s3-dep
 
 | Name | Type |
 |------|------|
-| [aws_codedeploy_deployment_config.custom](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codedeploy_deployment_config) | resource |
+| [aws_cloudwatch_metric_alarm.error_rate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_codedeploy_deployment_config.canary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/codedeploy_deployment_config) | resource |
 | [aws_iam_policy.traffic_hook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role_policy_attachment.traffic_hook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_alias.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_alias) | resource |

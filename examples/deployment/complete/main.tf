@@ -26,6 +26,54 @@ module "lambda" {
   s3_object_version                = aws_s3_object.initial.version_id
 }
 
+resource "aws_cloudwatch_metric_alarm" "error_rate" {
+  alarm_description   = "${module.lambda.function_name} has a high error rate"
+  alarm_name          = "${module.lambda.function_name}-error-rate"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm = 1
+  evaluation_periods  = 1
+  threshold           = 5
+  treat_missing_data  = "notBreaching"
+
+  metric_query {
+    id = "errorCount"
+
+    metric {
+      metric_name = "Errors"
+      namespace   = "AWS/Lambda"
+      period      = 60
+      stat        = "Sum"
+
+      dimensions = {
+        FunctionName = module.lambda.function_name
+      }
+    }
+  }
+
+  metric_query {
+    id = "invocations"
+
+    metric {
+      metric_name = "Invocations"
+      namespace   = "AWS/Lambda"
+      period      = 60
+      stat        = "Sum"
+
+      dimensions = {
+        FunctionName = module.lambda.function_name
+      }
+    }
+  }
+
+  metric_query {
+    id = "errorRate"
+
+    expression  = " ( errorCount / invocations ) * 100"
+    label       = "Lambda error rate percentage"
+    return_data = "true"
+  }
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Deployment resources
 # ---------------------------------------------------------------------------------------------------------------------
@@ -47,24 +95,26 @@ module "deployment" {
   create_codepipeline_cloudtrail                                  = true // it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module
   codedeploy_appspec_hooks_after_allow_traffic_arn                = module.traffic_hook.arn
   codedeploy_appspec_hooks_before_allow_traffic_arn               = module.traffic_hook.arn
+  codedeploy_deployment_group_alarm_configuration_enabled         = true
+  codedeploy_deployment_group_alarm_configuration_alarms          = [aws_cloudwatch_metric_alarm.error_rate.id]
   codedeploy_deployment_group_auto_rollback_configuration_enabled = true
   codedeploy_deployment_group_auto_rollback_configuration_events  = ["DEPLOYMENT_FAILURE", "DEPLOYMENT_STOP_ON_ALARM"]
   codepipeline_artifact_store_bucket                              = aws_s3_bucket.source.bucket                // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
-  deployment_config_name                                          = aws_codedeploy_deployment_config.custom.id // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
+  deployment_config_name                                          = aws_codedeploy_deployment_config.canary.id // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
   function_name                                                   = local.function_name
   s3_bucket                                                       = aws_s3_bucket.source.bucket
   s3_key                                                          = local.s3_key
 }
 
-resource "aws_codedeploy_deployment_config" "custom" {
-  deployment_config_name = "custom-lambda-deployment-config"
+resource "aws_codedeploy_deployment_config" "canary" {
+  deployment_config_name = "custom-lambda-canary-deployment-config"
   compute_platform       = "Lambda"
 
   traffic_routing_config {
-    type = "TimeBasedLinear"
+    type = "TimeBasedCanary"
 
-    time_based_linear {
-      interval   = 1
+    time_based_canary {
+      interval   = 5
       percentage = 50
     }
   }
