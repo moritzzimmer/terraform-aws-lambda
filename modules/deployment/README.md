@@ -18,7 +18,7 @@ to update the function code and CodeDeploy to deploy the new function version.
 - creation of IAM roles with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) for CodePipeline, CodeBuild and CodeDeploy
   or bring your own roles
 - SNS topic for [AWS CodeStar Notifications](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome.html) of CodePipeline events, or bring your own SNS topic
-- `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) CodeDeploy
+- `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) for CodeDeploy
 - AWS predefined and custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) for CodeDeploy
 - automatic [rollbacks](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html#deployments-rollback-and-redeploy-automatic-rollbacks) and support of [CloudWatch alarms](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-configure-advanced-options.html) to stop deployments
 
