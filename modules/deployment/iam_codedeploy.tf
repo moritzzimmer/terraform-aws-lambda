@@ -15,6 +15,58 @@ resource "aws_iam_role" "codedeploy" {
       },
     ]
   })
+
+  inline_policy {
+    name = "s3"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "s3:GetObject",
+            "s3:GetObjectVersion"
+          ]
+          Effect   = "Allow"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/${local.deploy_output}/*"
+        }
+      ]
+    })
+  }
+
+  dynamic "inline_policy" {
+    for_each = var.codedeploy_appspec_hooks_after_allow_traffic_arn != "" ? [true] : []
+    content {
+      name = "hooks-after-allow-traffic"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = ["lambda:InvokeFunction"]
+            Effect   = "Allow"
+            Resource = var.codedeploy_appspec_hooks_after_allow_traffic_arn
+          }
+        ]
+      })
+    }
+  }
+
+  dynamic "inline_policy" {
+    for_each = var.codedeploy_appspec_hooks_before_allow_traffic_arn != "" ? [true] : []
+    content {
+      name = "hooks-after-before-traffic"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = ["lambda:InvokeFunction"]
+            Effect   = "Allow"
+            Resource = var.codedeploy_appspec_hooks_before_allow_traffic_arn
+          }
+        ]
+      })
+    }
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "codedeploy" {

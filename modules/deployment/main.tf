@@ -5,16 +5,29 @@ data "aws_partition" "current" {}
 locals {
   artifact_store_bucket     = var.codepipeline_artifact_store_bucket != "" ? var.codepipeline_artifact_store_bucket : aws_s3_bucket.pipeline[0].bucket
   artifact_store_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::${local.artifact_store_bucket}"
+  deploy_output             = "deploy"
+  pipeline_name             = substr(var.function_name, 0, 20)
 }
 
 resource "aws_codepipeline" "this" {
-  name     = var.function_name
+  depends_on = [aws_iam_role.codepipeline_role]
+
+  name     = local.pipeline_name
   role_arn = var.codepipeline_role_arn == "" ? aws_iam_role.codepipeline_role[0].arn : var.codepipeline_role_arn
   tags     = var.tags
 
   artifact_store {
     location = local.artifact_store_bucket
     type     = "S3"
+
+    dynamic "encryption_key" {
+      for_each = var.codepipeline_artifact_store_encryption_key_id != "" ? [true] : []
+
+      content {
+        id   = var.codepipeline_artifact_store_encryption_key_id
+        type = "KMS"
+      }
+    }
   }
 
   stage {
@@ -33,8 +46,8 @@ resource "aws_codepipeline" "this" {
         output_artifacts = ["source"]
 
         configuration = {
-          "ImageTag" : var.ecr_image_tag,
-          "RepositoryName" : var.ecr_repository_name
+          ImageTag : var.ecr_image_tag,
+          RepositoryName : var.ecr_repository_name
         }
       }
     }
@@ -61,7 +74,7 @@ resource "aws_codepipeline" "this" {
   }
 
   stage {
-    name = "Build"
+    name = "Update"
 
     action {
       name             = "CodeBuild"
@@ -70,7 +83,7 @@ resource "aws_codepipeline" "this" {
       provider         = "CodeBuild"
       version          = "1"
       input_artifacts  = ["source"]
-      output_artifacts = []
+      output_artifacts = [local.deploy_output]
 
       configuration = {
         ProjectName : aws_codebuild_project.this.name
@@ -89,6 +102,24 @@ resource "aws_codepipeline" "this" {
       }
     }
   }
+
+  stage {
+    name = "Deploy"
+
+    action {
+      category        = "Deploy"
+      name            = "CodeDeploy"
+      owner           = "AWS"
+      provider        = "CodeDeploy"
+      version         = "1"
+      input_artifacts = [local.deploy_output]
+
+      configuration = {
+        ApplicationName : var.function_name
+        DeploymentGroupName : var.alias_name
+      }
+    }
+  }
 }
 
 resource "aws_s3_bucket" "pipeline" {
@@ -97,6 +128,18 @@ resource "aws_s3_bucket" "pipeline" {
   bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
   tags          = var.tags
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline" {
+  count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
+
+  bucket = aws_s3_bucket.pipeline[count.index].bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
+    }
+  }
 }
 
 resource "aws_s3_bucket_acl" "pipeline" {

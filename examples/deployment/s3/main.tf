@@ -7,7 +7,7 @@ module "function" {
 
 locals {
   environment   = "production"
-  function_name = "with-s3-codepipeline"
+  function_name = "s3-deployment"
   s3_key        = "${local.function_name}/package/lambda.zip"
 }
 
@@ -18,10 +18,10 @@ module "lambda" {
   handler                          = "index.handler"
   ignore_external_function_updates = true
   publish                          = true
-  runtime                          = "nodejs14.x"
+  runtime                          = "nodejs18.x"
   s3_bucket                        = aws_s3_bucket.source.bucket
   s3_key                           = local.s3_key
-  s3_object_version                = aws_s3_bucket_object.initial.version_id
+  s3_object_version                = aws_s3_object.initial.version_id
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ module "deployment" {
   source = "../../../modules/deployment"
 
   alias_name                         = aws_lambda_alias.this.name
-  create_codepipeline_cloudtrail     = false                       // for brevity only, it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module (see resources below)
+  create_codepipeline_cloudtrail     = true                        // it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module (see resources below)
   codepipeline_artifact_store_bucket = aws_s3_bucket.source.bucket // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
   function_name                      = local.function_name
   s3_bucket                          = aws_s3_bucket.source.bucket
@@ -53,9 +53,10 @@ module "deployment" {
 # S3 source bucket resources
 # ---------------------------------------------------------------------------------------------------------------------
 
+#tfsec:ignore:aws-s3-enable-bucket-encryption - configure bucket encryption in production!
 resource "aws_s3_bucket" "source" {
   acl           = "private"
-  bucket        = "example-ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  bucket        = "ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
 
   versioning {
@@ -64,24 +65,23 @@ resource "aws_s3_bucket" "source" {
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {
-  bucket = aws_s3_bucket.source.id
-
   block_public_acls       = true
   block_public_policy     = true
+  bucket                  = aws_s3_bucket.source.id
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
 
 // this resource is only used for the initial `terraform apply` - all further
 // deployments are running on CodePipeline
-resource "aws_s3_bucket_object" "initial" {
+resource "aws_s3_object" "initial" {
   bucket = aws_s3_bucket.source.bucket
   key    = local.s3_key
   source = module.function.output_path
   etag   = module.function.output_md5
 
   lifecycle {
-    ignore_changes = [etag, version_id]
+    ignore_changes = [etag]
   }
 }
 

@@ -30,6 +30,12 @@ variable "codepipeline_artifact_store_bucket" {
   type        = string
 }
 
+variable "codepipeline_artifact_store_encryption_key_id" {
+  description = "The KMS key ARN or ID of a key block AWS CodePipeline uses to encrypt the data in the artifact store, such as an AWS Key Management Service (AWS KMS) key. If you don't specify a key, AWS CodePipeline uses the default key for Amazon Simple Storage Service (Amazon S3)."
+  default     = ""
+  type        = string
+}
+
 variable "codepipeline_role_arn" {
   description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
@@ -66,6 +72,48 @@ variable "codebuild_environment_type" {
   type        = string
 }
 
+variable "codedeploy_appspec_hooks_after_allow_traffic_arn" {
+  description = "Lambda function ARN to run after traffic is shifted to the deployed Lambda function version."
+  default     = ""
+  type        = string
+}
+
+variable "codedeploy_appspec_hooks_before_allow_traffic_arn" {
+  description = "Lambda function ARN to run before traffic is shifted to the deployed Lambda function version."
+  default     = ""
+  type        = string
+}
+
+variable "codedeploy_deployment_group_alarm_configuration_alarms" {
+  description = "A list of alarms configured for the deployment group. A maximum of 10 alarms can be added to a deployment group."
+  default     = []
+  type        = list(string)
+}
+
+variable "codedeploy_deployment_group_alarm_configuration_enabled" {
+  description = "Indicates whether the alarm configuration is enabled. This option is useful when you want to temporarily deactivate alarm monitoring for a deployment group without having to add the same alarms again later."
+  default     = false
+  type        = bool
+}
+
+variable "codedeploy_deployment_group_alarm_configuration_ignore_poll_alarm_failure" {
+  description = "Indicates whether a deployment should continue if information about the current state of alarms cannot be retrieved from CloudWatch."
+  default     = false
+  type        = bool
+}
+
+variable "codedeploy_deployment_group_auto_rollback_configuration_enabled" {
+  description = "Indicates whether a defined automatic rollback configuration is currently enabled for this deployment group. If you enable automatic rollback, you must specify at least one event type."
+  default     = false
+  type        = bool
+}
+
+variable "codedeploy_deployment_group_auto_rollback_configuration_events" {
+  description = "The event type or types that trigger a rollback. Supported types are `DEPLOYMENT_FAILURE` and `DEPLOYMENT_STOP_ON_ALARM`"
+  default     = []
+  type        = list(string)
+}
+
 variable "codestar_notifications_detail_type" {
   description = "The level of detail to include in the notifications for this resource. Possible values are BASIC and FULL."
   default     = "BASIC"
@@ -79,7 +127,7 @@ variable "codestar_notifications_enabled" {
 }
 
 variable "codestar_notifications_event_type_ids" {
-  description = "A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#concepts-api."
+  description = "A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline."
   default     = ["codepipeline-pipeline-pipeline-execution-succeeded", "codepipeline-pipeline-pipeline-execution-failed"]
   type        = list(string)
 }
@@ -91,7 +139,7 @@ variable "codestar_notifications_target_arn" {
 }
 
 variable "deployment_config_name" {
-  description = "The name of the deployment config used in the CodeDeploy deployment group."
+  description = "The name of the deployment config used in the CodeDeploy deployment group, see https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html for all available default configurations or provide a custom one."
   default     = "CodeDeployDefault.LambdaAllAtOnce"
   type        = string
 }

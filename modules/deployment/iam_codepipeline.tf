@@ -76,6 +76,28 @@ resource "aws_iam_role" "codepipeline_role" {
         },
         {
           Action = [
+            "codedeploy:CreateDeployment",
+            "codedeploy:GetDeployment"
+          ]
+          Effect   = "Allow"
+          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.this.name}/${aws_codedeploy_deployment_group.this.deployment_group_name}"
+        },
+        {
+          Action = [
+            "codedeploy:GetDeploymentConfig"
+          ]
+          Effect   = "Allow"
+          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentconfig:*"
+        },
+        {
+          Action = [
+            "codedeploy:RegisterApplicationRevision"
+          ]
+          Effect   = "Allow"
+          Resource = "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.this.name}"
+        },
+        {
+          Action = [
             "s3:GetObject",
             "s3:GetObjectTagging",
             "s3:ListBucket",

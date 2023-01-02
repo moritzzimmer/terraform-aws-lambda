@@ -13,14 +13,46 @@ permissions:
   pull-requests: write
 
 jobs:
-  check:
+  fmt:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        terraform: [ ~0.12.0, ~0.13.0, ~0.14.0, ~0.15.0, ~1.0 ]
+        terraform: [ ~0.15.0, ~1.0 ]
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ matrix.terraform }}
+
+      - run: make fmt
+
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform: [ ~0.15.0, ~1.0 ]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ matrix.terraform }}
+
+      - run: make validate
+
+  tflint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform: [ ~0.15.0, ~1.0 ]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.tflint.d/plugins
+          key: ${{ matrix.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
 
       - uses: hashicorp/setup-terraform@v2
         with:
@@ -30,13 +62,22 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: check
-        run: |
-          tflint --init
-          make init fmt validate tflint
+      - run: make tflint
 
-      - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
+  tfsec:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform: [ ~0.15.0, ~1.0 ]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ matrix.terraform }}
+
+      # TODO: check https://github.com/aquasecurity/tfsec-pr-commenter-action/issues/90, this action currently swallows all findings
+      - uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          additional_args: --exclude-downloaded-modules
+          tfsec_args: --exclude aws-s3-encryption-customer-key,aws-sns-topic-encryption-use-cmk,aws-sqs-queue-encryption-use-cmk

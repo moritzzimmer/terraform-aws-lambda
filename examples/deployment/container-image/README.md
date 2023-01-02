@@ -1,4 +1,4 @@
-# Example using CodePipeline deployment of containerized function
+# Example of blue/green deployment of a containerized function
 
 Creates a containerized AWS Lambda function deployed using AWS CodePipeline and CodeDeploy.
 
@@ -17,8 +17,8 @@ Push an updated container image to `ECR` to start the deployment pipeline:
 
 ```shell
 aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {account_id}.dkr.ecr.{region}.amazonaws.com
-docker build --tag {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipeline:production {context}
-docker push {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipeline:production
+docker build --tag {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-deployment:production {context}
+docker push {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-deployment:production
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
@@ -26,7 +26,7 @@ docker push {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipeline:pr
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.40 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 3.2 |
 
@@ -54,7 +54,9 @@ docker push {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-codepipeline:pr
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_region"></a> [region](#input\_region) | n/a | `string` | `"eu-west-1"` | no |
 
 ## Outputs
 

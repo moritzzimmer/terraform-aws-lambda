@@ -24,7 +24,7 @@ to be deployed to US East (N. Virginia) region (`us-east-1`)
 - configuration for [Amazon CloudWatch Lambda Insights](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html) including required
   permissions and Lambda Layer, see [details](#with-cloudwatch-lambda-insights)
 - add-on [module](modules/deployment) for controlled blue/green deployments using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html)
-  and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [example](examples/deployment)).
+  and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html) including all required permissions (see [examples](examples/deployment)).
   Optionally ignore terraform state changes resulting from those deployments (using `ignore_external_function_updates`).
 
 ## How do I use this module?
@@ -283,7 +283,7 @@ RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/am
     rpm -U lambda-insights-extension.rpm && \
     rm -f lambda-insights-extension.rpm
 
-COPY app.js /var/task/
+COPY index.js /var/task/
 ```
 
 ## Deployments
@@ -291,8 +291,9 @@ COPY app.js /var/task/
 Controlled, blue/green deployments of Lambda functions with (automatic) rollbacks and traffic shifting can be implemented using
 Lambda [aliases](https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html) and AWS [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html).
 
-The optional [deployment](modules/deployment) submodule can be used to create the required AWS resources and permissions for creating and starting such
-CodeDeploy deployments as part of an AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), see [examples](examples/deployment) for details.
+The [deployment](modules/deployment) submodule can be used to create the required AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html)
+and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html) resources and permissions to execute secure deployments of S3 or containerized Lambda functions in your AWS account,
+see [examples](examples/deployment) for details.
 
 ## Examples
 

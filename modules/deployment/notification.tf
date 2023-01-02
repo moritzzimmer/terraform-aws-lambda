@@ -27,6 +27,7 @@ resource "aws_codestarnotifications_notification_rule" "notification" {
   }
 }
 
+#tfsec:ignore:aws-sns-enable-topic-encryption
 resource "aws_sns_topic" "notifications" {
   count = var.codestar_notifications_enabled && var.codestar_notifications_target_arn == "" ? 1 : 0
 
