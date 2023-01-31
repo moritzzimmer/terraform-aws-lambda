@@ -57,11 +57,15 @@ resource "aws_lambda_event_source_mapping" "event_source" {
   }
 
   dynamic "filter_criteria" {
-    for_each = try(each.value["filter_criteria"], null) != null ? [true] : []
+    for_each = try(each.value.filter_criteria, null) != null ? [true] : []
 
     content {
-      filter {
-        pattern = try(each.value["filter_criteria"].pattern, null)
+      dynamic "filter" {
+        for_each = try(flatten([each.value.filter_criteria]), [])
+
+        content {
+          pattern = try(filter.value.pattern, null)
+        }
       }
     }
   }
