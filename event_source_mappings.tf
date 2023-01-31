@@ -48,6 +48,7 @@ resource "aws_lambda_event_source_mapping" "event_source" {
 
   dynamic "destination_config" {
     for_each = lookup(each.value, "destination_arn_on_failure", null) != null ? [true] : []
+
     content {
       on_failure {
         destination_arn = each.value["destination_arn_on_failure"]
@@ -62,6 +63,14 @@ resource "aws_lambda_event_source_mapping" "event_source" {
       filter {
         pattern = try(each.value["filter_criteria"].pattern, null)
       }
+    }
+  }
+
+  dynamic "scaling_config" {
+    for_each = try(each.value.scaling_config, null) != null ? [true] : []
+
+    content {
+      maximum_concurrency = try(each.value.scaling_config.maximum_concurrency, null)
     }
   }
 }

@@ -27,14 +27,14 @@ docker push {account_id}.dkr.ecr.{region}.amazonaws.com/with-ecr-deployment:prod
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.40 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.51 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 3.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.40 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.51 |
 | <a name="provider_null"></a> [null](#provider\_null) | >= 3.2 |
 
 ## Modules

@@ -313,13 +313,13 @@ resource "aws_codedeploy_deployment_config" "canary" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.40 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.51 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.40 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.51 |
 
 ## Modules
 
