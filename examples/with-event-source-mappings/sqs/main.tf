@@ -35,6 +35,10 @@ module "lambda" {
       // optionally overwrite arguments from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
       batch_size = 5
 
+      scaling_config = {
+        maximum_concurrency = 2
+      }
+
       // optionally overwrite function_name in case an alias should be used in the
       // event source mapping, see https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html
       // function_name    = aws_lambda_alias.example.arn
