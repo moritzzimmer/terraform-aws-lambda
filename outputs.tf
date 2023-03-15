@@ -28,6 +28,11 @@ output "role_name" {
   value       = aws_iam_role.lambda.name
 }
 
+output "role_arn" {
+  description = "The ARN of the IAM role attached to the Lambda Function."
+  value       = aws_iam_role.lambda.arn
+}
+
 output "version" {
   description = "Latest published version of your Lambda Function."
   value       = var.ignore_external_function_updates ? aws_lambda_function.lambda_external_lifecycle[0].version : aws_lambda_function.lambda[0].version
