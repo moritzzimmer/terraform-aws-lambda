@@ -23,7 +23,7 @@ resource "aws_cloudwatch_event_rule" "lambda" {
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {
-  for_each       = var.cloudwatch_event_rules
+  for_each = var.cloudwatch_event_rules
 
   event_bus_name = lookup(each.value, "event_bus_name", null)
   arn            = lookup(each.value, "cloudwatch_event_target_arn", local.function_arn)
