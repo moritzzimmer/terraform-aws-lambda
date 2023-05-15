@@ -18,6 +18,13 @@ resource "aws_iam_role" "lambda" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
+resource "aws_iam_role_policy_attachment" "cloudwatch_logs" {
+  count = var.cloudwatch_logs_enabled ? 1 : 0
+
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.lambda.name
+}
+
 resource "aws_iam_role_policy_attachment" "vpc_attachment" {
   count = var.vpc_config == null ? 0 : 1
 
