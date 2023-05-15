@@ -28,11 +28,10 @@ resource "aws_iam_role" "lambda" {
           {
             Action = [
               "logs:CreateLogStream",
-              "logs:PutLogEvents",
-              "logs:PutLogEventsBatch"
+              "logs:PutLogEvents"
             ]
             Effect   = "Allow"
-            Resource = [aws_cloudwatch_log_group.lambda.arn]
+            Resource = [aws_cloudwatch_log_group.lambda.arn, "${aws_cloudwatch_log_group.lambda.arn}:*"]
           },
         ]
       })
