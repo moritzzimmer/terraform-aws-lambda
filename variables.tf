@@ -31,12 +31,6 @@ variable "cloudwatch_lambda_insights_enabled" {
   type        = bool
 }
 
-variable "cloudwatch_logs_enabled" {
-  description = "Enables your Lambda function to send logs to CloudWatch. The IAM role of this Lambda function will be enhanced with required permissions."
-  type        = bool
-  default     = true
-}
-
 variable "cloudwatch_logs_kms_key_id" {
   description = "The ARN of the KMS Key to use when encrypting log data."
   type        = string
