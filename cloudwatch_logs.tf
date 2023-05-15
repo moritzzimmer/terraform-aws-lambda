@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "write_logs" {
 
     condition {
       test     = "ArnLike"
-      values   = ["arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"]
+      values   = compact([var.cloudwatch_logs_enabled ? "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}" : null])
       variable = "aws:SourceArn"
     }
   }
