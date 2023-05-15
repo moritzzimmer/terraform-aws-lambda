@@ -16,13 +16,28 @@ data "aws_iam_policy_document" "assume_role_policy" {
 resource "aws_iam_role" "lambda" {
   name               = local.iam_role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-}
 
-resource "aws_iam_role_policy_attachment" "cloudwatch_logs" {
-  count = var.cloudwatch_logs_enabled ? 1 : 0
+  dynamic "inline_policy" {
+    for_each = var.cloudwatch_logs_enabled ? [1] : []
+    content {
+      name = "CloudwatchLogsPolicy"
 
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-  role       = aws_iam_role.lambda.name
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action = [
+              "logs:CreateLogStream",
+              "logs:PutLogEvents",
+              "logs:PutLogEventsBatch"
+            ]
+            Effect   = "Allow"
+            Resource = [aws_cloudwatch_log_group.lambda.arn]
+          },
+        ]
+      })
+    }
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_attachment" {

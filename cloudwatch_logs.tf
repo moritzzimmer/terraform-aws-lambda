@@ -25,37 +25,3 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs" {
   name            = each.key
   role_arn        = lookup(each.value, "role_arn", null)
 }
-
-data "aws_iam_policy_document" "write_logs" {
-  statement {
-    actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "logs:PutLogEventsBatch",
-    ]
-
-    resources = [aws_cloudwatch_log_group.lambda.arn]
-
-    principals {
-      identifiers = ["lambda.amazonaws.com"]
-      type        = "Service"
-    }
-
-    condition {
-      test     = "StringEquals"
-      values   = [data.aws_caller_identity.current.account_id]
-      variable = "aws:SourceAccount"
-    }
-
-    condition {
-      test     = "ArnLike"
-      values   = ["arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"]
-      variable = "aws:SourceArn"
-    }
-  }
-}
-
-resource "aws_cloudwatch_log_resource_policy" "lambda" {
-  policy_document = data.aws_iam_policy_document.write_logs.json
-  policy_name     = "${var.function_name}-${data.aws_region.current.name}"
-}
