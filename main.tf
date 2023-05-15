@@ -12,7 +12,7 @@ locals {
 
 resource "aws_lambda_function" "lambda" {
   count      = var.ignore_external_function_updates ? 0 : 1
-  depends_on = [aws_cloudwatch_log_group.lambda, aws_cloudwatch_log_resource_policy.lambda]
+  depends_on = [aws_cloudwatch_log_group.lambda]
 
   architectures                  = var.architectures
   description                    = var.description
@@ -78,7 +78,7 @@ resource "aws_lambda_function" "lambda" {
 // see https://github.com/hashicorp/terraform/issues/24188.
 resource "aws_lambda_function" "lambda_external_lifecycle" {
   count      = var.ignore_external_function_updates ? 1 : 0
-  depends_on = [aws_cloudwatch_log_group.lambda, aws_cloudwatch_log_resource_policy.lambda]
+  depends_on = [aws_cloudwatch_log_group.lambda]
 
   architectures                  = var.architectures
   description                    = var.description
