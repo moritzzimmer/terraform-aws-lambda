@@ -16,27 +16,6 @@ data "aws_iam_policy_document" "assume_role_policy" {
 resource "aws_iam_role" "lambda" {
   name               = local.iam_role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-
-  dynamic "inline_policy" {
-    for_each = var.cloudwatch_logs_enabled ? [1] : []
-    content {
-      name = "CloudwatchLogsPolicy"
-
-      policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Action = [
-              "logs:CreateLogStream",
-              "logs:PutLogEvents"
-            ]
-            Effect   = "Allow"
-            Resource = [aws_cloudwatch_log_group.lambda.arn, "${aws_cloudwatch_log_group.lambda.arn}:*"]
-          },
-        ]
-      })
-    }
-  }
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_attachment" {
@@ -86,5 +65,38 @@ resource "aws_iam_role_policy_attachment" "ssm" {
   count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
 
   policy_arn = aws_iam_policy.ssm[count.index].arn
+  role       = aws_iam_role.lambda.name
+}
+
+data "aws_iam_policy_document" "logs" {
+  count = var.cloudwatch_logs_enabled ? 1 : 0
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = [
+      aws_cloudwatch_log_group.lambda.arn,
+      "${aws_cloudwatch_log_group.lambda.arn}:*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "logs" {
+  count = length(data.aws_iam_policy_document.logs)
+
+  description = "Provides minimum CloudWatch Logs write permissions."
+  name        = "${var.function_name}-logs-${data.aws_region.current.name}"
+  policy      = data.aws_iam_policy_document.logs[count.index].json
+}
+
+resource "aws_iam_role_policy_attachment" "logs" {
+  count = length(aws_iam_policy.logs)
+
+  policy_arn = aws_iam_policy.logs[count.index].arn
   role       = aws_iam_role.lambda.name
 }
