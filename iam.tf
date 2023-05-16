@@ -95,7 +95,7 @@ resource "aws_iam_policy" "logs" {
 }
 
 resource "aws_iam_role_policy_attachment" "logs" {
-  count = length(aws_iam_policy.logs)
+  count = var.cloudwatch_logs_enabled ? 1 : 0
 
   policy_arn = aws_iam_policy.logs[count.index].arn
   role       = aws_iam_role.lambda.name
