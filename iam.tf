@@ -87,7 +87,7 @@ data "aws_iam_policy_document" "logs" {
 }
 
 resource "aws_iam_policy" "logs" {
-  count = length(data.aws_iam_policy_document.logs)
+  count = var.cloudwatch_logs_enabled ? 1 : 0
 
   description = "Provides minimum CloudWatch Logs write permissions."
   name        = "${var.function_name}-logs-${data.aws_region.current.name}"
