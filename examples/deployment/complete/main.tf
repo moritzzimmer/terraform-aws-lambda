@@ -92,7 +92,6 @@ module "deployment" {
   source = "../../../modules/deployment"
 
   alias_name                                                      = aws_lambda_alias.this.name
-  create_codepipeline_cloudtrail                                  = true // it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module
   codedeploy_appspec_hooks_after_allow_traffic_arn                = module.traffic_hook.arn
   codedeploy_appspec_hooks_before_allow_traffic_arn               = module.traffic_hook.arn
   codedeploy_deployment_group_alarm_configuration_enabled         = true

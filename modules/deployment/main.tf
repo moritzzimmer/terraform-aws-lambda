@@ -130,6 +130,13 @@ resource "aws_s3_bucket" "pipeline" {
   tags          = var.tags
 }
 
+resource "aws_s3_bucket_notification" "pipeline" {
+  count       = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
+  bucket      = aws_s3_bucket.pipeline[count.index].id
+
+  eventbridge = true
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline" {
   count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
 
