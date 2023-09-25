@@ -1,14 +1,10 @@
 # Lambda function deployments using AWS CodePipeline and AWS CodeDeploy
 
 Terraform module to create AWS resources for secure blue/green deployments
-of [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) functions
-using
-AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html)
-and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html).
+of [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) functions using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html).
 
 Basic principle for this module is to separate the infrastructure/configuration aspect of Lambda functions (e.g. IAM
-role, timeouts, runtime, CloudWatch logs)
-from continuous deployments of the actual function code.
+role, timeouts, runtime, CloudWatch logs) from continuous deployments of the actual function code.
 
 The latter should be build, tested and packaged on CI systems like GitHub actions and uploaded to
 S3 (`package_type=Zip`) or pushed to ECR (`package_type=Image`).
@@ -16,53 +12,37 @@ Controlled and secure blue/green deployments of the function code with (automati
 then be executed in an AWS CodePipline using CodeBuild
 to update the function code and CodeDeploy to deploy the new function version.
 
-<img src="../../docs/deployment/deployment.png" />
+<img src="../../docs/deployment/deployment.drawio.svg" />
 
 ## Features
 
 - fully automated AWS CodePipelines with CodeBuild and CodeDeploy stages to deploy containerized Lambda functions from
   ECR or zipped packages from S3
-- creation of IAM roles with permissions following
-  the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) for CodePipeline,
-  CodeBuild and CodeDeploy
-  or bring your own roles
-- SNS topic for [AWS CodeStar Notifications](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome.html) of
-  CodePipeline events, or bring your own SNS topic
-- `BeforeAllowTraffic`
-  and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda)
-  for CodeDeploy
-- AWS predefined and
-  custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html)
-  for CodeDeploy
-- automatic [rollbacks](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html#deployments-rollback-and-redeploy-automatic-rollbacks)
-and support
-of [CloudWatch alarms](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-configure-advanced-options.html)
-to stop deployments
+- creation of IAM roles with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) for CodePipeline,
+  CodeBuild and CodeDeploy or bring your own roles
+- SNS topic for [AWS CodeStar Notifications](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome.html) of CodePipeline events, or bring your own SNS topic
+- `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) for CodeDeploy
+- AWS predefined and custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) for CodeDeploy
+- automatic [rollbacks](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html#deployments-rollback-and-redeploy-automatic-rollbacks) and support of [CloudWatch alarms](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-configure-advanced-options.html) to stop deployments
 
 ## How do I use this module?
 
 ### Initial Terraform run
 
-The
-Terraform [lambda_function](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function)
-relies
-on existing `image_uri` (for containerized functions) or `s3_object_version` (for S3 based packages) in the initial run.
+The Terraform [lambda_function](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) relies on existing `image_uri` (for containerized functions) or `s3_object_version` (for S3 based packages) in the initial run.
 
-For containerized functions this can be achieved by:
+For containerized functions this can be achieved one of the following options:
 
 - targeting only `aws_ecr_repository` in the first run and push and initial image before applying the rest of the
   infrastructure
--
-using [docker_registry_image](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/registry_image)
-to build the image as part of the terraform lifecycle
+- using [docker_registry_image](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/registry_image) to build the image as part of the terraform lifecycle
 - using a `null_resource` with a `local-exec` provisioner to build and push the image as part of the terraform
-  lifecycle, see [container-image (ECR)](../../examples/deployment/container-image)
-  for a full example
+  lifecycle, see [container-image (ECR)](../../examples/deployment/container-image) for a full example
 
 For `Zip` packages on S3 this can be achieved using an `aws_s3_object` ignoring changes to `etag`, see
 [zipped package (S3)](../../examples/deployment/s3) for a full example.
 
-It's recommended to build, test, package and upload all further function code changes using a CI system like GitHub
+It's then recommended to build, test, package and upload all further function code changes using a CI system like GitHub
 actions.
 
 ### using container images
@@ -162,6 +142,11 @@ resource "aws_s3_bucket" "source" {
   }
 }
 
+resource "aws_s3_bucket_notification" "source" {
+  bucket      = aws_s3_bucket.source.id
+  eventbridge = true
+}
+
 resource "aws_s3_bucket_public_access_block" "source" {
   bucket = aws_s3_bucket.source.id
 
@@ -186,23 +171,18 @@ resource "aws_s3_object" "source" {
 ```
 
 **Note**:
-the [Amazon S3 source action](https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-S3.html)
+The [Amazon S3 source action](https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-S3.html)
 of the CodePipeline needs an AWS S3 Notification for emitting events in your Amazon S3 source bucket and sending
-filtered events
-to an Amazon CloudWatch Events rule to get triggered (
-see [docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html)
-for details).
+filtered events to EventBridge and trigger the pipeline (see [docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html) for details).
 
-Those resources will created for the s3 bucket if `codepipeline_artifact_store_bucket=true`.
-If the bucket is created externally the bucket notifications *must* be outside of this module.
+S3 event notifications will be created by this module if `codepipeline_artifact_store_bucket=true`.
+If the bucket is created externally the bucket notifications **must** be declared outside of this module.
 
 ### with custom deployment configuration
 
-This module supports all
-predefined [default deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html)
+This module supports all predefined [default deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html)
 for the AWS Lambda compute platform as well as custom defined configs,
-see [complete example](../../examples/deployment/complete)
-for details:
+see [complete example](../../examples/deployment/complete) for details:
 
 ```terraform
 // see above
