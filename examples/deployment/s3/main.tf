@@ -44,9 +44,9 @@ module "deployment" {
   alias_name                         = aws_lambda_alias.this.name
   codepipeline_artifact_store_bucket = aws_s3_bucket.source.bucket
   // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
-  function_name                      = local.function_name
-  s3_bucket                          = aws_s3_bucket.source.bucket
-  s3_key                             = local.s3_key
+  function_name = local.function_name
+  s3_bucket     = aws_s3_bucket.source.bucket
+  s3_key        = local.s3_key
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
