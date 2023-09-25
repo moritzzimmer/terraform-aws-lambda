@@ -151,7 +151,7 @@ variable "ecr_repository_name" {
 }
 
 variable "s3_bucket" {
-  description = "Name of the bucket used for S3 based deployments, required for `package_type=Zip`."
+  description = "Name of the bucket used for S3 based deployments, required for `package_type=Zip`. Make sure to enable S3 bucket notifications for this bucket for continuous deployment of your Lambda function, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html."
   default     = ""
   type        = string
 }

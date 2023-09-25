@@ -42,11 +42,10 @@ module "deployment" {
   source = "../../../modules/deployment"
 
   alias_name                         = aws_lambda_alias.this.name
-  codepipeline_artifact_store_bucket = aws_s3_bucket.source.bucket
-  // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
-  function_name = local.function_name
-  s3_bucket     = aws_s3_bucket.source.bucket
-  s3_key        = local.s3_key
+  codepipeline_artifact_store_bucket = aws_s3_bucket.source.bucket // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
+  function_name                      = local.function_name
+  s3_bucket                          = aws_s3_bucket.source.bucket
+  s3_key                             = local.s3_key
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -62,6 +61,12 @@ resource "aws_s3_bucket" "source" {
   versioning {
     enabled = true
   }
+}
+
+// make sure to enable S3 bucket notifications to start continuous deployment pipeline
+resource "aws_s3_bucket_notification" "source" {
+  bucket      = aws_s3_bucket.source.id
+  eventbridge = true
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {

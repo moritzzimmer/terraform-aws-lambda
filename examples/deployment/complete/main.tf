@@ -175,6 +175,12 @@ resource "aws_s3_bucket" "source" {
   }
 }
 
+// make sure to enable S3 bucket notifications to start continuous deployment pipeline
+resource "aws_s3_bucket_notification" "source" {
+  bucket      = aws_s3_bucket.source.id
+  eventbridge = true
+}
+
 resource "aws_s3_bucket_public_access_block" "source" {
   block_public_acls       = true
   block_public_policy     = true

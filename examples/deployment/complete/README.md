@@ -21,7 +21,7 @@ Note that this example may create resources which cost money. Run `terraform des
 Upload a new `zip` package to S3 to start the deployment pipeline:
 
 ```shell
-aws s3api put-object --bucket example-ci-{account_id}-{region} --key with-s3-deployment/package/lambda.zip --body lambda.zip
+aws s3api put-object --bucket example-ci-{account_id}-{region} --key deployment-hooks/package/lambda.zip --body lambda.zip
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
@@ -59,6 +59,7 @@ aws s3api put-object --bucket example-ci-{account_id}-{region} --key with-s3-dep
 | [aws_iam_role_policy_attachment.traffic_hook](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_alias.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_alias) | resource |
 | [aws_s3_bucket.source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_notification.source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_s3_bucket_public_access_block.source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_object.initial](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 | [archive_file.traffic_hook](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
