@@ -23,7 +23,7 @@ module "lambda" {
 
       // optionally overwrite arguments like 'description'
       // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule
-      description = "Triggered by S3 EventBridge Notification"
+      description = "Triggered by CloudTrail"
 
       // optionally overwrite `cloudwatch_event_target_arn` in case an alias should be used for the event rule
       cloudwatch_event_target_arn = aws_lambda_alias.example.arn
@@ -36,7 +36,7 @@ module "lambda" {
       event_pattern = <<PATTERN
       {
         "detail-type": [
-          "Object Created"
+          "AWS Console Sign In via CloudTrail"
         ]
       }
       PATTERN
