@@ -42,7 +42,6 @@ module "deployment" {
   source = "../../../modules/deployment"
 
   alias_name                         = aws_lambda_alias.this.name
-  create_codepipeline_cloudtrail     = true                        // it's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module (see resources below)
   codepipeline_artifact_store_bucket = aws_s3_bucket.source.bucket // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
   function_name                      = local.function_name
   s3_bucket                          = aws_s3_bucket.source.bucket
@@ -62,6 +61,12 @@ resource "aws_s3_bucket" "source" {
   versioning {
     enabled = true
   }
+}
+
+// make sure to enable S3 bucket notifications to start continuous deployment pipeline
+resource "aws_s3_bucket_notification" "source" {
+  bucket      = aws_s3_bucket.source.id
+  eventbridge = true
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {
@@ -84,86 +89,3 @@ resource "aws_s3_object" "initial" {
     ignore_changes = [etag]
   }
 }
-
-# ---------------------------------------------------------------------------------------------------------------------
-# CloudTrail resources - beware of the hard account limit of 5 trails/region!
-#
-# only necessary if the target AWS account doesn't contain a CloudTrail with S3 bucket
-# policy as described here: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html
-# ---------------------------------------------------------------------------------------------------------------------
-
-//resource "aws_s3_bucket" "cloudtrail" {
-//  acl           = "private"
-//  bucket        = "cloudtrail-s3-operations"
-//  force_destroy = true
-//}
-//
-//resource "aws_s3_bucket_public_access_block" "source" {
-//  bucket = aws_s3_bucket.cloudtrail.id
-//
-//  block_public_acls       = true
-//  block_public_policy     = true
-//  ignore_public_acls      = true
-//  restrict_public_buckets = true
-//}
-//
-//// AWS CodePipline with S3 sources integrates with CloudTrail to start pipelines
-//// after S3 upload events, see https://docs.aws.amazon.com/codepipeline/latest/userguide/update-change-detection.html
-////
-//// Since AWS has a hard limit of 5 trails/region
-//resource "aws_cloudtrail" "cloudtrail" {
-//  depends_on = [aws_s3_bucket_policy.cloudtrail]
-//
-//  name                          = "s3-bucket-writeonly-trail"
-//  include_global_service_events = false
-//  s3_bucket_name                = aws_s3_bucket.cloudtrail.bucket
-//
-//  event_selector {
-//    read_write_type           = "WriteOnly"
-//    include_management_events = false
-//
-//    data_resource {
-//      type   = "AWS::S3::Object"
-//      values = ["arn:aws:s3:::"]
-//    }
-//  }
-//}
-//
-//resource "aws_s3_bucket_policy" "cloudtrail" {
-//  bucket = aws_s3_bucket.cloudtrail.bucket
-//  policy = data.aws_iam_policy_document.cloudtrail.json
-//}
-//
-//// see https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html
-//data "aws_iam_policy_document" "cloudtrail" {
-//  statement {
-//    actions = ["s3:GetBucketAcl"]
-//
-//    principals {
-//      identifiers = ["cloudtrail.amazonaws.com"]
-//      type        = "Service"
-//    }
-//
-//    resources = [
-//      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.bucket}"
-//    ]
-//  }
-//
-//  statement {
-//    actions = ["s3:PutObject"]
-//
-//    condition {
-//      test     = "StringEquals"
-//      values   = ["bucket-owner-full-control"]
-//      variable = "s3:x-amz-acl"
-//    }
-//
-//    principals {
-//      identifiers = ["cloudtrail.amazonaws.com"]
-//      type        = "Service"
-//    }
-//
-//    resources = [
-//      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.bucket}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
-//    ]
-//  }

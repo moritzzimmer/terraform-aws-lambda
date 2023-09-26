@@ -18,12 +18,6 @@ variable "function_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "create_codepipeline_cloudtrail" {
-  description = "Create a CloudTrail to detect S3 package uploads. Since AWS has a hard limit of 5 trails/region, it's recommended to create one central trail for all S3 packaged Lambda functions external to this module."
-  default     = false
-  type        = bool
-}
-
 variable "codepipeline_artifact_store_bucket" {
   description = "Name of an existing S3 bucket used by AWS CodePipeline to store pipeline artifacts. Use the same bucket name as in `s3_bucket` to store deployment packages and pipeline artifacts in one bucket for `package_type=Zip` functions. If empty, a dedicated S3 bucket for your Lambda function will be created."
   default     = ""
@@ -157,7 +151,7 @@ variable "ecr_repository_name" {
 }
 
 variable "s3_bucket" {
-  description = "Name of the bucket used for S3 based deployments, required for `package_type=Zip`."
+  description = "Name of the bucket used for S3 based deployments, required for `package_type=Zip`. Make sure to enable S3 bucket notifications for this bucket for continuous deployment of your Lambda function, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html."
   default     = ""
   type        = string
 }

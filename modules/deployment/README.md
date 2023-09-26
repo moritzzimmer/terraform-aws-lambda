@@ -1,22 +1,25 @@
 # Lambda function deployments using AWS CodePipeline and AWS CodeDeploy
 
-Terraform module to create AWS resources for secure blue/green deployments of [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) functions
-using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html).
+Terraform module to create AWS resources for secure blue/green deployments
+of [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) functions using AWS [CodePipeline](https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html), [CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html) and [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-lambda.html).
 
-Basic principle for this module is to separate the infrastructure/configuration aspect of Lambda functions (e.g. IAM role, timeouts, runtime, CloudWatch logs)
-from continuous deployments of the actual function code.
+Basic principle for this module is to separate the infrastructure/configuration aspect of Lambda functions (e.g. IAM
+role, timeouts, runtime, CloudWatch logs) from continuous deployments of the actual function code.
 
-The latter should be build, tested and packaged on CI systems like GitHub actions and uploaded to S3 (`package_type=Zip`) or pushed to ECR (`package_type=Image`).
-Controlled and secure blue/green deployments of the function code with (automatic) rollbacks and traffic shifting will then be executed in an AWS CodePipline using CodeBuild
+The latter should be build, tested and packaged on CI systems like GitHub actions and uploaded to
+S3 (`package_type=Zip`) or pushed to ECR (`package_type=Image`).
+Controlled and secure blue/green deployments of the function code with (automatic) rollbacks and traffic shifting will
+then be executed in an AWS CodePipline using CodeBuild
 to update the function code and CodeDeploy to deploy the new function version.
 
-<img src="../../docs/deployment/deployment.png" />
+<img src="../../docs/deployment/deployment.drawio.svg" />
 
 ## Features
 
-- fully automated AWS CodePipelines with CodeBuild and CodeDeploy stages to deploy containerized Lambda functions from ECR or zipped packages from S3
-- creation of IAM roles with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) for CodePipeline, CodeBuild and CodeDeploy
-  or bring your own roles
+- fully automated AWS CodePipelines with CodeBuild and CodeDeploy stages to deploy containerized Lambda functions from
+  ECR or zipped packages from S3
+- creation of IAM roles with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) for CodePipeline,
+  CodeBuild and CodeDeploy or bring your own roles
 - SNS topic for [AWS CodeStar Notifications](https://docs.aws.amazon.com/dtconsole/latest/userguide/welcome.html) of CodePipeline events, or bring your own SNS topic
 - `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) for CodeDeploy
 - AWS predefined and custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) for CodeDeploy
@@ -26,20 +29,21 @@ to update the function code and CodeDeploy to deploy the new function version.
 
 ### Initial Terraform run
 
-The Terraform [lambda_function](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) relies
-on existing `image_uri` (for containerized functions) or `s3_object_version` (for S3 based packages) in the initial run.
+The Terraform [lambda_function](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) relies on existing `image_uri` (for containerized functions) or `s3_object_version` (for S3 based packages) in the initial run.
 
-For containerized functions this can be achieved by:
+For containerized functions this can be achieved one of the following options:
 
-- targeting only `aws_ecr_repository` in the first run and push and initial image before applying the rest of the infrastructure
+- targeting only `aws_ecr_repository` in the first run and push and initial image before applying the rest of the
+  infrastructure
 - using [docker_registry_image](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/registry_image) to build the image as part of the terraform lifecycle
-- using a `null_resource` with a `local-exec` provisioner to build and push the image as part of the terraform lifecycle, see [container-image (ECR)](../../examples/deployment/container-image)
-for a full example
+- using a `null_resource` with a `local-exec` provisioner to build and push the image as part of the terraform
+  lifecycle, see [container-image (ECR)](../../examples/deployment/container-image) for a full example
 
 For `Zip` packages on S3 this can be achieved using an `aws_s3_object` ignoring changes to `etag`, see
 [zipped package (S3)](../../examples/deployment/s3) for a full example.
 
-It's recommended to build, test, package and upload all further function code changes using a CI system like GitHub actions.
+It's then recommended to build, test, package and upload all further function code changes using a CI system like GitHub
+actions.
 
 ### using container images
 
@@ -75,7 +79,7 @@ module "deployment" {
 }
 
 module "lambda" {
-  source        = "moritzzimmer/lambda/aws"
+  source = "moritzzimmer/lambda/aws"
 
   function_name                    = local.function_name
   ignore_external_function_updates = true
@@ -116,7 +120,7 @@ module "deployment" {
 }
 
 module "lambda" {
-  source        = "moritzzimmer/lambda/aws"
+  source = "moritzzimmer/lambda/aws"
 
   function_name                    = local.function_name
   handler                          = "index.handler"
@@ -136,6 +140,11 @@ resource "aws_s3_bucket" "source" {
   versioning {
     enabled = true
   }
+}
+
+resource "aws_s3_bucket_notification" "source" {
+  bucket      = aws_s3_bucket.source.id
+  eventbridge = true
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {
@@ -161,19 +170,19 @@ resource "aws_s3_object" "source" {
 }
 ```
 
-**Note**: the [Amazon S3 source action](https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-S3.html)
-of the CodePipeline needs an AWS CloudTrail trail for logging events in your Amazon S3 source bucket and sending filtered events
-to an Amazon CloudWatch Events rule to get triggered (see [docs](https://docs.aws.amazon.com/codepipeline/latest/userguide/create-cloudtrail-S3-source.html)
-for details).
+**Note**:
+The [Amazon S3 source action](https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-S3.html)
+of the CodePipeline needs an AWS S3 Notification for emitting events in your Amazon S3 source bucket and sending
+filtered events to EventBridge and trigger the pipeline (see [docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html) for details).
 
-Those resources can be created by this module using `create_codepipeline_cloudtrail=true`, however it's recommended
-to create those externally to this module since AWS has a hard account limit of 5 trails per region.
+S3 event notifications will be created by this module if `codepipeline_artifact_store_bucket=true`.
+If the bucket is created externally the bucket notifications **must** be declared outside of this module.
 
 ### with custom deployment configuration
 
 This module supports all predefined [default deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html)
-for the AWS Lambda compute platform as well as custom defined configs, see [complete example](../../examples/deployment/complete)
-for details:
+for the AWS Lambda compute platform as well as custom defined configs,
+see [complete example](../../examples/deployment/complete) for details:
 
 ```terraform
 // see above
@@ -182,7 +191,8 @@ module "deployment" {
   source = "moritzzimmer/lambda/aws//modules/deployment"
 
   alias_name             = aws_lambda_alias.this.name
-  deployment_config_name = aws_codedeploy_deployment_config.custom.id // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
+  deployment_config_name = aws_codedeploy_deployment_config.custom.id
+  // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
   function_name          = local.function_name
   s3_bucket              = aws_s3_bucket.source.bucket
   s3_key                 = local.s3_key
@@ -275,7 +285,6 @@ module "deployment" {
   source = "moritzzimmer/lambda/aws//modules/deployment"
 
   alias_name                                                      = aws_lambda_alias.this.name
-  create_codepipeline_cloudtrail                                  = true
   codedeploy_deployment_group_alarm_configuration_enabled         = true
   codedeploy_deployment_group_alarm_configuration_alarms          = [aws_cloudwatch_metric_alarm.error_rate.id]
   codedeploy_deployment_group_auto_rollback_configuration_enabled = true
@@ -301,6 +310,7 @@ resource "aws_codedeploy_deployment_config" "canary" {
   }
 }
 ```
+
 ### Examples
 
 - [complete](../../examples/deployment/complete)
@@ -329,7 +339,6 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_cloudtrail.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudtrail) | resource |
 | [aws_cloudwatch_event_rule.s3_trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_target.s3_trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
@@ -347,13 +356,11 @@ No modules.
 | [aws_iam_role_policy_attachment.codedeploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_s3_bucket.pipeline](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_acl.pipeline](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
-| [aws_s3_bucket_policy.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_bucket_public_access_block.source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_bucket_server_side_encryption_configuration.pipeline](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
 | [aws_sns_topic.notifications](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_policy.notifications](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
-| [aws_iam_policy_document.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.sns_codestar_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
@@ -382,12 +389,11 @@ No modules.
 | <a name="input_codestar_notifications_enabled"></a> [codestar\_notifications\_enabled](#input\_codestar\_notifications\_enabled) | Enable CodeStar notifications for your pipeline. | `bool` | `true` | no |
 | <a name="input_codestar_notifications_event_type_ids"></a> [codestar\_notifications\_event\_type\_ids](#input\_codestar\_notifications\_event\_type\_ids) | A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline. | `list(string)` | <pre>[<br>  "codepipeline-pipeline-pipeline-execution-succeeded",<br>  "codepipeline-pipeline-pipeline-execution-failed"<br>]</pre> | no |
 | <a name="input_codestar_notifications_target_arn"></a> [codestar\_notifications\_target\_arn](#input\_codestar\_notifications\_target\_arn) | Use an existing ARN for a notification rule target (for example, a SNS Topic ARN). Otherwise a separate sns topic for this service will be created. | `string` | `""` | no |
-| <a name="input_create_codepipeline_cloudtrail"></a> [create\_codepipeline\_cloudtrail](#input\_create\_codepipeline\_cloudtrail) | Create a CloudTrail to detect S3 package uploads. Since AWS has a hard limit of 5 trails/region, it's recommended to create one central trail for all S3 packaged Lambda functions external to this module. | `bool` | `false` | no |
 | <a name="input_deployment_config_name"></a> [deployment\_config\_name](#input\_deployment\_config\_name) | The name of the deployment config used in the CodeDeploy deployment group, see https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html for all available default configurations or provide a custom one. | `string` | `"CodeDeployDefault.LambdaAllAtOnce"` | no |
 | <a name="input_ecr_image_tag"></a> [ecr\_image\_tag](#input\_ecr\_image\_tag) | The container tag used for ECR/container based deployments. | `string` | `"latest"` | no |
 | <a name="input_ecr_repository_name"></a> [ecr\_repository\_name](#input\_ecr\_repository\_name) | Name of the ECR repository source used for ECR/container based deployments, required for `package_type=Image`. | `string` | `""` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | The name of your Lambda Function to deploy. | `string` | n/a | yes |
-| <a name="input_s3_bucket"></a> [s3\_bucket](#input\_s3\_bucket) | Name of the bucket used for S3 based deployments, required for `package_type=Zip`. | `string` | `""` | no |
+| <a name="input_s3_bucket"></a> [s3\_bucket](#input\_s3\_bucket) | Name of the bucket used for S3 based deployments, required for `package_type=Zip`. Make sure to enable S3 bucket notifications for this bucket for continuous deployment of your Lambda function, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html. | `string` | `""` | no |
 | <a name="input_s3_key"></a> [s3\_key](#input\_s3\_key) | Object key used for S3 based deployments, required for `package_type=Zip`. | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to all resources supporting tags. | `map(string)` | `{}` | no |
 

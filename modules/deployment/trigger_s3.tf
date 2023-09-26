@@ -1,75 +1,3 @@
-locals {
-  cloudtrail_s3_prefix = "cloudtrail"
-}
-
-# It's recommended to create a central CloudTrail for all S3 based Lambda functions externally to this module
-# which might use KMS encryption on log files, see https://docs.aws.amazon.com/awscloudtrail/latest/userguide/encrypting-cloudtrail-log-files-with-aws-kms.html
-#tfsec:ignore:aws-cloudtrail-enable-at-rest-encryption
-resource "aws_cloudtrail" "cloudtrail" {
-  count      = var.s3_bucket != "" && var.create_codepipeline_cloudtrail ? 1 : 0
-  depends_on = [aws_s3_bucket_policy.cloudtrail]
-
-  enable_log_file_validation    = true
-  include_global_service_events = false
-  name                          = "${var.function_name}-s3-trail"
-  s3_bucket_name                = var.s3_bucket
-  s3_key_prefix                 = local.cloudtrail_s3_prefix
-  tags                          = var.tags
-
-  event_selector {
-    read_write_type           = "WriteOnly"
-    include_management_events = false
-
-    data_resource {
-      type   = "AWS::S3::Object"
-      values = ["arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/${var.s3_key}"]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "cloudtrail" {
-  count = var.s3_bucket != "" && var.create_codepipeline_cloudtrail ? 1 : 0
-
-  bucket = var.s3_bucket
-  policy = data.aws_iam_policy_document.cloudtrail[count.index].json
-}
-
-data "aws_iam_policy_document" "cloudtrail" {
-  count = var.s3_bucket != "" && var.create_codepipeline_cloudtrail ? 1 : 0
-
-  statement {
-    actions = ["s3:GetBucketAcl"]
-
-    principals {
-      identifiers = ["cloudtrail.amazonaws.com"]
-      type        = "Service"
-    }
-
-    resources = [
-      "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}"
-    ]
-  }
-
-  statement {
-    actions = ["s3:PutObject"]
-
-    condition {
-      test     = "StringEquals"
-      values   = ["bucket-owner-full-control"]
-      variable = "s3:x-amz-acl"
-    }
-
-    principals {
-      identifiers = ["cloudtrail.amazonaws.com"]
-      type        = "Service"
-    }
-
-    resources = [
-      "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/${local.cloudtrail_s3_prefix}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
-    ]
-  }
-}
-
 resource "aws_cloudwatch_event_rule" "s3_trigger" {
   count = var.s3_bucket != "" ? 1 : 0
 
@@ -79,28 +7,14 @@ resource "aws_cloudwatch_event_rule" "s3_trigger" {
 
   event_pattern = <<PATTERN
 {
-  "source": [
-    "aws.s3"
-  ],
-  "detail-type": [
-    "AWS API Call via CloudTrail"
-  ],
+  "source": ["aws.s3"],
+  "detail-type": ["Object Created"],
   "detail": {
-    "eventSource": [
-      "s3.amazonaws.com"
-    ],
-    "eventName": [
-      "PutObject",
-      "CompleteMultipartUpload",
-      "CopyObject"
-    ],
-    "requestParameters": {
-      "bucketName": [
-        "${var.s3_bucket}"
-      ],
-      "key": [
-        "${var.s3_key}"
-      ]
+    "bucket": {
+      "name": ["${var.s3_bucket}"]
+    },
+    "object":  {
+      "key": ["${var.s3_key}"]
     }
   }
 }
