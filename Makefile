@@ -46,8 +46,8 @@ tflint: ## Runs tflint on all Terraform files
 	@tflint --init
 	@for s in $(STACKS); do \
 		echo "tflint $$s"; \
-		cd $$s; terraform init -backend=false > /dev/null; \
-		tflint -f compact --config $(ROOT_DIR)/.tflint.hcl || exit 1; cd $(ROOT_DIR);\
+		terraform -chdir=$$s init -backend=false > /dev/null; \
+		tflint -chdir=$$s -f compact --config $(ROOT_DIR)/.tflint.hcl || exit 1; \
 	done;
 
 .PHONY: tfsec
@@ -55,9 +55,18 @@ tfsec: ## Runs tfsec on all Terraform files
 	@echo "+ $@"
 	@for s in $(STACKS); do \
 		echo "tfsec $$s"; \
-		cd $$s; terraform init -backend=false > /dev/null; \
-		tfsec --concise-output --minimum-severity HIGH --exclude aws-s3-encryption-customer-key,aws-sns-topic-encryption-use-cmk,aws-sqs-queue-encryption-use-cmk || exit 1; cd $(ROOT_DIR);\
+		terraform -chdir=$$s init -backend=false > /dev/null; \
+		tfsec --custom-check-dir $$s --concise-output --minimum-severity HIGH --exclude aws-s3-encryption-customer-key,aws-sns-topic-encryption-use-cmk,aws-sqs-queue-encryption-use-cmk || exit 1; \
 	done;
+
+.PHONY: providers
+providers: ## Upgrades all providers and platform independent dependency locks (slow)
+	@echo "+ $@"
+	@for s in $(STACKS) ; do \
+  		echo upgrading: $$s ;\
+		terraform -chdir=$$s init -upgrade=true -backend=false > /dev/null; \
+		terraform -chdir=$$s providers lock -platform=darwin_amd64 -platform=linux_amd64 ;\
+	done
 
 .PHONY: test
 test: ## Runs all terratests
