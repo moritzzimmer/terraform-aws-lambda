@@ -120,6 +120,30 @@ resource "aws_codepipeline" "this" {
       }
     }
   }
+
+  # add abritary post deployment steps including approval stages
+  dynamic "stage" {
+    for_each = var.post_deployment_stages
+    content {
+      name = stage.value.name
+
+      dynamic "action" {
+        for_each = stage.value.actions
+        content {
+          name     = action.value.name
+          category = action.value.category
+
+          owner            = action.value.owner
+          provider         = action.value.provider
+          version          = action.value.version
+          input_artifacts  = action.value.input_artifacts
+          output_artifacts = action.value.output_artifacts
+
+          configuration = action.value.configuration
+        }
+      }
+    }
+  }
 }
 
 resource "aws_s3_bucket" "pipeline" {

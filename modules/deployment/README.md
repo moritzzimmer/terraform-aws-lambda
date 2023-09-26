@@ -396,6 +396,7 @@ No modules.
 | <a name="input_ecr_image_tag"></a> [ecr\_image\_tag](#input\_ecr\_image\_tag) | The container tag used for ECR/container based deployments. | `string` | `"latest"` | no |
 | <a name="input_ecr_repository_name"></a> [ecr\_repository\_name](#input\_ecr\_repository\_name) | Name of the ECR repository source used for ECR/container based deployments, required for `package_type=Image`. | `string` | `""` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | The name of your Lambda Function to deploy. | `string` | n/a | yes |
+| <a name="input_post_deployment_stages"></a> [post\_deployment\_stages](#input\_post\_deployment\_stages) | A map of post deployment stages to execute after the Lambda function has been deployed. The following stages are supported: `CodeBuild`, `CodeDeploy`, `CodePipeline`, `CodeStarNotifications`. | <pre>list(object({<br>    name = string<br>    actions = list(object({<br>      name             = string<br>      category         = string<br>      owner            = string<br>      provider         = string<br>      version          = string<br>      input_artifacts  = list(any)<br>      output_artifacts = list(any)<br>      configuration    = map(any)<br>    }))<br>  }))</pre> | `[]` | no |
 | <a name="input_s3_bucket"></a> [s3\_bucket](#input\_s3\_bucket) | Name of the bucket used for S3 based deployments, required for `package_type=Zip`. Make sure to enable S3 bucket notifications for this bucket for continuous deployment of your Lambda function, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html. | `string` | `""` | no |
 | <a name="input_s3_key"></a> [s3\_key](#input\_s3\_key) | Object key used for S3 based deployments, required for `package_type=Zip`. | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to all resources supporting tags. | `map(string)` | `{}` | no |
@@ -412,5 +413,7 @@ No modules.
 | <a name="output_codedeploy_deployment_group_deployment_group_id"></a> [codedeploy\_deployment\_group\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_deployment\_group\_id) | The ID of the CodeDeploy deployment group. |
 | <a name="output_codedeploy_deployment_group_id"></a> [codedeploy\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_id) | Application name and deployment group name. |
 | <a name="output_codepipeline_arn"></a> [codepipeline\_arn](#output\_codepipeline\_arn) | The Amazon Resource Name (ARN) of the CodePipeline. |
+| <a name="output_codepipeline_artifact_storage_bucket"></a> [codepipeline\_artifact\_storage\_bucket](#output\_codepipeline\_artifact\_storage\_bucket) | n/a |
 | <a name="output_codepipeline_id"></a> [codepipeline\_id](#output\_codepipeline\_id) | The ID of the CodePipeline. |
+| <a name="output_codepipeline_role_name"></a> [codepipeline\_role\_name](#output\_codepipeline\_role\_name) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

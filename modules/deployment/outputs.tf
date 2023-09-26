@@ -33,6 +33,10 @@ output "codedeploy_deployment_group_id" {
   value       = aws_codedeploy_deployment_group.this.id
 }
 
+output "codepipeline_artifact_storage_bucket" {
+  value = "${local.artifact_store_bucket_arn}/${local.pipeline_name}"
+}
+
 output "codepipeline_arn" {
   description = "The Amazon Resource Name (ARN) of the CodePipeline."
   value       = aws_codepipeline.this.arn
@@ -41,4 +45,8 @@ output "codepipeline_arn" {
 output "codepipeline_id" {
   description = "The ID of the CodePipeline."
   value       = aws_codepipeline.this.id
+}
+
+output "codepipeline_role_name" {
+  value = length(aws_iam_role.codepipeline_role) > 0 ? aws_iam_role.codepipeline_role[0].name : null
 }
