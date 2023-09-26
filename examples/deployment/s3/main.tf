@@ -54,12 +54,15 @@ module "deployment" {
 
 #tfsec:ignore:aws-s3-enable-bucket-encryption - configure bucket encryption in production!
 resource "aws_s3_bucket" "source" {
-  acl           = "private"
   bucket        = "ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "source" {
+  bucket = aws_s3_bucket.source.id
+
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
