@@ -133,18 +133,23 @@ module "lambda" {
 }
 
 resource "aws_s3_bucket" "source" {
-  acl           = "private"
   bucket        = "source-bucket"
   force_destroy = true
-
-  versioning {
-    enabled = true
-  }
 }
 
+// make sure to enable S3 bucket notifications to start CodePipeline
 resource "aws_s3_bucket_notification" "source" {
   bucket      = aws_s3_bucket.source.id
   eventbridge = true
+}
+
+// versioning is required for CodePipeline
+resource "aws_s3_bucket_versioning" "source" {
+  bucket = aws_s3_bucket.source.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {
@@ -170,13 +175,10 @@ resource "aws_s3_object" "source" {
 }
 ```
 
-**Note**:
 The [Amazon S3 source action](https://docs.aws.amazon.com/codepipeline/latest/userguide/action-reference-S3.html)
 of the CodePipeline needs an AWS S3 Notification for emitting events in your Amazon S3 source bucket and sending
-filtered events to EventBridge and trigger the pipeline (see [docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html) for details).
-
-S3 event notifications will be created by this module if `codepipeline_artifact_store_bucket=true`.
-If the bucket is created externally the bucket notifications **must** be declared outside of this module.
+filtered events to EventBridge and trigger the pipeline (see [docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html) for details). Make sure to enable S3 bucket
+notifications for your source bucket!
 
 ### with custom deployment configuration
 
@@ -191,11 +193,12 @@ module "deployment" {
   source = "moritzzimmer/lambda/aws//modules/deployment"
 
   alias_name             = aws_lambda_alias.this.name
-  deployment_config_name = aws_codedeploy_deployment_config.custom.id
-  // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
   function_name          = local.function_name
   s3_bucket              = aws_s3_bucket.source.bucket
   s3_key                 = local.s3_key
+
+  // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
+  deployment_config_name = aws_codedeploy_deployment_config.custom.id
 }
 
 resource "aws_codedeploy_deployment_config" "custom" {
