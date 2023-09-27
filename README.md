@@ -6,9 +6,9 @@ Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/
 development of Lambda functions like:
 
 - inline declaration of triggers for DynamodDb, EventBridge (CloudWatch Events), Kinesis, SNS or SQS including all required permissions
-  - IAM role with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
+- IAM role with permissions following the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 - CloudWatch Logs and Lambda Insights configuration
-- blue/green deployments with AWS CodePipeline and CodeDeploy
+- [blue/green deployments](https://github.com/moritzzimmer/terraform-aws-lambda/blob/main/modules/deployment/README.md) with AWS CodePipeline and CodeDeploy
 
 ## Features
 
