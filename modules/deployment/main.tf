@@ -121,9 +121,9 @@ resource "aws_codepipeline" "this" {
     }
   }
 
-  # add abritary post deployment steps including approval stages
+  # add arbitrary post deployment stages like, e.g. a manual approval stage
   dynamic "stage" {
-    for_each = var.post_deployment_stages
+    for_each = var.codepipeline_post_deployment_stages
     content {
       name = stage.value.name
 

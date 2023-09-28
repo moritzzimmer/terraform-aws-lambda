@@ -48,5 +48,5 @@ output "codepipeline_id" {
 }
 
 output "codepipeline_role_name" {
-  value = length(aws_iam_role.codepipeline_role) > 0 ? aws_iam_role.codepipeline_role[0].name : null
+  value = try(aws_iam_role.codepipeline_role[0].name, "")
 }
