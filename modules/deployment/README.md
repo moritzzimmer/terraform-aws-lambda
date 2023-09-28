@@ -413,7 +413,7 @@ No modules.
 | <a name="output_codedeploy_deployment_group_deployment_group_id"></a> [codedeploy\_deployment\_group\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_deployment\_group\_id) | The ID of the CodeDeploy deployment group. |
 | <a name="output_codedeploy_deployment_group_id"></a> [codedeploy\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_id) | Application name and deployment group name. |
 | <a name="output_codepipeline_arn"></a> [codepipeline\_arn](#output\_codepipeline\_arn) | The Amazon Resource Name (ARN) of the CodePipeline. |
-| <a name="output_codepipeline_artifact_storage_bucket"></a> [codepipeline\_artifact\_storage\_bucket](#output\_codepipeline\_artifact\_storage\_bucket) | n/a |
+| <a name="output_codepipeline_artifact_storage_bucket"></a> [codepipeline\_artifact\_storage\_bucket](#output\_codepipeline\_artifact\_storage\_bucket) | The name of the S3 key arn used for the CodePipeline artifact store. |
 | <a name="output_codepipeline_id"></a> [codepipeline\_id](#output\_codepipeline\_id) | The ID of the CodePipeline. |
-| <a name="output_codepipeline_role_name"></a> [codepipeline\_role\_name](#output\_codepipeline\_role\_name) | n/a |
+| <a name="output_codepipeline_role_name"></a> [codepipeline\_role\_name](#output\_codepipeline\_role\_name) | The name of the IAM role used for the CodePipeline. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

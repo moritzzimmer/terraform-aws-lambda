@@ -34,7 +34,8 @@ output "codedeploy_deployment_group_id" {
 }
 
 output "codepipeline_artifact_storage_bucket" {
-  value = "${local.artifact_store_bucket_arn}/${local.pipeline_name}"
+  description = "The name of the S3 key arn used for the CodePipeline artifact store."
+  value       = "${local.artifact_store_bucket_arn}/${local.pipeline_name}"
 }
 
 output "codepipeline_arn" {
@@ -48,5 +49,6 @@ output "codepipeline_id" {
 }
 
 output "codepipeline_role_name" {
-  value = try(aws_iam_role.codepipeline_role[0].name, "")
+  description = "The name of the IAM role used for the CodePipeline."
+  value       = try(aws_iam_role.codepipeline_role[0].name, "")
 }
