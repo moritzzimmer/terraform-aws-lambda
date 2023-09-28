@@ -24,6 +24,7 @@ to update the function code and CodeDeploy to deploy the new function version.
 - `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) for CodeDeploy
 - AWS predefined and custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) for CodeDeploy
 - automatic [rollbacks](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html#deployments-rollback-and-redeploy-automatic-rollbacks) and support of [CloudWatch alarms](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-configure-advanced-options.html) to stop deployments
+- additional custom CodePipeline steps executed after the deployment
 
 ## How do I use this module?
 
@@ -314,6 +315,39 @@ resource "aws_codedeploy_deployment_config" "canary" {
 }
 ```
 
+### with custom CodePipeline steps
+
+see [complete example](../../examples/deployment/complete) for details:
+
+```terraform
+// see above and make sure to add required IAM permissions
+
+module "deployment" {
+  source = "moritzzimmer/lambda/aws//modules/deployment"
+
+  // see above
+  codepipeline_post_deployment_stages = [
+    {
+      name = "Custom"
+
+      actions = [
+        {
+          name            = "CustomCodeBuildStep"
+          category        = "Build"
+          owner           = "AWS"
+          provider        = "CodeBuild"
+          version         = "1"
+          input_artifacts = ["deploy"]
+
+          configuration = {
+            ProjectName : aws_codebuild_project.custom_step.name
+          }
+        }
+      ]
+    }
+  ]
+}
+```
 ### Examples
 
 - [complete](../../examples/deployment/complete)
@@ -387,6 +421,7 @@ No modules.
 | <a name="input_codedeploy_deployment_group_auto_rollback_configuration_events"></a> [codedeploy\_deployment\_group\_auto\_rollback\_configuration\_events](#input\_codedeploy\_deployment\_group\_auto\_rollback\_configuration\_events) | The event type or types that trigger a rollback. Supported types are `DEPLOYMENT_FAILURE` and `DEPLOYMENT_STOP_ON_ALARM` | `list(string)` | `[]` | no |
 | <a name="input_codepipeline_artifact_store_bucket"></a> [codepipeline\_artifact\_store\_bucket](#input\_codepipeline\_artifact\_store\_bucket) | Name of an existing S3 bucket used by AWS CodePipeline to store pipeline artifacts. Use the same bucket name as in `s3_bucket` to store deployment packages and pipeline artifacts in one bucket for `package_type=Zip` functions. If empty, a dedicated S3 bucket for your Lambda function will be created. | `string` | `""` | no |
 | <a name="input_codepipeline_artifact_store_encryption_key_id"></a> [codepipeline\_artifact\_store\_encryption\_key\_id](#input\_codepipeline\_artifact\_store\_encryption\_key\_id) | The KMS key ARN or ID of a key block AWS CodePipeline uses to encrypt the data in the artifact store, such as an AWS Key Management Service (AWS KMS) key. If you don't specify a key, AWS CodePipeline uses the default key for Amazon Simple Storage Service (Amazon S3). | `string` | `""` | no |
+| <a name="input_codepipeline_post_deployment_stages"></a> [codepipeline\_post\_deployment\_stages](#input\_codepipeline\_post\_deployment\_stages) | A map of post deployment stages to execute after the Lambda function has been deployed. The following stages are supported: `CodeBuild`, `CodeDeploy`, `CodePipeline`, `CodeStarNotifications`. | <pre>list(object({<br>    name = string<br>    actions = list(object({<br>      name             = string<br>      category         = string<br>      owner            = string<br>      provider         = string<br>      version          = string<br>      input_artifacts  = optional(list(any))<br>      output_artifacts = optional(list(any))<br>      configuration    = optional(map(string))<br>    }))<br>  }))</pre> | `[]` | no |
 | <a name="input_codepipeline_role_arn"></a> [codepipeline\_role\_arn](#input\_codepipeline\_role\_arn) | ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created. | `string` | `""` | no |
 | <a name="input_codestar_notifications_detail_type"></a> [codestar\_notifications\_detail\_type](#input\_codestar\_notifications\_detail\_type) | The level of detail to include in the notifications for this resource. Possible values are BASIC and FULL. | `string` | `"BASIC"` | no |
 | <a name="input_codestar_notifications_enabled"></a> [codestar\_notifications\_enabled](#input\_codestar\_notifications\_enabled) | Enable CodeStar notifications for your pipeline. | `bool` | `true` | no |
@@ -412,5 +447,7 @@ No modules.
 | <a name="output_codedeploy_deployment_group_deployment_group_id"></a> [codedeploy\_deployment\_group\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_deployment\_group\_id) | The ID of the CodeDeploy deployment group. |
 | <a name="output_codedeploy_deployment_group_id"></a> [codedeploy\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_id) | Application name and deployment group name. |
 | <a name="output_codepipeline_arn"></a> [codepipeline\_arn](#output\_codepipeline\_arn) | The Amazon Resource Name (ARN) of the CodePipeline. |
+| <a name="output_codepipeline_artifact_storage_arn"></a> [codepipeline\_artifact\_storage\_arn](#output\_codepipeline\_artifact\_storage\_arn) | The Amazon Resource Name (ARN) of the CodePipeline artifact store. |
 | <a name="output_codepipeline_id"></a> [codepipeline\_id](#output\_codepipeline\_id) | The ID of the CodePipeline. |
+| <a name="output_codepipeline_role_name"></a> [codepipeline\_role\_name](#output\_codepipeline\_role\_name) | The name of the IAM role used for the CodePipeline. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -38,7 +38,17 @@ output "codepipeline_arn" {
   value       = aws_codepipeline.this.arn
 }
 
+output "codepipeline_artifact_storage_arn" {
+  description = "The Amazon Resource Name (ARN) of the CodePipeline artifact store."
+  value       = "${local.artifact_store_bucket_arn}/${local.pipeline_name}"
+}
+
 output "codepipeline_id" {
   description = "The ID of the CodePipeline."
   value       = aws_codepipeline.this.id
+}
+
+output "codepipeline_role_name" {
+  description = "The name of the IAM role used for the CodePipeline."
+  value       = try(aws_iam_role.codepipeline_role[0].name, "")
 }

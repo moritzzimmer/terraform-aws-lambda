@@ -103,6 +103,35 @@ module "deployment" {
   function_name                                                   = local.function_name
   s3_bucket                                                       = aws_s3_bucket.source.bucket
   s3_key                                                          = local.s3_key
+
+  codepipeline_post_deployment_stages = [
+    {
+      name = "Custom"
+
+      actions = [
+        {
+          name            = "CustomCodeBuildStep"
+          category        = "Build"
+          owner           = "AWS"
+          provider        = "CodeBuild"
+          version         = "1"
+          input_artifacts = ["deploy"]
+
+          configuration = {
+            ProjectName : aws_codebuild_project.custom_step.name
+
+            EnvironmentVariables = jsonencode([
+              {
+                name  = "FOO"
+                value = "bar"
+                type  = "PLAINTEXT"
+              }
+            ])
+          }
+        }
+      ]
+    }
+  ]
 }
 
 resource "aws_codedeploy_deployment_config" "canary" {
@@ -113,7 +142,7 @@ resource "aws_codedeploy_deployment_config" "canary" {
     type = "TimeBasedCanary"
 
     time_based_canary {
-      interval   = 5
+      interval   = 2
       percentage = 50
     }
   }
@@ -137,9 +166,9 @@ module "traffic_hook" {
 }
 
 data "archive_file" "traffic_hook" {
-  output_path      = "${path.module}/function/traffic_hook.zip"
+  output_path      = "${path.module}/hook/traffic_hook.zip"
   output_file_mode = "0666"
-  source_file      = "${path.module}/function/hook.py"
+  source_file      = "${path.module}/hook/hook.py"
   type             = "zip"
 }
 

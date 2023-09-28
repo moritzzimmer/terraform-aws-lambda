@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      python: 3.11
+  build:
+    commands:
+      - |
+        cat << BUILD > function.py
+        ${indent(8, script)}
+        BUILD
+      - python function.py

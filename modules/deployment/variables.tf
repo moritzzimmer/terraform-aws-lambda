@@ -84,6 +84,24 @@ variable "codedeploy_deployment_group_alarm_configuration_alarms" {
   type        = list(string)
 }
 
+variable "codepipeline_post_deployment_stages" {
+  type = list(object({
+    name = string
+    actions = list(object({
+      name             = string
+      category         = string
+      owner            = string
+      provider         = string
+      version          = string
+      input_artifacts  = optional(list(any))
+      output_artifacts = optional(list(any))
+      configuration    = optional(map(string))
+    }))
+  }))
+  default     = []
+  description = "A map of post deployment stages to execute after the Lambda function has been deployed. The following stages are supported: `CodeBuild`, `CodeDeploy`, `CodePipeline`, `CodeStarNotifications`."
+}
+
 variable "codedeploy_deployment_group_alarm_configuration_enabled" {
   description = "Indicates whether the alarm configuration is enabled. This option is useful when you want to temporarily deactivate alarm monitoring for a deployment group without having to add the same alarms again later."
   default     = false
@@ -122,8 +140,10 @@ variable "codestar_notifications_enabled" {
 
 variable "codestar_notifications_event_type_ids" {
   description = "A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline."
-  default     = ["codepipeline-pipeline-pipeline-execution-succeeded", "codepipeline-pipeline-pipeline-execution-failed"]
-  type        = list(string)
+  default = [
+    "codepipeline-pipeline-pipeline-execution-succeeded", "codepipeline-pipeline-pipeline-execution-failed"
+  ]
+  type = list(string)
 }
 
 variable "codestar_notifications_target_arn" {
