@@ -98,21 +98,19 @@ module "deployment" {
   codedeploy_deployment_group_alarm_configuration_alarms          = [aws_cloudwatch_metric_alarm.error_rate.id]
   codedeploy_deployment_group_auto_rollback_configuration_enabled = true
   codedeploy_deployment_group_auto_rollback_configuration_events  = ["DEPLOYMENT_FAILURE", "DEPLOYMENT_STOP_ON_ALARM"]
-  codepipeline_artifact_store_bucket                              = aws_s3_bucket.source.bucket
-  // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
-  deployment_config_name = aws_codedeploy_deployment_config.canary.id
-  // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
-  function_name = local.function_name
-  s3_bucket     = aws_s3_bucket.source.bucket
-  s3_key        = local.s3_key
-
+  codepipeline_artifact_store_bucket                              = aws_s3_bucket.source.bucket                // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
+  deployment_config_name                                          = aws_codedeploy_deployment_config.canary.id // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
+  function_name                                                   = local.function_name
+  s3_bucket                                                       = aws_s3_bucket.source.bucket
+  s3_key                                                          = local.s3_key
 
   codepipeline_post_deployment_stages = [
     {
-      name = "CustomSteps"
+      name = "Custom"
+
       actions = [
         {
-          name            = "ProvisionStaging"
+          name            = "CustomCodeBuildStep"
           category        = "Build"
           owner           = "AWS"
           provider        = "CodeBuild"
@@ -120,11 +118,12 @@ module "deployment" {
           input_artifacts = ["deploy"]
 
           configuration = {
-            ProjectName : aws_codebuild_project.foo_bazz_codebuild.name
+            ProjectName : aws_codebuild_project.custom_step.name
+
             EnvironmentVariables = jsonencode([
               {
                 name  = "FOO"
-                value = "BAZZ"
+                value = "bar"
                 type  = "PLAINTEXT"
               }
             ])
@@ -143,7 +142,7 @@ resource "aws_codedeploy_deployment_config" "canary" {
     type = "TimeBasedCanary"
 
     time_based_canary {
-      interval   = 5
+      interval   = 2
       percentage = 50
     }
   }
@@ -167,9 +166,9 @@ module "traffic_hook" {
 }
 
 data "archive_file" "traffic_hook" {
-  output_path      = "${path.module}/function/traffic_hook.zip"
+  output_path      = "${path.module}/hook/traffic_hook.zip"
   output_file_mode = "0666"
-  source_file      = "${path.module}/function/hook.py"
+  source_file      = "${path.module}/hook/hook.py"
   type             = "zip"
 }
 

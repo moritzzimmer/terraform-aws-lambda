@@ -33,14 +33,14 @@ output "codedeploy_deployment_group_id" {
   value       = aws_codedeploy_deployment_group.this.id
 }
 
-output "codepipeline_artifact_storage_bucket" {
-  description = "The name of the S3 key arn used for the CodePipeline artifact store."
-  value       = "${local.artifact_store_bucket_arn}/${local.pipeline_name}"
-}
-
 output "codepipeline_arn" {
   description = "The Amazon Resource Name (ARN) of the CodePipeline."
   value       = aws_codepipeline.this.arn
+}
+
+output "codepipeline_artifact_storage_arn" {
+  description = "The Amazon Resource Name (ARN) of the CodePipeline artifact store."
+  value       = "${local.artifact_store_bucket_arn}/${local.pipeline_name}"
 }
 
 output "codepipeline_id" {

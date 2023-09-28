@@ -24,6 +24,7 @@ to update the function code and CodeDeploy to deploy the new function version.
 - `BeforeAllowTraffic` and `AfterAllowTraffic` [hooks](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-lambda) for CodeDeploy
 - AWS predefined and custom [deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html) for CodeDeploy
 - automatic [rollbacks](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html#deployments-rollback-and-redeploy-automatic-rollbacks) and support of [CloudWatch alarms](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-configure-advanced-options.html) to stop deployments
+- additional custom CodePipeline steps executed after the deployment
 
 ## How do I use this module?
 
@@ -413,7 +414,7 @@ No modules.
 | <a name="output_codedeploy_deployment_group_deployment_group_id"></a> [codedeploy\_deployment\_group\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_deployment\_group\_id) | The ID of the CodeDeploy deployment group. |
 | <a name="output_codedeploy_deployment_group_id"></a> [codedeploy\_deployment\_group\_id](#output\_codedeploy\_deployment\_group\_id) | Application name and deployment group name. |
 | <a name="output_codepipeline_arn"></a> [codepipeline\_arn](#output\_codepipeline\_arn) | The Amazon Resource Name (ARN) of the CodePipeline. |
-| <a name="output_codepipeline_artifact_storage_bucket"></a> [codepipeline\_artifact\_storage\_bucket](#output\_codepipeline\_artifact\_storage\_bucket) | The name of the S3 key arn used for the CodePipeline artifact store. |
+| <a name="output_codepipeline_artifact_storage_arn"></a> [codepipeline\_artifact\_storage\_arn](#output\_codepipeline\_artifact\_storage\_arn) | The Amazon Resource Name (ARN) of the CodePipeline artifact store. |
 | <a name="output_codepipeline_id"></a> [codepipeline\_id](#output\_codepipeline\_id) | The ID of the CodePipeline. |
 | <a name="output_codepipeline_role_name"></a> [codepipeline\_role\_name](#output\_codepipeline\_role\_name) | The name of the IAM role used for the CodePipeline. |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

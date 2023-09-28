@@ -7,7 +7,7 @@ phases:
   build:
     commands:
       - |
-        cat << BUILD > deploy_to_cloudfront.py
+        cat << BUILD > function.py
         ${indent(8, script)}
         BUILD
-      - python deploy_to_cloudfront.py
+      - python function.py
