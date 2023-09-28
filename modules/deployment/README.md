@@ -315,6 +315,39 @@ resource "aws_codedeploy_deployment_config" "canary" {
 }
 ```
 
+### with custom CodePipeline steps
+
+see [complete example](../../examples/deployment/complete) for details:
+
+```terraform
+// see above and make sure to add required IAM permissions
+
+module "deployment" {
+  source = "moritzzimmer/lambda/aws//modules/deployment"
+
+  // see above
+  codepipeline_post_deployment_stages = [
+    {
+      name = "Custom"
+
+      actions = [
+        {
+          name            = "CustomCodeBuildStep"
+          category        = "Build"
+          owner           = "AWS"
+          provider        = "CodeBuild"
+          version         = "1"
+          input_artifacts = ["deploy"]
+
+          configuration = {
+            ProjectName : aws_codebuild_project.custom_step.name
+          }
+        }
+      ]
+    }
+  ]
+}
+```
 ### Examples
 
 - [complete](../../examples/deployment/complete)
