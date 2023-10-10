@@ -6,7 +6,7 @@ locals {
   artifact_store_bucket     = var.codepipeline_artifact_store_bucket != "" ? var.codepipeline_artifact_store_bucket : aws_s3_bucket.pipeline[0].bucket
   artifact_store_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::${local.artifact_store_bucket}"
   deploy_output             = "deploy"
-  pipeline_name             = substr(var.function_name, 0, 20)
+  pipeline_name             = substr(var.function_name, 0, 100)
 }
 
 resource "aws_codepipeline" "this" {
