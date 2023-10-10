@@ -50,14 +50,14 @@ resource "aws_iam_role" "codebuild_role" {
             "s3:GetObjectVersion"
           ]
           Effect   = "Allow"
-          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/source/*"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/source/*"
         },
         {
           Action = [
             "s3:PutObject",
           ]
           Effect   = "Allow"
-          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/${local.deploy_output}/*"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/${local.deploy_output}/*"
         }
       ]
     })

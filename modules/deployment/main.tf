@@ -6,7 +6,8 @@ locals {
   artifact_store_bucket     = var.codepipeline_artifact_store_bucket != "" ? var.codepipeline_artifact_store_bucket : aws_s3_bucket.pipeline[0].bucket
   artifact_store_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::${local.artifact_store_bucket}"
   deploy_output             = "deploy"
-  pipeline_name             = substr(var.function_name, 0, 100)
+  pipeline_name             = substr(var.function_name, 0, 100)  // AWS CodePipeline has a limit of 100 characters for the pipeline name, see https://docs.aws.amazon.com/codepipeline/latest/userguide/limits.html
+  pipeline_artifacts_folder = substr(local.pipeline_name, 0, 20) // AWS CodePipeline truncates the name of the artifacts folder automatically
 }
 
 resource "aws_codepipeline" "this" {
