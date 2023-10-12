@@ -40,7 +40,7 @@ output "codepipeline_arn" {
 
 output "codepipeline_artifact_storage_arn" {
   description = "The Amazon Resource Name (ARN) of the CodePipeline artifact store."
-  value       = "${local.artifact_store_bucket_arn}/${local.pipeline_name}"
+  value       = "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}"
 }
 
 output "codepipeline_id" {

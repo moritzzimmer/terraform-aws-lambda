@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_event_rule" "s3_trigger" {
   count = var.s3_bucket != "" ? 1 : 0
 
-  name        = "${var.function_name}-s3-trigger"
+  name        = "${local.iam_role_prefix}-s3-trigger"
   description = "Amazon CloudWatch Events rule to automatically start the pipeline when a change occurs in the Amazon S3 object key or S3 folder."
   tags        = var.tags
 

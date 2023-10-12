@@ -1,7 +1,7 @@
 resource "aws_iam_role" "codebuild_role" {
   count = var.codebuild_role_arn == "" ? 1 : 0
 
-  name = "${var.function_name}-codebuild-${data.aws_region.current.name}"
+  name = "${local.iam_role_prefix}-codebuild-${data.aws_region.current.name}"
   tags = var.tags
 
   assume_role_policy = jsonencode({
@@ -19,7 +19,7 @@ resource "aws_iam_role" "codebuild_role" {
   })
 
   inline_policy {
-    name = "${var.function_name}-codebuild-${data.aws_region.current.name}"
+    name = "lambda-update-function-code-permissions"
 
     policy = jsonencode({
       Version = "2012-10-17"
@@ -50,14 +50,14 @@ resource "aws_iam_role" "codebuild_role" {
             "s3:GetObjectVersion"
           ]
           Effect   = "Allow"
-          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/source/*"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/source/*"
         },
         {
           Action = [
             "s3:PutObject",
           ]
           Effect   = "Allow"
-          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_name}/${local.deploy_output}/*"
+          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/${local.deploy_output}/*"
         }
       ]
     })
@@ -66,7 +66,7 @@ resource "aws_iam_role" "codebuild_role" {
   dynamic "inline_policy" {
     for_each = var.s3_bucket != "" ? [true] : []
     content {
-      name = "${var.function_name}-codebuild-s3-${data.aws_region.current.name}"
+      name = "lambda-s3-package-permissions"
 
       policy = jsonencode({
         Version = "2012-10-17"
