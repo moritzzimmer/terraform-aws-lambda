@@ -8,6 +8,18 @@ locals {
   deploy_output             = "deploy"
   pipeline_name             = substr(var.function_name, 0, 100)  // AWS CodePipeline has a limit of 100 characters for the pipeline name, see https://docs.aws.amazon.com/codepipeline/latest/userguide/limits.html
   pipeline_artifacts_folder = substr(local.pipeline_name, 0, 20) // AWS CodePipeline truncates the name of the artifacts folder automatically
+
+  // calculate the maximum length for default IAM role
+  // names used in CodePipeline, CodeBuild and CodeDeploy
+  // including the AWS Service and region suffix. Those role names
+  // must not exceed 64 characters,see https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html
+  iam_role_name_max_prefix_length = 64 - length("-notifications-${data.aws_region.current.name}")
+  iam_role_prefix                 = substr(var.function_name, 0, local.iam_role_name_max_prefix_length)
+
+  // calculate the maximum length for the default pipeline artifact bucket which must not
+  // exceed 63 characters, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+  bucket_name_max_prefix_length = 63 - length("-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}")
+  bucket_name_prefix            = substr(var.function_name, 0, local.bucket_name_max_prefix_length)
 }
 
 resource "aws_codepipeline" "this" {
@@ -150,7 +162,7 @@ resource "aws_codepipeline" "this" {
 resource "aws_s3_bucket" "pipeline" {
   count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
 
-  bucket        = "${var.function_name}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  bucket        = "${local.bucket_name_prefix}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true
   tags          = var.tags
 }
@@ -165,13 +177,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline" {
       sse_algorithm = "aws:kms"
     }
   }
-}
-
-resource "aws_s3_bucket_acl" "pipeline" {
-  count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
-
-  acl    = "private"
-  bucket = aws_s3_bucket.pipeline[count.index].id
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {

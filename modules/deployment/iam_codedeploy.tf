@@ -1,5 +1,5 @@
 resource "aws_iam_role" "codedeploy" {
-  name = "${var.function_name}-codedeploy-${data.aws_region.current.name}"
+  name = "${local.iam_role_prefix}-codedeploy-${data.aws_region.current.name}"
   tags = var.tags
 
   assume_role_policy = jsonencode({
@@ -17,7 +17,7 @@ resource "aws_iam_role" "codedeploy" {
   })
 
   inline_policy {
-    name = "s3"
+    name = "pipeline-artifacts-permissions"
 
     policy = jsonencode({
       Version = "2012-10-17"

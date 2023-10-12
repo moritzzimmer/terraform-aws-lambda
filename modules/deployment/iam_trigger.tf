@@ -1,5 +1,5 @@
 resource "aws_iam_role" "trigger" {
-  name = "${var.function_name}-trigger-${data.aws_region.current.name}"
+  name = "${local.iam_role_prefix}-trigger-${data.aws_region.current.name}"
   tags = var.tags
 
   assume_role_policy = jsonencode({
@@ -17,7 +17,7 @@ resource "aws_iam_role" "trigger" {
   })
 
   inline_policy {
-    name = "${var.function_name}-trigger-${data.aws_region.current.name}"
+    name = "codepipeline-permissions"
 
     policy = jsonencode({
       Version = "2012-10-17"

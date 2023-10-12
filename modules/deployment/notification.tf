@@ -18,7 +18,7 @@ resource "aws_codestarnotifications_notification_rule" "notification" {
 
   detail_type    = var.codestar_notifications_detail_type
   event_type_ids = var.codestar_notifications_event_type_ids
-  name           = "${var.function_name}-notifications-${data.aws_region.current.name}"
+  name           = "${local.iam_role_prefix}-notifications-${data.aws_region.current.name}"
   resource       = aws_codepipeline.this.arn
   tags           = var.tags
 
