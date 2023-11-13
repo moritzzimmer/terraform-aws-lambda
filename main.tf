@@ -69,6 +69,13 @@ resource "aws_lambda_function" "lambda" {
       subnet_ids         = vpc_config.value.subnet_ids
     }
   }
+
+  dynamic "snap_start" {
+    for_each = var.snap_start != null && var.snap_start == true ? [true] : []
+    content {
+      apply_on = "PublishedVersions"
+    }
+  }
 }
 
 // Copy of the original Lambda resource plus lifecycle configuration ignoring
@@ -133,6 +140,13 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
     content {
       security_group_ids = vpc_config.value.security_group_ids
       subnet_ids         = vpc_config.value.subnet_ids
+    }
+  }
+
+  dynamic "snap_start" {
+    for_each = var.snap_start != null && var.snap_start == true ? [true] : []
+    content {
+      apply_on = "PublishedVersions"
     }
   }
 

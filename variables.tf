@@ -235,3 +235,9 @@ variable "iam_role_name" {
   default     = null
   type        = string
 }
+
+variable "snap_start" {
+  description = "Whether to enable AWS Lambda snapstart capability. (Only available for Java runtimes and x86_64 architectures.)"
+  default     = null
+  type        = bool
+}
