@@ -71,7 +71,7 @@ resource "aws_lambda_function" "lambda" {
   }
 
   dynamic "snap_start" {
-    for_each = var.snap_start != null && var.snap_start == true ? [true] : []
+    for_each = var.snap_start ? [true] : []
     content {
       apply_on = "PublishedVersions"
     }
@@ -144,7 +144,7 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
   }
 
   dynamic "snap_start" {
-    for_each = var.snap_start != null && var.snap_start == true ? [true] : []
+    for_each = var.snap_start ? [true] : []
     content {
       apply_on = "PublishedVersions"
     }

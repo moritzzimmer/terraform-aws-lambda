@@ -237,7 +237,7 @@ variable "iam_role_name" {
 }
 
 variable "snap_start" {
-  description = "Whether to enable AWS Lambda snapstart capability. (Only available for Java runtimes and x86_64 architectures.)"
-  default     = null
+  description = "Enable snap start settings for low-latency startups. This feature is currently only supported for `java11` and `java17` runtimes and `x86_64` architectures."
+  default     = false
   type        = bool
 }
