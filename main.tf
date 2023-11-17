@@ -5,7 +5,7 @@ data "aws_partition" "current" {}
 locals {
   function_arn = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
   handler      = var.package_type != "Zip" ? null : var.handler
-  publish      = var.lambda_at_edge ? true : var.publish
+  publish      = var.lambda_at_edge || var.snap_start ? true : var.publish
   runtime      = var.package_type != "Zip" ? null : var.runtime
   timeout      = var.lambda_at_edge ? min(var.timeout, 5) : var.timeout
 }
@@ -67,6 +67,13 @@ resource "aws_lambda_function" "lambda" {
     content {
       security_group_ids = vpc_config.value.security_group_ids
       subnet_ids         = vpc_config.value.subnet_ids
+    }
+  }
+
+  dynamic "snap_start" {
+    for_each = var.snap_start ? [true] : []
+    content {
+      apply_on = "PublishedVersions"
     }
   }
 }
@@ -133,6 +140,13 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
     content {
       security_group_ids = vpc_config.value.security_group_ids
       subnet_ids         = vpc_config.value.subnet_ids
+    }
+  }
+
+  dynamic "snap_start" {
+    for_each = var.snap_start ? [true] : []
+    content {
+      apply_on = "PublishedVersions"
     }
   }
 

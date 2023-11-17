@@ -235,3 +235,9 @@ variable "iam_role_name" {
   default     = null
   type        = string
 }
+
+variable "snap_start" {
+  description = "Enable snap start settings for low-latency startups. This feature is currently only supported for `java11` and `java17` runtimes and `x86_64` architectures."
+  default     = false
+  type        = bool
+}
