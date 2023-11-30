@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
 
 resource "aws_iam_role" "lambda" {
   name               = local.iam_role_name
-  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+  assume_role_policy = var.assume_role_policy == null ? data.aws_iam_policy_document.assume_role_policy.json : var.assume_role_policy
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_attachment" {
