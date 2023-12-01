@@ -19,6 +19,12 @@ variable "architectures" {
   type        = list(string)
 }
 
+variable "assume_role_policy" {
+  default     = null
+  description = "The IAM policy document describing the IAM assume role policy for the Lambda function. If not provided, a default policy will be used."
+  type        = string
+}
+
 variable "cloudwatch_event_rules" {
   description = "Creates EventBridge (CloudWatch Events) rules invoking your Lambda function. Required Lambda invocation permissions will be generated."
   default     = {}
