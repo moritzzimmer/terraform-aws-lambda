@@ -58,7 +58,7 @@ jobs:
         with:
           terraform_version: ${{ matrix.terraform }}
 
-      - uses: terraform-linters/setup-tflint@v3
+      - uses: terraform-linters/setup-tflint@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
