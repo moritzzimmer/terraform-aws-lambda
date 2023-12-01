@@ -7,4 +7,6 @@ updates:
         prefix: "chore(github)"
     schedule:
       interval: "weekly"
+    assignees:
+      - moritzzimmer
 
