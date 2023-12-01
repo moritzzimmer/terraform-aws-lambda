@@ -35,9 +35,9 @@ Deployment packages can be specified either directly as a local file (using the 
 or using [container images](https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html) (using `image_uri` and `package_type` arguments),
 see [documentation](https://www.terraform.io/docs/providers/aws/r/lambda_function.html#specifying-the-deployment-package) for details.
 
-### simple
+### basic
 
-see [example](examples/simple) for details
+see [example](examples/complete) for other configuration options
 
 ```hcl
 provider "aws" {
@@ -308,9 +308,9 @@ see [examples](examples/deployment) for details.
 
 ## Examples
 
+- [complete](examples/complete)
 - [container-image](examples/container-image)
 - [deployment](examples/deployment)
-- [simple](examples/simple)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
 - [with-cloudwatch-logs-subscription](examples/with-cloudwatch-logs-subscription)
 - [with-event-source-mappings](examples/with-event-source-mappings)
