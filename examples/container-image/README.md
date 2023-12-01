@@ -1,4 +1,4 @@
-# Example without event
+# Example using a container image
 
 Creates an AWS Lambda function using a [container image](https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html).
 
