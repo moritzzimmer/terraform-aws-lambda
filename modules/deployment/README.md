@@ -360,13 +360,13 @@ module "deployment" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.32.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.32.0 |
 
 ## Modules
 
@@ -407,9 +407,9 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_alias_name"></a> [alias\_name](#input\_alias\_name) | Name of the Lambda alias used in CodeDeploy. | `string` | n/a | yes |
 | <a name="input_codebuild_cloudwatch_logs_retention_in_days"></a> [codebuild\_cloudwatch\_logs\_retention\_in\_days](#input\_codebuild\_cloudwatch\_logs\_retention\_in\_days) | Specifies the number of days you want to retain log events in the CodeBuild log group. | `number` | `14` | no |
-| <a name="input_codebuild_environment_compute_type"></a> [codebuild\_environment\_compute\_type](#input\_codebuild\_environment\_compute\_type) | Information about the compute resources the build project will use. | `string` | `"BUILD_GENERAL1_SMALL"` | no |
-| <a name="input_codebuild_environment_image"></a> [codebuild\_environment\_image](#input\_codebuild\_environment\_image) | Docker image to use for this build project. | `string` | `"aws/codebuild/amazonlinux2-x86_64-standard:5.0"` | no |
-| <a name="input_codebuild_environment_type"></a> [codebuild\_environment\_type](#input\_codebuild\_environment\_type) | Type of build environment to use for related builds. | `string` | `"LINUX_CONTAINER"` | no |
+| <a name="input_codebuild_environment_compute_type"></a> [codebuild\_environment\_compute\_type](#input\_codebuild\_environment\_compute\_type) | Information about the compute resources the build project will use. | `string` | `"BUILD_LAMBDA_1GB"` | no |
+| <a name="input_codebuild_environment_image"></a> [codebuild\_environment\_image](#input\_codebuild\_environment\_image) | Docker image to use for this build project. | `string` | `"aws/codebuild/amazonlinux-aarch64-lambda-standard:python3.12"` | no |
+| <a name="input_codebuild_environment_type"></a> [codebuild\_environment\_type](#input\_codebuild\_environment\_type) | Type of build environment to use for related builds. | `string` | `"ARM_LAMBDA_CONTAINER"` | no |
 | <a name="input_codebuild_role_arn"></a> [codebuild\_role\_arn](#input\_codebuild\_role\_arn) | ARN of an existing IAM role for CodeBuild execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created. | `string` | `""` | no |
 | <a name="input_codedeploy_appspec_hooks_after_allow_traffic_arn"></a> [codedeploy\_appspec\_hooks\_after\_allow\_traffic\_arn](#input\_codedeploy\_appspec\_hooks\_after\_allow\_traffic\_arn) | Lambda function ARN to run after traffic is shifted to the deployed Lambda function version. | `string` | `""` | no |
 | <a name="input_codedeploy_appspec_hooks_before_allow_traffic_arn"></a> [codedeploy\_appspec\_hooks\_before\_allow\_traffic\_arn](#input\_codedeploy\_appspec\_hooks\_before\_allow\_traffic\_arn) | Lambda function ARN to run before traffic is shifted to the deployed Lambda function version. | `string` | `""` | no |

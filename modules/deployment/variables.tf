@@ -50,19 +50,19 @@ variable "codebuild_cloudwatch_logs_retention_in_days" {
 
 variable "codebuild_environment_compute_type" {
   description = "Information about the compute resources the build project will use."
-  default     = "BUILD_GENERAL1_SMALL"
+  default     = "BUILD_LAMBDA_1GB"
   type        = string
 }
 
 variable "codebuild_environment_image" {
   description = "Docker image to use for this build project."
-  default     = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+  default     = "aws/codebuild/amazonlinux-aarch64-lambda-standard:python3.12"
   type        = string
 }
 
 variable "codebuild_environment_type" {
   description = "Type of build environment to use for related builds."
-  default     = "LINUX_CONTAINER"
+  default     = "ARM_LAMBDA_CONTAINER"
   type        = string
 }
 
