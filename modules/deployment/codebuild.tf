@@ -75,10 +75,6 @@ resource "aws_codebuild_project" "this" {
     buildspec = <<EOF
 version: 0.2
 phases:
-  install:
-    on-failure: ABORT
-    runtime-versions:
-      python: 3.12
   build:
     commands:
       - |

@@ -55,7 +55,7 @@ variable "codebuild_environment_compute_type" {
 }
 
 variable "codebuild_environment_image" {
-  description = "Docker image to use for this build project."
+  description = "Docker image to use for this build project. The image needs to include python."
   default     = "aws/codebuild/amazonlinux-aarch64-lambda-standard:python3.12"
   type        = string
 }
