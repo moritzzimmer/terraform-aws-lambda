@@ -78,7 +78,7 @@ phases:
   install:
     on-failure: ABORT
     runtime-versions:
-      python: 3.11
+      python: 3.12
   build:
     commands:
       - |
