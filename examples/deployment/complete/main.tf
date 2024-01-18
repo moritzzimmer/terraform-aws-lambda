@@ -105,6 +105,17 @@ module "deployment" {
   s3_bucket                                                       = aws_s3_bucket.source.bucket
   s3_key                                                          = local.s3_key
 
+  codepipeline_variables = [
+    {
+      name          = "FOO"
+      default_value = "BAR"
+      description   = "test with all config values"
+    },
+    {
+      name = "BAR"
+    }
+  ]
+
   codepipeline_post_deployment_stages = [
     {
       name = "Custom"
