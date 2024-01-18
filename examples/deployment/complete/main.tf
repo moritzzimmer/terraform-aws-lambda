@@ -98,7 +98,8 @@ module "deployment" {
   codedeploy_deployment_group_alarm_configuration_alarms          = [aws_cloudwatch_metric_alarm.error_rate.id]
   codedeploy_deployment_group_auto_rollback_configuration_enabled = true
   codedeploy_deployment_group_auto_rollback_configuration_events  = ["DEPLOYMENT_FAILURE", "DEPLOYMENT_STOP_ON_ALARM"]
-  codepipeline_artifact_store_bucket                              = aws_s3_bucket.source.bucket                // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
+  codepipeline_artifact_store_bucket                              = aws_s3_bucket.source.bucket // example to (optionally) use the same bucket for deployment packages and pipeline artifacts
+  codepipeline_type                                               = "V2"
   deployment_config_name                                          = aws_codedeploy_deployment_config.canary.id // optionally use custom deployment configuration or a different default deployment configuration like `CodeDeployDefault.LambdaLinear10PercentEvery1Minute` from https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html
   function_name                                                   = local.function_name
   s3_bucket                                                       = aws_s3_bucket.source.bucket
@@ -161,7 +162,7 @@ module "traffic_hook" {
   filename         = data.archive_file.traffic_hook.output_path
   function_name    = "codedeploy-hook-example"
   handler          = "hook.handler"
-  runtime          = "python3.9"
+  runtime          = "python3.12"
   source_code_hash = data.archive_file.traffic_hook.output_base64sha256
 }
 

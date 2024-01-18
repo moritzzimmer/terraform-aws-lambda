@@ -30,6 +30,12 @@ variable "codepipeline_artifact_store_encryption_key_id" {
   type        = string
 }
 
+variable "codepipeline_type" {
+  description = "Type of the CodePipeline. Possible values are: `V1` and `V2`."
+  default     = "V1"
+  type        = string
+}
+
 variable "codepipeline_role_arn" {
   description = "ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
@@ -40,6 +46,16 @@ variable "codebuild_role_arn" {
   description = "ARN of an existing IAM role for CodeBuild execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created."
   default     = ""
   type        = string
+}
+
+variable "codepipeline_variables" {
+  description = "CodePipeline variables. Valid only when `codepipeline_type` is `V2`."
+  default     = []
+  type = list(object({
+    name          = string
+    default_value = optional(string)
+    description   = optional(string)
+  }))
 }
 
 variable "codebuild_cloudwatch_logs_retention_in_days" {
