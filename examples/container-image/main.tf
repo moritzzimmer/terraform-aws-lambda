@@ -3,9 +3,10 @@ locals {
   function_name = "example-with-container-images"
 }
 
-#tfsec:ignore:aws-ecr-enforce-immutable-repository
+#trivy:ignore:AVD-AWS-0031
 resource "aws_ecr_repository" "this" {
-  name = local.function_name
+  force_delete = true
+  name         = local.function_name
 
   image_scanning_configuration {
     scan_on_push = true

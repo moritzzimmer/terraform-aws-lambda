@@ -64,20 +64,32 @@ jobs:
 
       - run: make tflint
 
-  tfsec:
+  trivy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        terraform: [ ~1.3 ]
     steps:
       - uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ matrix.terraform }}
+      - name: config
+        run: |
+          cat >> ./trivy.yaml << EOF
+          # see https://aquasecurity.github.io/trivy/latest/docs/references/configuration/config-file/ for reference
+          exit-code: 1
+          exit-on-eol: 1
+          misconfiguration:
+            terraform:
+              exclude-downloaded-modules: true
+          severity:
+            - HIGH
+            - CRITICAL
+          scan:
+            skip-dirs:
+              - "**/.terraform/**/*"
+          EOF
 
-      # TODO: check https://github.com/aquasecurity/tfsec-pr-commenter-action/issues/90, this action currently swallows all findings
-      - uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
+          cat ./trivy.yaml
+
+      - uses: aquasecurity/trivy-action@0.16.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tfsec_args: --exclude aws-s3-encryption-customer-key,aws-sns-topic-encryption-use-cmk,aws-sqs-queue-encryption-use-cmk
+          scan-type: 'config'
+          hide-progress: false
+          trivy-config: trivy.yaml

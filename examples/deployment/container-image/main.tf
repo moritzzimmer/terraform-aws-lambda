@@ -38,7 +38,7 @@ module "deployment" {
   function_name       = local.function_name
 }
 
-#tfsec:ignore:aws-ecr-enforce-immutable-repository
+#trivy:ignore:AVD-AWS-0031
 resource "aws_ecr_repository" "this" {
   force_delete = true
   name         = local.function_name

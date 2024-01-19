@@ -167,6 +167,8 @@ resource "aws_s3_bucket" "pipeline" {
   tags          = var.tags
 }
 
+#trivy:ignore:AVD-AWS-0135
+#trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline" {
   count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
 

@@ -29,7 +29,7 @@ module "lambda" {
   filename         = data.archive_file.kinesis_handler.output_path
   function_name    = "example-with-kinesis-event-source-mapping"
   handler          = "index.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs20.x"
   source_code_hash = data.archive_file.kinesis_handler.output_base64sha256
 
   event_source_mappings = {
