@@ -25,9 +25,10 @@ locals {
 resource "aws_codepipeline" "this" {
   depends_on = [aws_iam_role.codepipeline_role]
 
-  name     = local.pipeline_name
-  role_arn = var.codepipeline_role_arn == "" ? aws_iam_role.codepipeline_role[0].arn : var.codepipeline_role_arn
-  tags     = var.tags
+  name          = local.pipeline_name
+  pipeline_type = var.codepipeline_type
+  role_arn      = var.codepipeline_role_arn == "" ? aws_iam_role.codepipeline_role[0].arn : var.codepipeline_role_arn
+  tags          = var.tags
 
   artifact_store {
     location = local.artifact_store_bucket
@@ -155,6 +156,15 @@ resource "aws_codepipeline" "this" {
           configuration = action.value.configuration
         }
       }
+    }
+  }
+
+  dynamic "variable" {
+    for_each = var.codepipeline_variables
+    content {
+      name          = variable.value.name
+      default_value = variable.value.default_value
+      description   = variable.value.description
     }
   }
 }
