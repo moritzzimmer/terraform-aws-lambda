@@ -14,7 +14,7 @@ module "lambda" {
   filename         = module.source.output_path
   function_name    = "example-with-cloudwatch-events"
   handler          = "index.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs20.x"
   source_code_hash = module.source.output_base64sha256
 
   cloudwatch_event_rules = {

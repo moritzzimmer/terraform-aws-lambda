@@ -18,7 +18,7 @@ module "lambda" {
   handler                          = "index.handler"
   ignore_external_function_updates = true
   publish                          = true
-  runtime                          = "nodejs18.x"
+  runtime                          = "nodejs20.x"
   s3_bucket                        = aws_s3_bucket.source.bucket
   s3_key                           = local.s3_key
   s3_object_version                = aws_s3_object.initial.version_id
@@ -52,7 +52,8 @@ module "deployment" {
 # S3 source bucket resources
 # ---------------------------------------------------------------------------------------------------------------------
 
-#tfsec:ignore:aws-s3-enable-bucket-encryption - configure bucket encryption in production!
+#trivy:ignore:AVD-AWS-0088
+#trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket" "source" {
   bucket        = "ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   force_destroy = true

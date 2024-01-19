@@ -18,7 +18,7 @@ module "lambda" {
   function_name          = random_pet.this.id
   handler                = "index.handler"
   memory_size            = 128
-  runtime                = "nodejs18.x"
+  runtime                = "nodejs20.x"
   publish                = false
   snap_start             = false
   source_code_hash       = module.source.output_base64sha256

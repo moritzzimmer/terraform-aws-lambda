@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "custom_codepipeline_step" {
       "s3:GetObjectVersion"
     ]
 
-    #tfsec:ignore:aws-iam-no-policy-wildcards
+    #trivy:ignore:AVD-AWS-0057
     resources = ["${module.deployment.codepipeline_artifact_storage_arn}/deploy/*"]
   }
 }

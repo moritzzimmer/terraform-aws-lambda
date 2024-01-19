@@ -1,8 +1,12 @@
+#trivy:ignore:AVD-AWS-0135
+#trivy:ignore:AVD-AWS-0136
 resource "aws_sns_topic" "topic_1" {
   kms_master_key_id = "alias/aws/sns"
   name              = "example-sns-topic-1"
 }
 
+#trivy:ignore:AVD-AWS-0135
+#trivy:ignore:AVD-AWS-0136
 resource "aws_sns_topic" "topic_2" {
   kms_master_key_id = "alias/aws/sns"
   name              = "example-sns-topic-2"
@@ -30,7 +34,7 @@ module "lambda" {
   filename         = data.archive_file.sns_handler.output_path
   function_name    = "example-with-sns-event"
   handler          = "index.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs20.x"
   source_code_hash = data.archive_file.sns_handler.output_base64sha256
 
   sns_subscriptions = {

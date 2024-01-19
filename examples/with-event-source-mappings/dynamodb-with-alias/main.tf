@@ -57,7 +57,7 @@ module "lambda" {
   filename         = data.archive_file.dynamodb_handler.output_path
   function_name    = "example-with-dynamodb-event-source-mapping"
   handler          = "index.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs20.x"
   source_code_hash = data.archive_file.dynamodb_handler.output_base64sha256
 
   event_source_mappings = {
@@ -104,6 +104,7 @@ module "lambda" {
   }
 }
 
+#trivy:ignore:AVD-AWS-0135
 resource "aws_sqs_queue" "errors" {
   kms_master_key_id = "alias/aws/sqs"
   name              = "${module.lambda.function_name}-processing-errors"
