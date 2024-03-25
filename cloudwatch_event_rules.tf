@@ -1,3 +1,8 @@
+locals {
+  # https://aws.amazon.com/about-aws/whats-new/2019/11/aws-lambda-supports-max-retry-attempts-event-age-asynchronous-invocations/
+  default_cloudwatch_event_target_retry_policy_maximum_event_age_in_seconds = 6 * 60 * 60 # 6 hours
+  default_cloudwatch_event_target_retry_policy_maximum_retry_attempts       = 2
+}
 resource "aws_lambda_permission" "cloudwatch_events" {
   for_each = var.cloudwatch_event_rules
 
@@ -29,8 +34,9 @@ resource "aws_cloudwatch_event_target" "lambda" {
   arn            = lookup(each.value, "cloudwatch_event_target_arn", local.function_arn)
   rule           = aws_cloudwatch_event_rule.lambda[each.key].name
   input          = lookup(each.value, "cloudwatch_event_target_input", null)
+
   retry_policy {
-    maximum_event_age_in_seconds = null
-    maximum_retry_attempts       = null
+    maximum_event_age_in_seconds = lookup(each.value, "cloudwatch_event_target_retry_policy_maximum_event_age_in_seconds", local.default_cloudwatch_event_target_retry_policy_maximum_event_age_in_seconds)
+    maximum_retry_attempts       = lookup(each.value, "cloudwatch_event_target_retry_policy_maximum_retry_attempts", local.default_cloudwatch_event_target_retry_policy_maximum_retry_attempts)
   }
 }
