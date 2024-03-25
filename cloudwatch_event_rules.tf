@@ -30,7 +30,7 @@ resource "aws_cloudwatch_event_target" "lambda" {
   rule           = aws_cloudwatch_event_rule.lambda[each.key].name
   input          = lookup(each.value, "cloudwatch_event_target_input", null)
   retry_policy {
-    maximum_event_age_in_seconds = lookup(each.value, "cloudwatch_event_target_retry_policy_maximum_event_age_in_seconds", null)
-    maximum_retry_attempts       = lookup(each.value, "cloudwatch_event_target_retry_policy_maximum_retry_attempts", null)
+    maximum_event_age_in_seconds = null
+    maximum_retry_attempts       = null
   }
 }
