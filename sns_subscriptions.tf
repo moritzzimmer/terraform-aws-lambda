@@ -11,7 +11,8 @@ resource "aws_lambda_permission" "sns" {
 resource "aws_sns_topic_subscription" "subscription" {
   for_each = var.sns_subscriptions
 
-  endpoint  = lookup(each.value, "endpoint", local.function_arn)
-  protocol  = "lambda"
-  topic_arn = each.value["topic_arn"]
+  endpoint       = lookup(each.value, "endpoint", local.function_arn)
+  redrive_policy = lookup(each.value, "redrive_policy", local.function_arn)
+  protocol       = "lambda"
+  topic_arn      = each.value["topic_arn"]
 }
