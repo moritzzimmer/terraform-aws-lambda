@@ -2,7 +2,7 @@ resource "aws_lambda_permission" "cloudwatch_events" {
   for_each = var.cloudwatch_event_rules
 
   action        = "lambda:InvokeFunction"
-  function_name = var.function_name
+  function_name = var.ignore_external_function_updates ? aws_lambda_function.lambda_external_lifecycle[0].function_name : aws_lambda_function.lambda[0].function_name
   principal     = "events.amazonaws.com"
   qualifier     = contains(keys(each.value), "cloudwatch_event_target_arn") ? trimprefix(each.value["cloudwatch_event_target_arn"], "${local.function_arn}:") : null
   source_arn    = aws_cloudwatch_event_rule.lambda[each.key].arn
