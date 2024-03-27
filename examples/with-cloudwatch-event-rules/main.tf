@@ -30,6 +30,12 @@ module "lambda" {
 
       // optionally add `cloudwatch_event_target_input` for event input
       cloudwatch_event_target_input = jsonencode({ "key" : "value" })
+
+      // optionally add cloudwatch_event_target_retry_policy_maximum_event_age_in_seconds
+      cloudwatch_event_target_retry_policy_maximum_event_age_in_seconds = 20
+
+      // optionally add cloudwatch_event_target_retry_policy_maximum_retry_attempts
+      cloudwatch_event_target_retry_policy_maximum_retry_attempts = 0
     }
 
     pattern = {
