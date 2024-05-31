@@ -24,7 +24,7 @@ NEXT_TAG 			:= v$(NEXT_VERSION)
 STACKS = $(shell find . -not -path "*/\.*" -iname "*.tf" | sed -E "s|/[^/]+$$||" | sort --unique)
 ROOT_DIR := $(shell pwd)
 
-all: fmt validate tflint tfsec
+all: fmt validate tflint trivy
 
 .PHONY: fmt
 fmt: ## Rewrites Terraform files to canonical format
@@ -50,14 +50,9 @@ tflint: ## Runs tflint on all Terraform files
 		tflint -chdir=$$s -f compact --config $(ROOT_DIR)/.tflint.hcl || exit 1; \
 	done;
 
-.PHONY: tfsec
-tfsec: ## Runs tfsec on all Terraform files
+trivy: ## Runs trivy on all Terraform files
 	@echo "+ $@"
-	@for s in $(STACKS); do \
-		echo "tfsec $$s"; \
-		terraform -chdir=$$s init -backend=false > /dev/null; \
-		tfsec --custom-check-dir $$s --concise-output --minimum-severity HIGH --exclude aws-s3-encryption-customer-key,aws-sns-topic-encryption-use-cmk,aws-sqs-queue-encryption-use-cmk || exit 1; \
-	done;
+	@trivy config  --exit-code 1 --severity HIGH --tf-exclude-downloaded-modules .
 
 .PHONY: providers
 providers: ## Upgrades all providers and platform independent dependency locks (slow)
