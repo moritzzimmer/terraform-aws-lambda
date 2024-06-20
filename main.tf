@@ -13,7 +13,9 @@ locals {
 resource "aws_lambda_function" "lambda" {
   count      = var.ignore_external_function_updates ? 0 : 1
   depends_on = [aws_cloudwatch_log_group.lambda]
-
+  lifecycle {
+    replace_triggered_by = [aws_iam_role.lambda.id]
+  }
   architectures                  = var.architectures
   description                    = var.description
   filename                       = var.filename
