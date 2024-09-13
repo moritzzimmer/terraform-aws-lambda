@@ -153,6 +153,18 @@ variable "publish" {
   type        = bool
 }
 
+variable "replace_security_groups_on_destroy" {
+  default     = null
+  description = "(Optional) Whether to replace the security groups on the function's VPC configuration prior to destruction. Removing these security group associations prior to function destruction can speed up security group deletion times of AWS's internal cleanup operations. By default, the security groups will be replaced with the default security group in the function's configured VPC. Set the `replacement_security_group_ids` attribute to use a custom list of security groups for replacement."
+  type        = bool
+}
+
+variable "replacement_security_group_ids" {
+  description = "(Optional) List of security group IDs to assign to the function's VPC configuration prior to destruction. `replace_security_groups_on_destroy` must be set to `true` to use this attribute."
+  type        = list(string)
+  default     = null
+}
+
 variable "reserved_concurrent_executions" {
   description = "The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations."
   default     = -1
@@ -222,12 +234,15 @@ variable "tracing_config_mode" {
 }
 
 variable "vpc_config" {
-  description = "Provide this to allow your function to access your VPC (if both 'subnet_ids' and 'security_group_ids' are empty then vpc_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details)."
+  description = "Provide this to allow your function to access your VPC (if both `subnet_ids` and `security_group_ids` are empty then vpc_config is considered to be empty or unset, see https://docs.aws.amazon.com/lambda/latest/dg/vpc.html for details)."
   default     = null
   type = object({
-    security_group_ids = list(string)
-    subnet_ids         = list(string)
+    ipv6_allowed_for_dual_stack = optional(bool, false)
+    security_group_ids          = list(string)
+    subnet_ids                  = list(string)
   })
+
+
 }
 
 variable "iam_role_name" {
