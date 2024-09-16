@@ -93,15 +93,25 @@ release: check-git-branch bump-version ## Releases a new module version
 	git tag -a $(NEXT_TAG) -m "$(NEXT_TAG)"
 	git push origin $(NEXT_TAG)
 	git push
-	# create GH release if GITHUB_TOKEN is set
-	if [ ! -z "${GITHUB_TOKEN}" ] ; then 												\
-    	curl 																		\
-    		-H "Authorization: token ${GITHUB_TOKEN}" 								\
-    		-X POST 																\
-    		-H "Accept: application/vnd.github.v3+json"								\
-    		https://api.github.com/repos/moritzzimmer/terraform-aws-lambda/releases \
-    		-d "{\"tag_name\":\"$(NEXT_TAG)\",\"generate_release_notes\":true}"; 									\
+	@if ! command -v gh >/dev/null 2>&1 ; then 											\
+		echo "gh CLI is not installed. Please create the release manually on GitHub." ; \
+		exit 0 ; 																		\
 	fi;
+	@if ! gh auth status >/dev/null 2>&1 ; then 											\
+		echo "gh CLI is not authenticated. Please run 'gh auth login' or create the release manually on GitHub." ; \
+		exit 0 ; 																		\
+	fi;
+	@gh release create $(NEXT_TAG) --generate-notes
+	@echo "GitHub release created successfully for tag $(NEXT_TAG) at: https://github.com/moritzzimmer/terraform-aws-lambda/releases/tag/$(NEXT_TAG)"
+
+.PHONY: update
+update: ## Upgrades Terraform core and providers constraints recursively using https://github.com/minamijoyo/tfupdate
+	@echo "+ $@"
+	@command -v tfupdate >/dev/null 2>&1 || { echo >&2 "Please install tfupdate: 'brew install minamijoyo/tfupdate/tfupdate'"; exit 1; }
+	@tfupdate terraform -v ">= 1.3" -r .
+	@tfupdate provider aws -v ">= 5.32" -r .
+	@tfupdate provider archive -v ">= 2.2" -r .
+	@tfupdate provider null -v ">= 3.2" -r .
 
 .PHONY: help
 help: ## Display this help screen
