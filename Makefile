@@ -94,20 +94,14 @@ release: check-git-branch bump-version ## Releases a new module version
 	git push origin $(NEXT_TAG)
 	git push
 	@if ! command -v gh >/dev/null 2>&1 ; then 											\
-    	echo "gh CLI is not installed. Please create the release manually on GitHub." ; \
-    	exit 0 ; 																		\
+		echo "gh CLI is not installed. Please create the release manually on GitHub." ; \
+		exit 0 ; 																		\
 	fi;
-	@GITHUB_TOKEN=$$(gh auth token 2>/dev/null) ; 										\
-	if [ -z "$${GITHUB_TOKEN}" ] ; then 												\
-    	echo "gh CLI is not authenticated. Please run 'gh auth login' or create the release manually on GitHub." ; \
-    	exit 0 ; 																		\
+	@if ! gh auth status >/dev/null 2>&1 ; then 											\
+		echo "gh CLI is not authenticated. Please run 'gh auth login' or create the release manually on GitHub." ; \
+		exit 0 ; 																		\
 	fi;
-	@curl 																			\
-		-H "Authorization: token $${GITHUB_TOKEN}" 									\
-		-X POST 																	\
-		-H "Accept: application/vnd.github.v3+json"									\
-		https://api.github.com/repos/moritzzimmer/terraform-aws-lambda/releases 		\
-		-d "{\"tag_name\":\"$(NEXT_TAG)\",\"generate_release_notes\":true}";
+	@gh release create $(NEXT_TAG) --generate-notes
 	@echo "GitHub release created successfully for tag $(NEXT_TAG) at: https://github.com/moritzzimmer/terraform-aws-lambda/releases/tag/$(NEXT_TAG)"
 
 .PHONY: update
