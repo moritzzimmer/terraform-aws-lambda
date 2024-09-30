@@ -258,7 +258,7 @@ variable "snap_start" {
 }
 
 variable "logging_config" {
-  description = "The logging configuration of the Lambda function. See the `logging_config` block arguments for details."
+  description = "Logging configuration for the Lambda function."
   default     = null
   type = object({
     application_log_level = optional(string)
