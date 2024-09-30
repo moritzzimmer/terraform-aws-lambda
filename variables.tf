@@ -256,3 +256,13 @@ variable "snap_start" {
   default     = false
   type        = bool
 }
+
+variable "logging_config" {
+  description = "The logging configuration of the Lambda function. See the `logging_config` block arguments for details."
+  default     = null
+  type = object({
+    application_log_level = optional(string)
+    log_format            = optional(string)
+    system_log_level      = optional(string)
+  })
+}

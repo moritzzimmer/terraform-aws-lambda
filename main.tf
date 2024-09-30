@@ -41,6 +41,13 @@ resource "aws_lambda_function" "lambda" {
     size = var.ephemeral_storage_size
   }
 
+  logging_config {
+    log_group             = aws_cloudwatch_log_group.lambda.name
+    application_log_level = lookup(var.logging_config, "application_log_level", null)
+    log_format            = lookup(var.logging_config, "log_format", null)
+    system_log_level      = lookup(var.logging_config, "system_log_level", null)
+  }
+
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
