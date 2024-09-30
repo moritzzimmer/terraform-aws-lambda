@@ -43,9 +43,9 @@ resource "aws_lambda_function" "lambda" {
 
   logging_config {
     log_group             = aws_cloudwatch_log_group.lambda.name
-    application_log_level = lookup(var.logging_config, "application_log_level", null)
-    log_format            = lookup(var.logging_config, "log_format", null)
-    system_log_level      = lookup(var.logging_config, "system_log_level", null)
+    application_log_level = try(var.logging_config.application_log_level, null)
+    log_format            = try(var.logging_config.log_format, null)
+    system_log_level      = try(var.logging_config.system_log_level, null)
   }
 
   dynamic "environment" {
