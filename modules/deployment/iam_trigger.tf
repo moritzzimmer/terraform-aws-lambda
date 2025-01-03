@@ -15,19 +15,19 @@ resource "aws_iam_role" "trigger" {
       },
     ]
   })
+}
 
-  inline_policy {
-    name = "codepipeline-permissions"
-
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Action   = ["codepipeline:StartPipelineExecution"]
-          Effect   = "Allow"
-          Resource = aws_codepipeline.this.arn
-        },
-      ]
-    })
-  }
+resource "aws_iam_role_policy" "trigger" {
+  name = "codepipeline-permissions"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = ["codepipeline:StartPipelineExecution"]
+        Effect   = "Allow"
+        Resource = aws_codepipeline.this.arn
+      },
+    ]
+  })
+  role = aws_iam_role.trigger.name
 }
