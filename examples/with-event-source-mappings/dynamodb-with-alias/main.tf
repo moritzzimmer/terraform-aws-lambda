@@ -1,3 +1,7 @@
+module "fixtures" {
+  source = "../../fixtures"
+}
+
 resource "aws_dynamodb_table" "table_1" {
   name             = "example-dynamodb-table-1"
   hash_key         = "UserId"
@@ -55,9 +59,9 @@ module "lambda" {
 
   description      = "Example usage for an AWS Lambda with a DynamoDb event source mapping"
   filename         = data.archive_file.dynamodb_handler.output_path
-  function_name    = "example-with-dynamodb-event-source-mapping"
+  function_name    = module.fixtures.output_function_name
   handler          = "index.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   source_code_hash = data.archive_file.dynamodb_handler.output_base64sha256
 
   event_source_mappings = {

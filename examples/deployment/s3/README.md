@@ -19,26 +19,26 @@ Upload a new `zip` package to S3 to start the deployment pipeline:
 aws s3api put-object --bucket example-ci-{account_id}-{region} --key s3-deployment/package/lambda.zip --body lambda.zip
 ```
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.32 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.82.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.32 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.82.2 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_deployment"></a> [deployment](#module\_deployment) | ../../../modules/deployment | n/a |
-| <a name="module_function"></a> [function](#module\_function) | ../../fixtures | n/a |
+| <a name="module_fixtures"></a> [fixtures](#module\_fixtures) | ../../fixtures | n/a |
 | <a name="module_lambda"></a> [lambda](#module\_lambda) | ../../../ | n/a |
 
 ## Resources
@@ -63,4 +63,4 @@ aws s3api put-object --bucket example-ci-{account_id}-{region} --key s3-deployme
 ## Outputs
 
 No outputs.
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

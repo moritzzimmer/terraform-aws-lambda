@@ -4,3 +4,7 @@ data "archive_file" "lambda" {
   source_file      = "${path.module}/context/index.js"
   type             = "zip"
 }
+
+resource "random_pet" "this" {
+  length = 2
+}

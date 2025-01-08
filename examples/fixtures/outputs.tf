@@ -9,3 +9,7 @@ output "output_base64sha256" {
 output "output_md5" {
   value = data.archive_file.lambda.output_md5
 }
+
+output "output_function_name" {
+  value = random_pet.this.id
+}

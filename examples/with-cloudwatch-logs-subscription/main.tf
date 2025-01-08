@@ -10,7 +10,7 @@ module "lambda" {
   filename                          = module.source.output_path
   function_name                     = "example-without-cloudwatch-logs-subscription"
   handler                           = "index.handler"
-  runtime                           = "nodejs20.x"
+  runtime                           = "nodejs22.x"
   source_code_hash                  = module.source.output_base64sha256
 
   cloudwatch_log_subscription_filters = {
@@ -32,7 +32,7 @@ module "destination_1" {
   filename                          = module.source.output_path
   function_name                     = "cloudwatch-logs-subscription-destination-1"
   handler                           = "index.handler"
-  runtime                           = "nodejs20.x"
+  runtime                           = "nodejs22.x"
   source_code_hash                  = module.source.output_base64sha256
 }
 
@@ -43,6 +43,6 @@ module "destination_2" {
   filename                          = module.source.output_path
   function_name                     = "cloudwatch-logs-subscription-destination-2"
   handler                           = "index.handler"
-  runtime                           = "nodejs20.x"
+  runtime                           = "nodejs22.x"
   source_code_hash                  = module.source.output_base64sha256
 }
