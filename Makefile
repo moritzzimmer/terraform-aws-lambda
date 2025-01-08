@@ -63,11 +63,6 @@ providers: ## Upgrades all providers and platform independent dependency locks (
 		terraform -chdir=$$s providers lock -platform=darwin_amd64 -platform=linux_amd64 ;\
 	done
 
-.PHONY: test
-test: ## Runs all terratests
-	@echo "+ $@"
-	@cd test && go test -v -count=1 -timeout 30m
-
 .PHONY: bump-version
 BUMP ?= patch
 bump-version: ## Bumps the version of this module. Set BUMP to [ patch | major | minor ].
