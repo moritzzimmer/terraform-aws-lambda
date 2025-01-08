@@ -60,7 +60,7 @@ providers: ## Upgrades all providers and platform independent dependency locks (
 	@for s in $(STACKS) ; do \
   		echo upgrading: $$s ;\
 		terraform -chdir=$$s init -upgrade=true -backend=false > /dev/null; \
-		terraform -chdir=$$s providers lock -platform=darwin_amd64 -platform=linux_amd64 ;\
+		terraform -chdir=$$s providers lock -platform=darwin_amd64 -platform=darwin_arm64 -platform=linux_amd64 ;\
 	done
 
 .PHONY: bump-version
@@ -104,7 +104,7 @@ update: ## Upgrades Terraform core and providers constraints recursively using h
 	@echo "+ $@"
 	@command -v tfupdate >/dev/null 2>&1 || { echo >&2 "Please install tfupdate: 'brew install minamijoyo/tfupdate/tfupdate'"; exit 1; }
 	@tfupdate terraform -v ">= 1.3" -r .
-	@tfupdate provider aws -v ">= 5.32" -r .
+	@tfupdate provider aws -v ">= 5.82.2" -r .
 	@tfupdate provider archive -v ">= 2.2" -r .
 	@tfupdate provider null -v ">= 3.2" -r .
 

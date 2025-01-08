@@ -191,14 +191,10 @@ data "aws_iam_policy_document" "event_sources" {
   }
 }
 
-resource "aws_iam_policy" "event_sources" {
-  count  = length(var.event_source_mappings) > 0 ? 1 : 0
-  policy = data.aws_iam_policy_document.event_sources[count.index].json
-}
-
-resource "aws_iam_role_policy_attachment" "event_sources" {
+resource "aws_iam_role_policy" "event_sources" {
   count = length(var.event_source_mappings) > 0 ? 1 : 0
 
-  policy_arn = aws_iam_policy.event_sources[count.index].arn
-  role       = aws_iam_role.lambda.name
+  name   = "${var.function_name}-event-source-mapping"
+  policy = data.aws_iam_policy_document.event_sources[count.index].json
+  role   = aws_iam_role.lambda.id
 }

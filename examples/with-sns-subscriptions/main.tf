@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" {}
 
+module "fixtures" {
+  source = "../fixtures"
+}
+
 // see https://docs.aws.amazon.com/sns/latest/dg/sns-dead-letter-queues.html
 // for using encrypted SNS topics with SQS DLQs
 resource "aws_kms_key" "kms_key_sqs_sns" {
@@ -107,9 +111,9 @@ module "lambda" {
   source           = "../../"
   description      = "Example usage for an AWS Lambda with a SNS event trigger."
   filename         = data.archive_file.sns_handler.output_path
-  function_name    = "example-with-sns-event"
+  function_name    = module.fixtures.output_function_name
   handler          = "index.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   source_code_hash = data.archive_file.sns_handler.output_base64sha256
 
   sns_subscriptions = {

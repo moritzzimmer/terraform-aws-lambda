@@ -1,6 +1,10 @@
+module "fixtures" {
+  source = "../fixtures"
+}
+
 locals {
   environment   = "production"
-  function_name = "example-with-container-images"
+  function_name = module.fixtures.output_function_name
 }
 
 #trivy:ignore:AVD-AWS-0031

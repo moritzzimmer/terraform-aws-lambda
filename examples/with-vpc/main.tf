@@ -5,12 +5,8 @@ locals {
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 }
 
-module "source" {
+module "fixtures" {
   source = "../fixtures"
-}
-
-resource "random_pet" "this" {
-  length = 2
 }
 
 module "vpc" {
@@ -20,7 +16,7 @@ module "vpc" {
   azs                          = local.azs
   cidr                         = local.vpc_cidr
   enable_ipv6                  = true
-  name                         = random_pet.this.id
+  name                         = module.fixtures.output_function_name
   private_subnets              = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
   private_subnet_ipv6_prefixes = [3, 4, 5]
 }
@@ -31,15 +27,15 @@ module "lambda" {
   architectures                      = ["arm64"]
   description                        = "Example AWS Lambda function inside a VPC."
   ephemeral_storage_size             = 512
-  filename                           = module.source.output_path
-  function_name                      = random_pet.this.id
+  filename                           = module.fixtures.output_path
+  function_name                      = module.fixtures.output_function_name
   handler                            = "index.handler"
   memory_size                        = 128
   replace_security_groups_on_destroy = true
-  runtime                            = "nodejs20.x"
+  runtime                            = "nodejs22.x"
   publish                            = false
   snap_start                         = false
-  source_code_hash                   = module.source.output_base64sha256
+  source_code_hash                   = module.fixtures.output_base64sha256
   timeout                            = 3
 
   vpc_config = {

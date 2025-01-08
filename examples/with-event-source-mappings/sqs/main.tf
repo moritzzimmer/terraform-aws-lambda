@@ -1,3 +1,7 @@
+module "fixtures" {
+  source = "../../fixtures"
+}
+
 #trivy:ignore:AVD-AWS-0135
 resource "aws_sqs_queue" "queue_1" {
   kms_master_key_id = "alias/aws/sqs"
@@ -25,9 +29,9 @@ module "lambda" {
 
   description      = "Example usage for an AWS Lambda with a SQS event source mapping"
   filename         = data.archive_file.sqs_handler.output_path
-  function_name    = "example-with-sqs-event-source-mapping"
+  function_name    = module.fixtures.output_function_name
   handler          = "index.handler"
-  runtime          = "nodejs20.x"
+  runtime          = "nodejs22.x"
   source_code_hash = data.archive_file.sqs_handler.output_base64sha256
 
   event_source_mappings = {

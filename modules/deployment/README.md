@@ -127,7 +127,7 @@ module "lambda" {
   handler                          = "index.handler"
   ignore_external_function_updates = true
   publish                          = true
-  runtime                          = "nodejs20.x"
+  runtime                          = "nodejs22.x"
   s3_bucket                        = aws_s3_object.source.bucket
   s3_key                           = local.s3_key
   s3_object_version                = aws_s3_object.source.version_id
@@ -354,19 +354,19 @@ module "deployment" {
 - [container-image (ECR)](../../examples/deployment/container-image)
 - [zipped package (S3)](../../examples/deployment/s3)
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.32 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.82.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.32 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.82.2 |
 
 ## Modules
 
@@ -420,13 +420,13 @@ No modules.
 | <a name="input_codedeploy_deployment_group_auto_rollback_configuration_events"></a> [codedeploy\_deployment\_group\_auto\_rollback\_configuration\_events](#input\_codedeploy\_deployment\_group\_auto\_rollback\_configuration\_events) | The event type or types that trigger a rollback. Supported types are `DEPLOYMENT_FAILURE` and `DEPLOYMENT_STOP_ON_ALARM` | `list(string)` | `[]` | no |
 | <a name="input_codepipeline_artifact_store_bucket"></a> [codepipeline\_artifact\_store\_bucket](#input\_codepipeline\_artifact\_store\_bucket) | Name of an existing S3 bucket used by AWS CodePipeline to store pipeline artifacts. Use the same bucket name as in `s3_bucket` to store deployment packages and pipeline artifacts in one bucket for `package_type=Zip` functions. If empty, a dedicated S3 bucket for your Lambda function will be created. | `string` | `""` | no |
 | <a name="input_codepipeline_artifact_store_encryption_key_id"></a> [codepipeline\_artifact\_store\_encryption\_key\_id](#input\_codepipeline\_artifact\_store\_encryption\_key\_id) | The KMS key ARN or ID of a key block AWS CodePipeline uses to encrypt the data in the artifact store, such as an AWS Key Management Service (AWS KMS) key. If you don't specify a key, AWS CodePipeline uses the default key for Amazon Simple Storage Service (Amazon S3). | `string` | `""` | no |
-| <a name="input_codepipeline_post_deployment_stages"></a> [codepipeline\_post\_deployment\_stages](#input\_codepipeline\_post\_deployment\_stages) | A map of post deployment stages to execute after the Lambda function has been deployed. The following stages are supported: `CodeBuild`, `CodeDeploy`, `CodePipeline`, `CodeStarNotifications`. | <pre>list(object({<br>    name = string<br>    actions = list(object({<br>      name             = string<br>      category         = string<br>      owner            = string<br>      provider         = string<br>      version          = string<br>      input_artifacts  = optional(list(any))<br>      output_artifacts = optional(list(any))<br>      configuration    = optional(map(string))<br>    }))<br>  }))</pre> | `[]` | no |
+| <a name="input_codepipeline_post_deployment_stages"></a> [codepipeline\_post\_deployment\_stages](#input\_codepipeline\_post\_deployment\_stages) | A map of post deployment stages to execute after the Lambda function has been deployed. The following stages are supported: `CodeBuild`, `CodeDeploy`, `CodePipeline`, `CodeStarNotifications`. | <pre>list(object({<br/>    name = string<br/>    actions = list(object({<br/>      name             = string<br/>      category         = string<br/>      owner            = string<br/>      provider         = string<br/>      version          = string<br/>      input_artifacts  = optional(list(any))<br/>      output_artifacts = optional(list(any))<br/>      configuration    = optional(map(string))<br/>    }))<br/>  }))</pre> | `[]` | no |
 | <a name="input_codepipeline_role_arn"></a> [codepipeline\_role\_arn](#input\_codepipeline\_role\_arn) | ARN of an existing IAM role for CodePipeline execution. If empty, a dedicated role for your Lambda function with minimal required permissions will be created. | `string` | `""` | no |
 | <a name="input_codepipeline_type"></a> [codepipeline\_type](#input\_codepipeline\_type) | Type of the CodePipeline. Possible values are: `V1` and `V2`. | `string` | `"V1"` | no |
-| <a name="input_codepipeline_variables"></a> [codepipeline\_variables](#input\_codepipeline\_variables) | CodePipeline variables. Valid only when `codepipeline_type` is `V2`. | <pre>list(object({<br>    name          = string<br>    default_value = optional(string)<br>    description   = optional(string)<br>  }))</pre> | `[]` | no |
+| <a name="input_codepipeline_variables"></a> [codepipeline\_variables](#input\_codepipeline\_variables) | CodePipeline variables. Valid only when `codepipeline_type` is `V2`. | <pre>list(object({<br/>    name          = string<br/>    default_value = optional(string)<br/>    description   = optional(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_codestar_notifications_detail_type"></a> [codestar\_notifications\_detail\_type](#input\_codestar\_notifications\_detail\_type) | The level of detail to include in the notifications for this resource. Possible values are BASIC and FULL. | `string` | `"BASIC"` | no |
 | <a name="input_codestar_notifications_enabled"></a> [codestar\_notifications\_enabled](#input\_codestar\_notifications\_enabled) | Enable CodeStar notifications for your pipeline. | `bool` | `true` | no |
-| <a name="input_codestar_notifications_event_type_ids"></a> [codestar\_notifications\_event\_type\_ids](#input\_codestar\_notifications\_event\_type\_ids) | A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline. | `list(string)` | <pre>[<br>  "codepipeline-pipeline-pipeline-execution-succeeded",<br>  "codepipeline-pipeline-pipeline-execution-failed"<br>]</pre> | no |
+| <a name="input_codestar_notifications_event_type_ids"></a> [codestar\_notifications\_event\_type\_ids](#input\_codestar\_notifications\_event\_type\_ids) | A list of event types associated with this notification rule. For list of allowed events see https://docs.aws.amazon.com/dtconsole/latest/userguide/concepts.html#events-ref-pipeline. | `list(string)` | <pre>[<br/>  "codepipeline-pipeline-pipeline-execution-succeeded",<br/>  "codepipeline-pipeline-pipeline-execution-failed"<br/>]</pre> | no |
 | <a name="input_codestar_notifications_target_arn"></a> [codestar\_notifications\_target\_arn](#input\_codestar\_notifications\_target\_arn) | Use an existing ARN for a notification rule target (for example, a SNS Topic ARN). Otherwise a separate sns topic for this service will be created. | `string` | `""` | no |
 | <a name="input_deployment_config_name"></a> [deployment\_config\_name](#input\_deployment\_config\_name) | The name of the deployment config used in the CodeDeploy deployment group, see https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html for all available default configurations or provide a custom one. | `string` | `"CodeDeployDefault.LambdaAllAtOnce"` | no |
 | <a name="input_ecr_image_tag"></a> [ecr\_image\_tag](#input\_ecr\_image\_tag) | The container tag used for ECR/container based deployments. | `string` | `"latest"` | no |
@@ -451,4 +451,4 @@ No modules.
 | <a name="output_codepipeline_artifact_storage_arn"></a> [codepipeline\_artifact\_storage\_arn](#output\_codepipeline\_artifact\_storage\_arn) | The Amazon Resource Name (ARN) of the CodePipeline artifact store. |
 | <a name="output_codepipeline_id"></a> [codepipeline\_id](#output\_codepipeline\_id) | The ID of the CodePipeline. |
 | <a name="output_codepipeline_role_name"></a> [codepipeline\_role\_name](#output\_codepipeline\_role\_name) | The name of the IAM role used for the CodePipeline. |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->
