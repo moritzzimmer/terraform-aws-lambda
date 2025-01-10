@@ -23,25 +23,46 @@ resource "aws_iam_role" "lambda" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "vpc_attachment" {
+data "aws_iam_policy" "vpc" {
   count = var.vpc_config == null ? 0 : 1
 
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
-  role       = aws_iam_role.lambda.name
+  arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSLambdaENIManagementAccess"
 }
 
-resource "aws_iam_role_policy_attachment" "tracing_attachment" {
+resource "aws_iam_role_policy" "vpc" {
+  count = var.vpc_config == null ? 0 : 1
+
+  name   = "${var.function_name}-vpc"
+  policy = data.aws_iam_policy.vpc[0].policy
+  role   = aws_iam_role.lambda.id
+}
+
+data "aws_iam_policy" "tracing" {
   count = var.tracing_config_mode == null ? 0 : 1
 
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
-  role       = aws_iam_role.lambda.name
+  arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AWSXRayDaemonWriteAccess"
 }
 
-resource "aws_iam_role_policy_attachment" "cloudwatch_lambda_insights" {
+resource "aws_iam_role_policy" "tracing" {
+  count = var.tracing_config_mode == null ? 0 : 1
+
+  name   = "${var.function_name}-tracing"
+  policy = data.aws_iam_policy.tracing[0].policy
+  role   = aws_iam_role.lambda.id
+}
+
+data "aws_iam_policy" "lambda_insights" {
   count = var.cloudwatch_lambda_insights_enabled ? 1 : 0
 
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
-  role       = aws_iam_role.lambda.name
+  arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy" "lambda_insights" {
+  count = var.cloudwatch_lambda_insights_enabled ? 1 : 0
+
+  name   = "${var.function_name}-insights"
+  policy = data.aws_iam_policy.lambda_insights[0].policy
+  role   = aws_iam_role.lambda.id
 }
 
 data "aws_iam_policy_document" "ssm" {
@@ -58,19 +79,12 @@ data "aws_iam_policy_document" "ssm" {
   }
 }
 
-resource "aws_iam_policy" "ssm" {
+resource "aws_iam_role_policy" "ssm" {
   count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
 
-  description = "Provides minimum SSM read permissions."
-  name        = "${var.function_name}-ssm-policy-${data.aws_region.current.name}"
-  policy      = data.aws_iam_policy_document.ssm[count.index].json
-}
-
-resource "aws_iam_role_policy_attachment" "ssm" {
-  count = try((var.ssm != null && length(var.ssm.parameter_names) > 0), false) ? 1 : 0
-
-  policy_arn = aws_iam_policy.ssm[count.index].arn
-  role       = aws_iam_role.lambda.name
+  name   = "${var.function_name}-ssm"
+  policy = data.aws_iam_policy_document.ssm[count.index].json
+  role   = aws_iam_role.lambda.id
 }
 
 data "aws_iam_policy_document" "logs" {
@@ -91,17 +105,10 @@ data "aws_iam_policy_document" "logs" {
   }
 }
 
-resource "aws_iam_policy" "logs" {
+resource "aws_iam_role_policy" "logs" {
   count = var.cloudwatch_logs_enabled ? 1 : 0
 
-  description = "Provides minimum CloudWatch Logs write permissions."
-  name        = "${var.function_name}-logs-${data.aws_region.current.name}"
-  policy      = data.aws_iam_policy_document.logs[count.index].json
-}
-
-resource "aws_iam_role_policy_attachment" "logs" {
-  count = var.cloudwatch_logs_enabled ? 1 : 0
-
-  policy_arn = aws_iam_policy.logs[count.index].arn
-  role       = aws_iam_role.lambda.name
+  name   = "${var.function_name}-logs"
+  policy = data.aws_iam_policy_document.logs[count.index].json
+  role   = aws_iam_role.lambda.id
 }

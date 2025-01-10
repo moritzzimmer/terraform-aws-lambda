@@ -12,26 +12,27 @@ terraform apply
 
 Note that this example may create resources which cost money. Run `terraform destroy` to destroy those resources.
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.32 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.82.2 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 3.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.32 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.82.2 |
 | <a name="provider_null"></a> [null](#provider\_null) | >= 3.2 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_fixtures"></a> [fixtures](#module\_fixtures) | ../fixtures | n/a |
 | <a name="module_lambda"></a> [lambda](#module\_lambda) | ../../ | n/a |
 
 ## Resources
@@ -50,4 +51,4 @@ Note that this example may create resources which cost money. Run `terraform des
 ## Outputs
 
 No outputs.
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

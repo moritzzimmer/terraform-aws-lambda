@@ -11,8 +11,7 @@ locals {
 }
 
 resource "aws_lambda_function" "lambda" {
-  count      = var.ignore_external_function_updates ? 0 : 1
-  depends_on = [aws_cloudwatch_log_group.lambda]
+  count = var.ignore_external_function_updates ? 0 : 1
 
   architectures                      = var.architectures
   description                        = var.description
@@ -79,6 +78,10 @@ resource "aws_lambda_function" "lambda" {
       apply_on = "PublishedVersions"
     }
   }
+
+  // create the CloudWatch log group first so it's no create automatically
+  // by AWS Lambda
+  depends_on = [aws_cloudwatch_log_group.lambda]
 }
 
 // Copy of the original Lambda resource plus lifecycle configuration ignoring
@@ -87,8 +90,7 @@ resource "aws_lambda_function" "lambda" {
 // We need this copy workaround, since lifecycle configuration must be static,
 // see https://github.com/hashicorp/terraform/issues/24188.
 resource "aws_lambda_function" "lambda_external_lifecycle" {
-  count      = var.ignore_external_function_updates ? 1 : 0
-  depends_on = [aws_cloudwatch_log_group.lambda]
+  count = var.ignore_external_function_updates ? 1 : 0
 
   architectures                      = var.architectures
   description                        = var.description
@@ -155,6 +157,10 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
       apply_on = "PublishedVersions"
     }
   }
+
+  // create the CloudWatch log group first so it's no create automatically
+  // by AWS Lambda
+  depends_on = [aws_cloudwatch_log_group.lambda]
 
   lifecycle {
     ignore_changes = [image_uri, last_modified, qualified_arn, qualified_invoke_arn, s3_object_version, version]

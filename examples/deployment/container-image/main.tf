@@ -1,6 +1,10 @@
+module "fixtures" {
+  source = "../../fixtures"
+}
+
 locals {
   environment   = "production"
-  function_name = "ecr-deployment"
+  function_name = module.fixtures.output_function_name
 }
 
 module "lambda" {

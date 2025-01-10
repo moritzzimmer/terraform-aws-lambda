@@ -1,13 +1,13 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-module "function" {
+module "fixtures" {
   source = "../../fixtures"
 }
 
 locals {
   environment   = "production"
-  function_name = "s3-deployment"
+  function_name = module.fixtures.output_function_name
   s3_key        = "${local.function_name}/package/lambda.zip"
 }
 
@@ -18,7 +18,7 @@ module "lambda" {
   handler                          = "index.handler"
   ignore_external_function_updates = true
   publish                          = true
-  runtime                          = "nodejs20.x"
+  runtime                          = "nodejs22.x"
   s3_bucket                        = aws_s3_bucket.source.bucket
   s3_key                           = local.s3_key
   s3_object_version                = aws_s3_object.initial.version_id
@@ -86,8 +86,8 @@ resource "aws_s3_bucket_public_access_block" "source" {
 resource "aws_s3_object" "initial" {
   bucket = aws_s3_bucket.source.bucket
   key    = local.s3_key
-  source = module.function.output_path
-  etag   = module.function.output_md5
+  source = module.fixtures.output_path
+  etag   = module.fixtures.output_md5
 
   lifecycle {
     ignore_changes = [etag]
