@@ -1,33 +1,29 @@
-resource "aws_iam_role" "trigger" {
-  name = "${local.iam_role_prefix}-trigger-${data.aws_region.current.name}"
-  tags = var.tags
+data "aws_iam_policy_document" "trigger" {
+  statement {
+    actions = ["sts:AssumeRole"]
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "events.amazonaws.com"
-        }
-      },
-    ]
-  })
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "trigger" {
+  assume_role_policy = data.aws_iam_policy_document.trigger.json
+  name               = "${local.iam_role_prefix}-trigger-${data.aws_region.current.name}"
+  tags               = var.tags
+}
+
+data "aws_iam_policy_document" "codepipeline_trigger" {
+  statement {
+    actions   = ["codepipeline:StartPipelineExecution"]
+    resources = [aws_codepipeline.this.arn]
+  }
 }
 
 resource "aws_iam_role_policy" "trigger" {
-  name = "codepipeline-permissions"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action   = ["codepipeline:StartPipelineExecution"]
-        Effect   = "Allow"
-        Resource = aws_codepipeline.this.arn
-      },
-    ]
-  })
-  role = aws_iam_role.trigger.name
+  name   = "codepipeline-permissions"
+  policy = data.aws_iam_policy_document.codepipeline_trigger.json
+  role   = aws_iam_role.trigger.name
 }
