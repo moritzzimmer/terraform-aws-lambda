@@ -1,87 +1,100 @@
-resource "aws_iam_role" "codebuild_role" {
-  count = var.codebuild_role_arn == "" ? 1 : 0
+locals {
+  create_codebuild_role = var.codebuild_role_arn == ""
+}
 
-  name = "${local.iam_role_prefix}-codebuild-${data.aws_region.current.name}"
-  tags = var.tags
+data "aws_iam_policy_document" "codebuild_role" {
+  count = local.create_codebuild_role ? 1 : 0
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "codebuild.amazonaws.com"
-        }
-      },
-    ]
-  })
+  statement {
+    actions = ["sts:AssumeRole"]
 
-  inline_policy {
-    name = "lambda-update-function-code-permissions"
-
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Action = [
-            "lambda:GetAlias",
-            "lambda:GetFunction",
-            "lambda:GetFunctionConfiguration",
-            "lambda:PublishVersion",
-            "lambda:UpdateFunctionCode"
-          ]
-          Effect   = "Allow"
-          Resource = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
-        },
-        {
-          Action = [
-            "logs:CreateLogStream",
-            "logs:CreateLogGroup",
-            "logs:PutLogEvents"
-          ]
-          Effect   = "Allow"
-          Resource = "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"
-        },
-        {
-          Action = [
-            "s3:GetObject",
-            "s3:GetObjectVersion"
-          ]
-          Effect   = "Allow"
-          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/source/*"
-        },
-        {
-          Action = [
-            "s3:PutObject",
-          ]
-          Effect   = "Allow"
-          Resource = "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/${local.deploy_output}/*"
-        }
-      ]
-    })
-  }
-
-  dynamic "inline_policy" {
-    for_each = var.s3_bucket != "" ? [true] : []
-    content {
-      name = "lambda-s3-package-permissions"
-
-      policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Action = [
-              "s3:GetObjectVersion"
-            ]
-            Effect = "Allow"
-            Resource = [
-              "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/${var.s3_key}"
-            ]
-          }
-        ]
-      })
+    principals {
+      type        = "Service"
+      identifiers = ["codebuild.amazonaws.com"]
     }
   }
+}
+
+resource "aws_iam_role" "codebuild_role" {
+  count = local.create_codebuild_role ? 1 : 0
+
+  assume_role_policy = data.aws_iam_policy_document.codebuild_role[0].json
+  name               = "${local.iam_role_prefix}-codebuild-${data.aws_region.current.name}"
+  tags               = var.tags
+}
+
+data "aws_iam_policy_document" "codebuild_s3_package_permissions" {
+  count = var.s3_bucket != "" && local.create_codebuild_role ? 1 : 0
+
+  statement {
+    actions = ["s3:GetObjectVersion"]
+    effect  = "Allow"
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::${var.s3_bucket}/${var.s3_key}"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "codebuild_s3_package_permissions" {
+  count = var.s3_bucket != "" && local.create_codebuild_role ? 1 : 0
+
+  name   = "lambda-s3-package-permissions"
+  policy = data.aws_iam_policy_document.codebuild_s3_package_permissions[0].json
+  role   = aws_iam_role.codebuild_role[0].name
+}
+
+data "aws_iam_policy_document" "codebuild" {
+  count = local.create_codebuild_role ? 1 : 0
+
+  statement {
+    actions = [
+      "lambda:GetAlias",
+      "lambda:GetFunction",
+      "lambda:GetFunctionConfiguration",
+      "lambda:PublishVersion",
+      "lambda:UpdateFunctionCode"
+    ]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
+    ]
+  }
+
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion"
+    ]
+    resources = [
+      "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/source/*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "${local.artifact_store_bucket_arn}/${local.pipeline_artifacts_folder}/${local.deploy_output}/*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "codebuild" {
+  count = local.create_codebuild_role ? 1 : 0
+
+  name   = "lambda-update-function-code-permissions"
+  policy = data.aws_iam_policy_document.codebuild[0].json
+  role   = aws_iam_role.codebuild_role[0].name
 }
