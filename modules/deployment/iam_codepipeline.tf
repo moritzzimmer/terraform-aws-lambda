@@ -28,7 +28,23 @@ data "aws_iam_policy_document" "codepipeline_s3_source_package_permissions" {
 
   statement {
     actions = [
-      "s3:Get*",
+      "s3:GetAccessGrant",
+      "s3:GetAccessGrantsLocation",
+      "s3:GetAccessPoint*",
+      "s3:GetAccountPublicAccessBlock",
+      "s3:GetBucketMetadataTableConfiguration",
+      "s3:GetBucketTagging",
+      "s3:GetBucketVersioning",
+      "s3:GetJobTagging",
+      "s3:GetMulti*",
+      "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:GetObjectLegalHold",
+      "s3:GetObjectRetention",
+      "s3:GetObjectTagging",
+      "s3:GetObjectTorrent",
+      "s3:GetObjectVersion*",
+      "s3:GetStorage*",
       "s3:ListBucket"
     ]
     resources = [
@@ -84,24 +100,6 @@ data "aws_iam_policy_document" "codepipeline" {
     ]
     resources = [
       "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.this.name}/${aws_codedeploy_deployment_group.this.deployment_group_name}"
-    ]
-  }
-
-  statement {
-    actions = [
-      "codedeploy:GetDeploymentConfig"
-    ]
-    resources = [
-      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentconfig:*"
-    ]
-  }
-
-  statement {
-    actions = [
-      "codedeploy:RegisterApplicationRevision"
-    ]
-    resources = [
-      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.this.name}"
     ]
   }
 

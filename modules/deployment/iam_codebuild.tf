@@ -50,9 +50,6 @@ data "aws_iam_policy_document" "codebuild" {
   statement {
     actions = [
       "lambda:GetAlias",
-      "lambda:GetFunction",
-      "lambda:GetFunctionConfiguration",
-      "lambda:PublishVersion",
       "lambda:UpdateFunctionCode"
     ]
     resources = [
@@ -63,7 +60,6 @@ data "aws_iam_policy_document" "codebuild" {
   statement {
     actions = [
       "logs:CreateLogStream",
-      "logs:CreateLogGroup",
       "logs:PutLogEvents"
     ]
     resources = [
