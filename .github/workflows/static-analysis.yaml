@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        terraform: [ 1.5.6, latest ]
+        terraform: [ 1.5.7, latest ]
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        terraform: [ 1.5.6, ~ 1.8 ]
+        terraform: [ 1.5.7, latest ]
     steps:
       - uses: actions/checkout@v4
 
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        terraform: [ 1.5.6, ~ 1.8 ]
+        terraform: [ 1.5.7, latest ]
     steps:
       - uses: actions/checkout@v4
 
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        terraform: [ 1.5.6, ~ 1.8 ]
+        terraform: [ 1.5.7, latest ]
     steps:
       - uses: actions/checkout@v4
 
