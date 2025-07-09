@@ -19,7 +19,7 @@ resource "aws_iam_role" "codepipeline_role" {
   count = local.create_codepipeline_role ? 1 : 0
 
   assume_role_policy = data.aws_iam_policy_document.codepipeline_role[0].json
-  name               = "${local.iam_role_prefix}-codepipeline-${data.aws_region.current.name}"
+  name               = "${local.iam_role_prefix}-codepipeline-${data.aws_region.current.region}"
   tags               = var.tags
 }
 
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "codepipeline_ecr_source_image_permissions" {
   statement {
     actions = ["ecr:DescribeImages"]
     resources = [
-      "arn:${data.aws_partition.current.partition}:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${var.ecr_repository_name}"
+      "arn:${data.aws_partition.current.partition}:ecr:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:repository/${var.ecr_repository_name}"
     ]
   }
 }
@@ -83,7 +83,7 @@ data "aws_iam_policy_document" "codepipeline" {
       "codedeploy:GetDeployment"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.this.name}/${aws_codedeploy_deployment_group.this.deployment_group_name}"
+      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:deploymentgroup:${aws_codedeploy_app.this.name}/${aws_codedeploy_deployment_group.this.deployment_group_name}"
     ]
   }
 
@@ -92,7 +92,7 @@ data "aws_iam_policy_document" "codepipeline" {
       "codedeploy:GetDeploymentConfig"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentconfig:*"
+      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:deploymentconfig:*"
     ]
   }
 
@@ -101,7 +101,7 @@ data "aws_iam_policy_document" "codepipeline" {
       "codedeploy:RegisterApplicationRevision"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.this.name}"
+      "arn:${data.aws_partition.current.partition}:codedeploy:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:application:${aws_codedeploy_app.this.name}"
     ]
   }
 

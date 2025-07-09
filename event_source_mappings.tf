@@ -33,6 +33,8 @@ locals {
 resource "aws_lambda_event_source_mapping" "event_source" {
   for_each = var.event_source_mappings
 
+  region = var.region
+
   batch_size                         = lookup(each.value, "batch_size", null)
   bisect_batch_on_function_error     = lookup(each.value, "bisect_batch_on_function_error", null)
   enabled                            = lookup(each.value, "enabled", null)

@@ -2,9 +2,9 @@ locals {
   // calculate the maximum length for default IAM role including
   // region suffix. Role name must not exceed 64 characters,
   // see https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html
-  iam_role_name_max_prefix_length = 64 - length("-${data.aws_region.current.name}")
+  iam_role_name_max_prefix_length = 64 - length("-${data.aws_region.current.region}")
   iam_role_prefix                 = substr(var.function_name, 0, local.iam_role_name_max_prefix_length)
-  iam_role_name                   = coalesce(var.iam_role_name, "${local.iam_role_prefix}-${data.aws_region.current.name}")
+  iam_role_name                   = coalesce(var.iam_role_name, "${local.iam_role_prefix}-${data.aws_region.current.region}")
 }
 
 data "aws_iam_policy_document" "assume_role_policy" {
@@ -75,7 +75,7 @@ data "aws_iam_policy_document" "ssm" {
       "ssm:GetParametersByPath",
     ]
 
-    resources = formatlist("arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter%s", var.ssm.parameter_names)
+    resources = formatlist("arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter%s", var.ssm.parameter_names)
   }
 }
 

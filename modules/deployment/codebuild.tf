@@ -1,4 +1,5 @@
 resource "aws_cloudwatch_log_group" "this" {
+
   name              = "/aws/codebuild/${var.function_name}"
   retention_in_days = var.codebuild_cloudwatch_logs_retention_in_days
   tags              = var.tags
@@ -36,7 +37,7 @@ resource "aws_codebuild_project" "this" {
 
     environment_variable {
       name  = "REGION"
-      value = data.aws_region.current.name
+      value = data.aws_region.current.region
     }
 
     environment_variable {

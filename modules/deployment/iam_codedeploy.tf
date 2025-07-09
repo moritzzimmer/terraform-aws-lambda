@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "codedeploy" {
 
 resource "aws_iam_role" "codedeploy" {
   assume_role_policy = data.aws_iam_policy_document.codedeploy.json
-  name               = "${local.iam_role_prefix}-codedeploy-${data.aws_region.current.name}"
+  name               = "${local.iam_role_prefix}-codedeploy-${data.aws_region.current.region}"
   tags               = var.tags
 }
 

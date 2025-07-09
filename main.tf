@@ -3,7 +3,7 @@ data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 
 locals {
-  function_arn = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
+  function_arn = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
   handler      = var.package_type != "Zip" ? null : var.handler
   publish      = var.lambda_at_edge || var.snap_start ? true : var.publish
   runtime      = var.package_type != "Zip" ? null : var.runtime
@@ -12,6 +12,8 @@ locals {
 
 resource "aws_lambda_function" "lambda" {
   count = var.ignore_external_function_updates ? 0 : 1
+
+  region = var.region
 
   architectures                      = var.architectures
   description                        = var.description
@@ -91,6 +93,8 @@ resource "aws_lambda_function" "lambda" {
 // see https://github.com/hashicorp/terraform/issues/24188.
 resource "aws_lambda_function" "lambda_external_lifecycle" {
   count = var.ignore_external_function_updates ? 1 : 0
+
+  region = var.region
 
   architectures                      = var.architectures
   description                        = var.description
