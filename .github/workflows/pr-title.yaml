@@ -33,5 +33,4 @@ jobs:
             The subject "{subject}" found in the pull request title "{title}"
             didn't match the configured pattern. Please ensure that the subject
             starts with a lowercase character.
-          wip: true
           validateSingleCommit: false
