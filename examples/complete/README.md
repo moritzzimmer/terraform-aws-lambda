@@ -22,9 +22,7 @@ Note that this example may create resources which cost money. Run `terraform des
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.0 |
+No providers.
 
 ## Modules
 
@@ -35,9 +33,7 @@ Note that this example may create resources which cost money. Run `terraform des
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+No resources.
 
 ## Inputs
 
