@@ -21,9 +21,10 @@ module "lambda" {
     scheduled = {
       schedule_expression = "rate(1 minute)"
 
-      // optionally overwrite arguments like 'description'
+      // optionally overwrite arguments like 'description' or 'state'
       // from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule
       description = "Triggered by CloudTrail"
+      state       = "DISABLED"
 
       // optionally overwrite `cloudwatch_event_target_arn` in case an alias should be used for the event rule
       cloudwatch_event_target_arn = aws_lambda_alias.example.arn
