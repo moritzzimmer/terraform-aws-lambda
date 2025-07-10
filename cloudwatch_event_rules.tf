@@ -22,7 +22,7 @@ resource "aws_cloudwatch_event_rule" "lambda" {
   name_prefix         = lookup(each.value, "name_prefix", null)
   role_arn            = lookup(each.value, "role_arn", null)
   schedule_expression = lookup(each.value, "schedule_expression", null)
-  state               = lookup(each.value, "state", null)
+  state               = lookup(each.value, "state", "ENABLED")
   tags                = var.tags
 }
 
