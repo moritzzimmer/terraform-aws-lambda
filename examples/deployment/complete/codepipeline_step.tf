@@ -48,7 +48,7 @@ data "aws_iam_policy_document" "custom_codepipeline_step" {
       "logs:PutLogEvents"
     ]
 
-    resources = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"]
+    resources = ["arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"]
   }
 
   # Required for code build to access the code pipeline artifact bucket
@@ -67,7 +67,7 @@ data "aws_iam_policy_document" "custom_codepipeline_step" {
 }
 
 resource "aws_iam_policy" "custom_codepipeline_step" {
-  name   = "${local.codebuild_name}-${data.aws_region.current.name}"
+  name   = "${local.codebuild_name}-${data.aws_region.current.region}"
   policy = data.aws_iam_policy_document.custom_codepipeline_step.json
 }
 
@@ -77,7 +77,7 @@ resource "aws_iam_role_policy_attachment" "custom_codepipeline_step" {
 }
 
 resource "aws_iam_role" "custom_codepipeline_step" {
-  name = "${local.codebuild_name}-${data.aws_region.current.name}"
+  name = "${local.codebuild_name}-${data.aws_region.current.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -109,12 +109,12 @@ data "aws_iam_policy_document" "codepipeline_execution" {
 }
 
 resource "aws_iam_policy" "codepipeline_execution" {
-  name   = "allow-${local.codebuild_name}-${data.aws_region.current.name}"
+  name   = "allow-${local.codebuild_name}-${data.aws_region.current.region}"
   policy = data.aws_iam_policy_document.codepipeline_execution.json
 }
 
 resource "aws_iam_policy_attachment" "codepipeline_execution" {
-  name       = "allow-${local.codebuild_name}-${data.aws_region.current.name}"
+  name       = "allow-${local.codebuild_name}-${data.aws_region.current.region}"
   policy_arn = aws_iam_policy.codepipeline_execution.arn
   roles      = [module.deployment.codepipeline_role_name]
 }

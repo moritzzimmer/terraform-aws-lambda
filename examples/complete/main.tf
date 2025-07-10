@@ -1,4 +1,6 @@
-data "aws_region" "current" {}
+locals {
+  region = "eu-central-1"
+}
 
 module "fixtures" {
   source = "../fixtures"
@@ -6,6 +8,8 @@ module "fixtures" {
 
 module "lambda" {
   source = "../../"
+
+  region = local.region
 
   architectures          = ["arm64"]
   description            = "Example AWS Lambda function without any triggers."
@@ -25,7 +29,7 @@ module "lambda" {
   cloudwatch_logs_enabled            = true
   cloudwatch_logs_retention_in_days  = 7
   cloudwatch_lambda_insights_enabled = true
-  layers                             = ["arn:aws:lambda:${data.aws_region.current.id}:580247275435:layer:LambdaInsightsExtension-Arm64:20"]
+  layers                             = ["arn:aws:lambda:${local.region}:580247275435:layer:LambdaInsightsExtension-Arm64:23"]
 
   environment = {
     variables = {

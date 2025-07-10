@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "trigger" {
 
 resource "aws_iam_role" "trigger" {
   assume_role_policy = data.aws_iam_policy_document.trigger.json
-  name               = "${local.iam_role_prefix}-trigger-${data.aws_region.current.name}"
+  name               = "${local.iam_role_prefix}-trigger-${data.aws_region.current.region}"
   tags               = var.tags
 }
 

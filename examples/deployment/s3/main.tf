@@ -55,7 +55,7 @@ module "deployment" {
 #trivy:ignore:AVD-AWS-0088
 #trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket" "source" {
-  bucket        = "ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  bucket        = "ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}"
   force_destroy = true
 }
 

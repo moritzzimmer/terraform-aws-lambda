@@ -19,7 +19,7 @@ resource "aws_iam_role" "codebuild_role" {
   count = local.create_codebuild_role ? 1 : 0
 
   assume_role_policy = data.aws_iam_policy_document.codebuild_role[0].json
-  name               = "${local.iam_role_prefix}-codebuild-${data.aws_region.current.name}"
+  name               = "${local.iam_role_prefix}-codebuild-${data.aws_region.current.region}"
   tags               = var.tags
 }
 
@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "codebuild" {
       "lambda:UpdateFunctionCode"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
+      "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
     ]
   }
 
@@ -67,7 +67,7 @@ data "aws_iam_policy_document" "codebuild" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*"
     ]
   }
 

@@ -153,6 +153,12 @@ variable "publish" {
   type        = bool
 }
 
+variable "region" {
+  description = "Alternative region used in all region-aware resources. If not set, the provider's region will be used."
+  default     = null
+  type        = string
+}
+
 variable "replace_security_groups_on_destroy" {
   default     = null
   description = "(Optional) Whether to replace the security groups on the function's VPC configuration prior to destruction. Removing these security group associations prior to function destruction can speed up security group deletion times of AWS's internal cleanup operations. By default, the security groups will be replaced with the default security group in the function's configured VPC. Set the `replacement_security_group_ids` attribute to use a custom list of security groups for replacement."
@@ -241,8 +247,6 @@ variable "vpc_config" {
     security_group_ids          = list(string)
     subnet_ids                  = list(string)
   })
-
-
 }
 
 variable "iam_role_name" {

@@ -1,6 +1,8 @@
 resource "aws_lambda_permission" "cloudwatch_events" {
   for_each = var.cloudwatch_event_rules
 
+  region = var.region
+
   action        = "lambda:InvokeFunction"
   function_name = var.ignore_external_function_updates ? aws_lambda_function.lambda_external_lifecycle[0].function_name : aws_lambda_function.lambda[0].function_name
   principal     = "events.amazonaws.com"
@@ -10,6 +12,8 @@ resource "aws_lambda_permission" "cloudwatch_events" {
 
 resource "aws_cloudwatch_event_rule" "lambda" {
   for_each = var.cloudwatch_event_rules
+
+  region = var.region
 
   description         = lookup(each.value, "description", null)
   event_bus_name      = lookup(each.value, "event_bus_name", null)
@@ -24,6 +28,8 @@ resource "aws_cloudwatch_event_rule" "lambda" {
 
 resource "aws_cloudwatch_event_target" "lambda" {
   for_each = var.cloudwatch_event_rules
+
+  region = var.region
 
   event_bus_name = lookup(each.value, "event_bus_name", null)
   arn            = lookup(each.value, "cloudwatch_event_target_arn", local.function_arn)
