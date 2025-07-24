@@ -1,4 +1,5 @@
 resource "aws_cloudwatch_log_group" "this" {
+  region = var.region
 
   name              = "/aws/codebuild/${var.function_name}"
   retention_in_days = var.codebuild_cloudwatch_logs_retention_in_days
@@ -6,6 +7,8 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 resource "aws_codebuild_project" "this" {
+  region = var.region
+
   name         = var.function_name
   service_role = var.codebuild_role_arn == "" ? aws_iam_role.codebuild_role[0].arn : var.codebuild_role_arn
   tags         = var.tags

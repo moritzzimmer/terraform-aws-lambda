@@ -1,9 +1,13 @@
 resource "aws_codedeploy_app" "this" {
+  region = var.region
+
   name             = var.function_name
   compute_platform = "Lambda"
 }
 
 resource "aws_codedeploy_deployment_group" "this" {
+  region = var.region
+
   app_name               = var.function_name
   deployment_config_name = var.deployment_config_name
   deployment_group_name  = var.alias_name

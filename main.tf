@@ -1,7 +1,3 @@
-data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}
-data "aws_partition" "current" {}
-
 locals {
   function_arn = "arn:${data.aws_partition.current.partition}:lambda:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:function:${var.function_name}"
   handler      = var.package_type != "Zip" ? null : var.handler

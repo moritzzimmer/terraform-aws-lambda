@@ -186,6 +186,12 @@ variable "ecr_repository_name" {
   type        = string
 }
 
+variable "region" {
+  description = "Alternative region used in all region-aware resources. If not set, the provider's region will be used."
+  default     = null
+  type        = string
+}
+
 variable "s3_bucket" {
   description = "Name of the bucket used for S3 based deployments, required for `package_type=Zip`. Make sure to enable S3 bucket notifications for this bucket for continuous deployment of your Lambda function, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html."
   default     = ""
