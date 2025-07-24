@@ -27,7 +27,7 @@ module "lambda" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "error_rate" {
-  region = var.region
+  region = local.region
 
   alarm_description   = "${module.lambda.function_name} has a high error rate"
   alarm_name          = "${module.lambda.function_name}-error-rate"
