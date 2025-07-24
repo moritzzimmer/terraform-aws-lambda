@@ -1,6 +1,8 @@
 resource "aws_cloudwatch_event_rule" "this" {
   count = var.ecr_repository_name != "" ? 1 : 0
 
+  region = var.region
+
   name        = "${var.function_name}-ecr-trigger"
   description = "Amazon CloudWatch Events rule to automatically start the pipeline when a change occurs in the Elastic Container Registry."
   tags        = var.tags
@@ -33,6 +35,8 @@ PATTERN
 
 resource "aws_cloudwatch_event_target" "trigger" {
   count = var.ecr_repository_name != "" ? 1 : 0
+
+  region = var.region
 
   arn       = aws_codepipeline.this.arn
   role_arn  = aws_iam_role.trigger.arn

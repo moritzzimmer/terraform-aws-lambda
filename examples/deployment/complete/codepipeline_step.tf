@@ -3,11 +3,15 @@ locals {
 }
 
 resource "aws_cloudwatch_log_group" "custom_step" {
+  region = var.region
+
   name              = "/aws/codebuild/${local.codebuild_name}"
   retention_in_days = 1
 }
 
 resource "aws_codebuild_project" "custom_step" {
+  region = var.region
+
   name         = local.codebuild_name
   service_role = aws_iam_role.custom_codepipeline_step.arn
 

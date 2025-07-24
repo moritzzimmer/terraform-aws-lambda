@@ -1,7 +1,3 @@
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-data "aws_partition" "current" {}
-
 locals {
   artifact_store_bucket     = var.codepipeline_artifact_store_bucket != "" ? var.codepipeline_artifact_store_bucket : aws_s3_bucket.pipeline[0].bucket
   artifact_store_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::${local.artifact_store_bucket}"
@@ -24,6 +20,8 @@ locals {
 
 resource "aws_codepipeline" "this" {
   depends_on = [aws_iam_role.codepipeline_role]
+
+  region = var.region
 
   name          = local.pipeline_name
   pipeline_type = var.codepipeline_type
@@ -172,6 +170,8 @@ resource "aws_codepipeline" "this" {
 resource "aws_s3_bucket" "pipeline" {
   count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
 
+  region = var.region
+
   bucket        = "${local.bucket_name_prefix}-pipeline-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}"
   force_destroy = true
   tags          = var.tags
@@ -181,6 +181,8 @@ resource "aws_s3_bucket" "pipeline" {
 #trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline" {
   count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
+
+  region = var.region
 
   bucket = aws_s3_bucket.pipeline[count.index].bucket
 
@@ -193,6 +195,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pipeline" {
 
 resource "aws_s3_bucket_public_access_block" "source" {
   count = var.codepipeline_artifact_store_bucket == "" ? 1 : 0
+
+  region = var.region
 
   bucket                  = aws_s3_bucket.pipeline[count.index].id
   block_public_acls       = true

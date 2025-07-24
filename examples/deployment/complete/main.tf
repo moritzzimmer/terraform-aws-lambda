@@ -1,6 +1,3 @@
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
 module "fixtures" {
   source = "../../fixtures"
 }
@@ -8,11 +5,14 @@ module "fixtures" {
 locals {
   environment   = "production"
   function_name = module.fixtures.output_function_name
+  region        = "eu-central-1"
   s3_key        = "${local.function_name}/package/lambda.zip"
 }
 
 module "lambda" {
   source = "../../../"
+
+  region = local.region
 
   architectures                    = ["arm64"]
   description                      = "Example usage for an AWS Lambda deployed from S3 using CodePipeline and CodeDeploy with hooks."
@@ -27,6 +27,8 @@ module "lambda" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "error_rate" {
+  region = var.region
+
   alarm_description   = "${module.lambda.function_name} has a high error rate"
   alarm_name          = "${module.lambda.function_name}-error-rate"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -79,6 +81,8 @@ resource "aws_cloudwatch_metric_alarm" "error_rate" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_lambda_alias" "this" {
+  region = local.region
+
   function_name    = module.lambda.function_name
   function_version = module.lambda.version
   name             = local.environment
@@ -90,6 +94,8 @@ resource "aws_lambda_alias" "this" {
 
 module "deployment" {
   source = "../../../modules/deployment"
+
+  region = local.region
 
   alias_name                                                      = aws_lambda_alias.this.name
   codedeploy_appspec_hooks_after_allow_traffic_arn                = module.traffic_hook.arn
@@ -110,9 +116,6 @@ module "deployment" {
       name          = "FOO"
       default_value = "BAR"
       description   = "test with all config values"
-    },
-    {
-      name = "BAR"
     }
   ]
 
@@ -147,6 +150,8 @@ module "deployment" {
 }
 
 resource "aws_codedeploy_deployment_config" "canary" {
+  region = local.region
+
   deployment_config_name = "custom-lambda-canary-deployment-config"
   compute_platform       = "Lambda"
 
@@ -168,12 +173,14 @@ resource "aws_codedeploy_deployment_config" "canary" {
 module "traffic_hook" {
   source = "../../../"
 
+  region = local.region
+
   architectures    = ["arm64"]
   description      = "Lambda function executed by CodeDeploy before and/or after allow traffic to deployed version."
   filename         = data.archive_file.traffic_hook.output_path
   function_name    = "codedeploy-hook-example"
   handler          = "hook.handler"
-  runtime          = "python3.12"
+  runtime          = "python3.13"
   source_code_hash = data.archive_file.traffic_hook.output_base64sha256
 }
 
@@ -208,11 +215,15 @@ resource "aws_iam_role_policy_attachment" "traffic_hook" {
 #trivy:ignore:AVD-AWS-0088
 #trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket" "source" {
+  region = local.region
+
   bucket        = "ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}"
   force_destroy = true
 }
 
 resource "aws_s3_bucket_versioning" "source" {
+  region = local.region
+
   bucket = aws_s3_bucket.source.id
 
   versioning_configuration {
@@ -222,11 +233,15 @@ resource "aws_s3_bucket_versioning" "source" {
 
 // make sure to enable S3 bucket notifications to start continuous deployment pipeline
 resource "aws_s3_bucket_notification" "source" {
+  region = local.region
+
   bucket      = aws_s3_bucket.source.id
   eventbridge = true
 }
 
 resource "aws_s3_bucket_public_access_block" "source" {
+  region = local.region
+
   block_public_acls       = true
   block_public_policy     = true
   bucket                  = aws_s3_bucket.source.id
@@ -237,6 +252,8 @@ resource "aws_s3_bucket_public_access_block" "source" {
 // this resource is only used for the initial `terraform apply` - all further
 // deployments are running on CodePipeline
 resource "aws_s3_object" "initial" {
+  region = local.region
+
   bucket = aws_s3_bucket.source.bucket
   key    = local.s3_key
   source = module.fixtures.output_path
