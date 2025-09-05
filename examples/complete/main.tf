@@ -37,6 +37,12 @@ module "lambda" {
     }
   }
 
+  logging_config = {
+    log_format            = "JSON"
+    application_log_level = "INFO"
+    system_log_level      = "WARN"
+  }
+
   // AWS Systems Manager (SSM) Parameter Store
   ssm = {
     parameter_names = ["/internal/params", "/external/params"]

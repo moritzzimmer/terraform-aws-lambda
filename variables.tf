@@ -249,6 +249,21 @@ variable "vpc_config" {
   })
 }
 
+variable "logging_config" {
+  description = "The function's Amazon CloudWatch Logs configuration settings."
+  default     = null
+  type = object({
+    log_format            = string
+    application_log_level = optional(string, null)
+    log_group             = optional(string, null)
+    system_log_level      = optional(string, null)
+  })
+  validation {
+    condition     = var.logging_config == null || (var.logging_config.log_format == "JSON" || var.logging_config.log_format == "Text")
+    error_message = "log_format must be either 'JSON' or 'Text'"
+  }
+}
+
 variable "iam_role_name" {
   description = "Override the name of the IAM role for the function. Otherwise the default will be your function name with the region as a suffix."
   default     = null
