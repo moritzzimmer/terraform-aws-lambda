@@ -91,7 +91,7 @@ jobs:
 
           cat ./trivy.yaml
 
-      - uses: aquasecurity/trivy-action@0.32.0
+      - uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: 'config'
           hide-progress: false
