@@ -45,10 +45,6 @@ module "lambda" {
       // optionally overwrite arguments from https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping
       batch_size = 5
 
-      scaling_config = {
-        maximum_concurrency = 2
-      }
-
       // Lambda event filtering, see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html
       filter_criteria = [
         {
@@ -66,6 +62,15 @@ module "lambda" {
           })
         }
       ]
+
+      // Event source mapping metrics, see https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+      metrics_config = {
+        metrics = ["EventCount"]
+      }
+
+      scaling_config = {
+        maximum_concurrency = 2
+      }
     }
 
     queue_2 = {
