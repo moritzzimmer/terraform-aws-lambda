@@ -81,7 +81,6 @@ module "lambda" {
       // see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
       destination_arn_on_failure = aws_sqs_queue.errors.arn
 
-
       // Lambda event filtering, see https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html
       filter_criteria = [
         {
@@ -99,6 +98,11 @@ module "lambda" {
           })
         }
       ]
+
+      // Event source mapping metrics, see https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+      metrics_config = {
+        metrics = ["EventCount"]
+      }
     }
 
     table_2 = {

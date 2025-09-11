@@ -65,6 +65,11 @@ module "lambda" {
           })
         }
       ]
+
+      // Event source mapping metrics, see https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
+      metrics_config = {
+        metrics = ["EventCount"]
+      }
     }
 
     stream_2 = {

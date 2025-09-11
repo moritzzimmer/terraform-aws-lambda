@@ -72,6 +72,14 @@ resource "aws_lambda_event_source_mapping" "event_source" {
     }
   }
 
+  dynamic "metrics_config" {
+    for_each = try([each.value.metrics_config], [])
+
+    content {
+      metrics = metrics_config.value.metrics
+    }
+  }
+
   dynamic "scaling_config" {
     for_each = try(each.value.scaling_config, null) != null ? [true] : []
 
