@@ -18,11 +18,14 @@ Note that this example may create resources which cost money. Run `terraform des
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.2 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0 |
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.2 |
 
 ## Modules
 
@@ -30,12 +33,14 @@ No providers.
 |------|--------|---------|
 | <a name="module_destination_1"></a> [destination\_1](#module\_destination\_1) | ../../ | n/a |
 | <a name="module_destination_2"></a> [destination\_2](#module\_destination\_2) | ../../ | n/a |
+| <a name="module_fixtures"></a> [fixtures](#module\_fixtures) | ../fixtures | n/a |
 | <a name="module_lambda"></a> [lambda](#module\_lambda) | ../../ | n/a |
-| <a name="module_source"></a> [source](#module\_source) | ../fixtures | n/a |
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [archive_file.destination_handler](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
