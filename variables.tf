@@ -57,7 +57,7 @@ variable "cloudwatch_log_subscription_filters" {
 
 variable "description" {
   description = "Description of what your Lambda Function does."
-  default     = "Instruction set architecture for your Lambda function. Valid values are [\"x86_64\"] and [\"arm64\"]."
+  default     = ""
   type        = string
 }
 
