@@ -250,7 +250,7 @@ variable "vpc_config" {
 }
 
 variable "logging_config" {
-  description = "The function's Amazon CloudWatch Logs configuration settings."
+  description = "Configuration block for advanced logging settings."
   default     = null
   type = object({
     log_format            = string
@@ -258,10 +258,6 @@ variable "logging_config" {
     log_group             = optional(string, null)
     system_log_level      = optional(string, null)
   })
-  validation {
-    condition     = var.logging_config == null || (var.logging_config.log_format == "JSON" || var.logging_config.log_format == "Text")
-    error_message = "log_format must be either 'JSON' or 'Text'"
-  }
 }
 
 variable "iam_role_name" {

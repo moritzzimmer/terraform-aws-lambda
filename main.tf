@@ -87,7 +87,6 @@ resource "aws_lambda_function" "lambda" {
     }
   }
 
-
   // create the CloudWatch log group first so it's no create automatically
   // by AWS Lambda
   depends_on = [aws_cloudwatch_log_group.lambda]

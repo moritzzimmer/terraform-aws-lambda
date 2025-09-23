@@ -31,16 +31,17 @@ module "lambda" {
   cloudwatch_lambda_insights_enabled = true
   layers                             = ["arn:aws:lambda:${local.region}:580247275435:layer:LambdaInsightsExtension-Arm64:23"]
 
-  environment = {
-    variables = {
-      key = "value"
-    }
-  }
-
+  // Advanced logging configuration
   logging_config = {
     log_format            = "JSON"
     application_log_level = "INFO"
     system_log_level      = "WARN"
+  }
+
+  environment = {
+    variables = {
+      key = "value"
+    }
   }
 
   // AWS Systems Manager (SSM) Parameter Store
