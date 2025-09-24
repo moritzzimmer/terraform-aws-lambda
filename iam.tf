@@ -100,7 +100,7 @@ data "aws_iam_policy_document" "logs" {
 
     #trivy:ignore:AVD-AWS-0057
     resources = [
-      "${aws_cloudwatch_log_group.lambda.arn}:*"
+      "${local.log_group_arn}:*"
     ]
   }
 }

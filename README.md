@@ -37,7 +37,7 @@ see [documentation](https://www.terraform.io/docs/providers/aws/r/lambda_functio
 
 ### basic
 
-see [example](examples/complete) for other configuration options
+see [example](examples/complete) for more configuration options
 
 ```hcl
 provider "aws" {
@@ -240,16 +240,16 @@ to stream logs to other Lambda functions (e.g. to forward logs to Amazon OpenSea
 
 The module will create the required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) automatically. Those permissions can be removed by setting `cloudwatch_logs_enabled = false`.
 
-see [example](examples/with-cloudwatch-logs-subscription) for details
+see [example](examples/cloudwatch-logs) for details
 
 ```hcl
 module "lambda" {
   // see above
 
-  // disable CloudWatch logs
+  // remove CloudWatch logs IAM permissions
   // cloudwatch_logs_enabled = false
 
-  cloudwatch_logs_retention_in_days = 14
+  cloudwatch_logs_retention_in_days = 7
 
   cloudwatch_log_subscription_filters = {
     destination_1 = {
@@ -288,7 +288,7 @@ module "lambda" {
 For `image` deployment packages, the Lambda Insights extension needs to be added to the [container image](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-Getting-Started-docker.html):
 
 ```dockerfile
-FROM public.ecr.aws/lambda/nodejs:12
+FROM public.ecr.aws/lambda/nodejs:22
 
 RUN curl -O https://lambda-insights-extension.s3-ap-northeast-1.amazonaws.com/amazon_linux/lambda-insights-extension.rpm && \
     rpm -U lambda-insights-extension.rpm && \
@@ -312,7 +312,7 @@ see [examples](examples/deployment) for details.
 - [container-image](examples/container-image)
 - [deployment](examples/deployment)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
-- [with-cloudwatch-logs-subscription](examples/with-cloudwatch-logs-subscription)
+- [with-cloudwatch-logs-subscription](examples/cloudwatch-logs)
 - [with-event-source-mappings](examples/with-event-source-mappings)
 - [with-sns-subscriptions](examples/with-sns-subscriptions)
 - [with-vpc](examples/with-vpc)
@@ -380,6 +380,7 @@ No modules.
 | [aws_lambda_permission.sns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_sns_topic_subscription.subscription](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_cloudwatch_log_group.lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/cloudwatch_log_group) | data source |
 | [aws_iam_policy.lambda_insights](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.tracing](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
@@ -401,6 +402,7 @@ No modules.
 | <a name="input_cloudwatch_logs_enabled"></a> [cloudwatch\_logs\_enabled](#input\_cloudwatch\_logs\_enabled) | Enables your Lambda function to send logs to CloudWatch. The IAM role of this Lambda function will be enhanced with required permissions. | `bool` | `true` | no |
 | <a name="input_cloudwatch_logs_kms_key_id"></a> [cloudwatch\_logs\_kms\_key\_id](#input\_cloudwatch\_logs\_kms\_key\_id) | The ARN of the KMS Key to use when encrypting log data. | `string` | `null` | no |
 | <a name="input_cloudwatch_logs_retention_in_days"></a> [cloudwatch\_logs\_retention\_in\_days](#input\_cloudwatch\_logs\_retention\_in\_days) | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `number` | `null` | no |
+| <a name="input_create_cloudwatch_log_group"></a> [create\_cloudwatch\_log\_group](#input\_create\_cloudwatch\_log\_group) | Create and manage the CloudWatch Log Group for the Lambda function. Set to `false` to reuse an existing log group. | `bool` | `true` | no |
 | <a name="input_description"></a> [description](#input\_description) | Description of what your Lambda Function does. | `string` | `""` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br/>    variables = map(string)<br/>  })</pre> | `null` | no |
 | <a name="input_ephemeral_storage_size"></a> [ephemeral\_storage\_size](#input\_ephemeral\_storage\_size) | The size of your Lambda functions ephemeral storage (/tmp) represented in MB. Valid value between 512 MB to 10240 MB. | `number` | `512` | no |

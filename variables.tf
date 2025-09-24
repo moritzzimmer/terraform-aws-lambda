@@ -31,6 +31,7 @@ variable "cloudwatch_lambda_insights_enabled" {
   type        = bool
 }
 
+//FIXME: this variable should be renamed in the next major release to reflect that it attaches CloudWatch Logs permissions
 variable "cloudwatch_logs_enabled" {
   description = "Enables your Lambda function to send logs to CloudWatch. The IAM role of this Lambda function will be enhanced with required permissions."
   type        = bool
@@ -53,6 +54,12 @@ variable "cloudwatch_log_subscription_filters" {
   description = "CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations."
   default     = {}
   type        = map(any)
+}
+
+variable "create_cloudwatch_log_group" {
+  description = "Create and manage the CloudWatch Log Group for the Lambda function. Set to `false` to reuse an existing log group."
+  default     = true
+  type        = bool
 }
 
 variable "description" {
@@ -87,15 +94,21 @@ variable "filename" {
   type        = string
 }
 
+variable "handler" {
+  description = "The function entrypoint in your code."
+  default     = ""
+  type        = string
+}
+
 variable "ignore_external_function_updates" {
   description = "Ignore updates to your Lambda function executed externally to the Terraform lifecycle. Set this to `true` if you're using CodeDeploy, aws CLI or other external tools to update your Lambda function code."
   default     = false
   type        = bool
 }
 
-variable "handler" {
-  description = "The function entrypoint in your code."
-  default     = ""
+variable "iam_role_name" {
+  description = "Override the name of the IAM role for the function. Otherwise the default will be your function name with the region as a suffix."
+  default     = null
   type        = string
 }
 
@@ -133,6 +146,17 @@ variable "layers" {
   description = "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function."
   default     = []
   type        = list(string)
+}
+
+variable "logging_config" {
+  description = "Configuration block for advanced logging settings."
+  default     = null
+  type = object({
+    log_format            = string
+    application_log_level = optional(string, null)
+    log_group             = optional(string, null)
+    system_log_level      = optional(string, null)
+  })
 }
 
 variable "memory_size" {
@@ -247,23 +271,6 @@ variable "vpc_config" {
     security_group_ids          = list(string)
     subnet_ids                  = list(string)
   })
-}
-
-variable "logging_config" {
-  description = "Configuration block for advanced logging settings."
-  default     = null
-  type = object({
-    log_format            = string
-    application_log_level = optional(string, null)
-    log_group             = optional(string, null)
-    system_log_level      = optional(string, null)
-  })
-}
-
-variable "iam_role_name" {
-  description = "Override the name of the IAM role for the function. Otherwise the default will be your function name with the region as a suffix."
-  default     = null
-  type        = string
 }
 
 variable "snap_start" {
