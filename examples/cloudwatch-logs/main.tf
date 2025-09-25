@@ -10,13 +10,25 @@ module "fixtures" {
 module "logs_subscription" {
   source = "../../"
 
-  cloudwatch_logs_retention_in_days = 1
-  description                       = "Example usage for an AWS Lambda with CloudWatch logs subscription filters and advanced log configuration using a custom log group name."
-  filename                          = module.fixtures.output_path
-  function_name                     = module.fixtures.output_function_name
-  handler                           = local.handler
-  runtime                           = local.runtime
-  source_code_hash                  = module.fixtures.output_base64sha256
+  description      = "Example usage for an AWS Lambda with CloudWatch logs subscription filters and advanced log configuration using a custom log group name."
+  filename         = module.fixtures.output_path
+  function_name    = module.fixtures.output_function_name
+  handler          = local.handler
+  runtime          = local.runtime
+  source_code_hash = module.fixtures.output_base64sha256
+
+  // configure module managed log group
+  cloudwatch_logs_log_group_class   = "STANDARD"
+  cloudwatch_logs_retention_in_days = 7
+  cloudwatch_logs_skip_destroy      = false
+
+  // advanced logging config including a custom CloudWatch log group managed by the module
+  logging_config = {
+    application_log_level = "INFO"
+    log_format            = "JSON"
+    log_group             = "/custom/${module.fixtures.output_function_name}"
+    system_log_level      = "WARN"
+  }
 
   // register log subscription filters for the functions log group
   cloudwatch_log_subscription_filters = {
@@ -28,14 +40,6 @@ module "logs_subscription" {
     sub_2 = {
       destination_arn = module.sub_2.arn
     }
-  }
-
-  // advanced logging config including a custom CloudWatch log group managed by the module
-  logging_config = {
-    application_log_level = "INFO"
-    log_format            = "JSON"
-    log_group             = "/custom/${module.fixtures.output_function_name}"
-    system_log_level      = "WARN"
   }
 }
 

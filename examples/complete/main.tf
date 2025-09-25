@@ -26,7 +26,9 @@ module "lambda" {
 
   // logs, metrics and tracing
   cloudwatch_logs_enabled            = true
+  cloudwatch_logs_log_group_class    = "STANDARD"
   cloudwatch_logs_retention_in_days  = 7
+  cloudwatch_logs_skip_destroy       = false
   cloudwatch_lambda_insights_enabled = true
   layers                             = ["arn:aws:lambda:${local.region}:580247275435:layer:LambdaInsightsExtension-Arm64:23"]
   tracing_config_mode                = "Active"

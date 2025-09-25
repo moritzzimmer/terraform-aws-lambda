@@ -256,16 +256,10 @@ module "lambda" {
   // remove CloudWatch logs IAM permissions
   // cloudwatch_logs_enabled = false
 
-  // configure retention time for the module managed log group
+  // configure module managed log group
+  cloudwatch_logs_log_group_class   = "STANDARD"
   cloudwatch_logs_retention_in_days = 7
-
-  cloudwatch_log_subscription_filters = {
-    sub_1 = {
-      // see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter for available arguments
-      destination_arn = module.sub_1.arn
-      filter_pattern  = "%Lambda%"
-    }
-  }
+  cloudwatch_logs_skip_destroy      = false
 
   // advanced logging config including a custom CloudWatch log group managed by the module
   logging_config = {
@@ -273,6 +267,15 @@ module "lambda" {
     log_format            = "JSON"
     log_group             = "/custom/my_function_name"
     system_log_level      = "WARN"
+  }
+
+  // register log subscription filters for the functions log group
+  cloudwatch_log_subscription_filters = {
+    sub_1 = {
+      // see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter for available arguments
+      destination_arn = module.sub_1.arn
+      filter_pattern  = "%Lambda%"
+    }
   }
 }
 
@@ -433,7 +436,9 @@ No modules.
 | <a name="input_cloudwatch_log_subscription_filters"></a> [cloudwatch\_log\_subscription\_filters](#input\_cloudwatch\_log\_subscription\_filters) | CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations. | `map(any)` | `{}` | no |
 | <a name="input_cloudwatch_logs_enabled"></a> [cloudwatch\_logs\_enabled](#input\_cloudwatch\_logs\_enabled) | Enables your Lambda function to send logs to CloudWatch. The IAM role of this Lambda function will be enhanced with required permissions. | `bool` | `true` | no |
 | <a name="input_cloudwatch_logs_kms_key_id"></a> [cloudwatch\_logs\_kms\_key\_id](#input\_cloudwatch\_logs\_kms\_key\_id) | The ARN of the KMS Key to use when encrypting log data. | `string` | `null` | no |
+| <a name="input_cloudwatch_logs_log_group_class"></a> [cloudwatch\_logs\_log\_group\_class](#input\_cloudwatch\_logs\_log\_group\_class) | Specified the log class of the log group. Possible values are: `STANDARD`, `INFREQUENT_ACCESS`, or `DELIVERY`. | `string` | `null` | no |
 | <a name="input_cloudwatch_logs_retention_in_days"></a> [cloudwatch\_logs\_retention\_in\_days](#input\_cloudwatch\_logs\_retention\_in\_days) | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `number` | `null` | no |
+| <a name="input_cloudwatch_logs_skip_destroy"></a> [cloudwatch\_logs\_skip\_destroy](#input\_cloudwatch\_logs\_skip\_destroy) | Set to true if you do not wish the log group (and any logs it may contain) to be deleted at destroy time, and instead just remove the log group from the Terraform state. | `bool` | `false` | no |
 | <a name="input_create_cloudwatch_log_group"></a> [create\_cloudwatch\_log\_group](#input\_create\_cloudwatch\_log\_group) | Create and manage the CloudWatch Log Group for the Lambda function. Set to `false` to reuse an existing log group. | `bool` | `true` | no |
 | <a name="input_description"></a> [description](#input\_description) | Description of what your Lambda Function does. | `string` | `""` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br/>    variables = map(string)<br/>  })</pre> | `null` | no |
