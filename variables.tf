@@ -31,7 +31,7 @@ variable "cloudwatch_lambda_insights_enabled" {
   type        = bool
 }
 
-//FIXME: this variable should be renamed in the next major release to reflect that it attaches CloudWatch Logs permissions
+# FIXME: this variable should be renamed in the next major release to reflect that it attaches CloudWatch Logs permissions
 variable "cloudwatch_logs_enabled" {
   description = "Enables your Lambda function to send logs to CloudWatch. The IAM role of this Lambda function will be enhanced with required permissions."
   type        = bool

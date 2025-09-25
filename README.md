@@ -234,11 +234,18 @@ module "lambda" {
 
 ### with CloudWatch Logs configuration
 
-The module will create a [CloudWatch Log Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group)
-for your Lambda function. It's retention period and [CloudWatch Logs subscription filters](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter)
-to stream logs to other Lambda functions (e.g. to forward logs to Amazon OpenSearch Service) can be declared inline.
+By default, the module will create and manage a [CloudWatch Log Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) for your Lambda function.
+It's possible to configure settings like retention time and [KMS encryption](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html)
+for this log group.
 
-The module will create the required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) automatically. Those permissions can be removed by setting `cloudwatch_logs_enabled = false`.
+In addition, the module also supports [advanced logging configuration](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs-loggroups.html)
+which provides the ability to define a custom name for the module managed log group as well as specifying an existing log group to be used by the Lambda function instead.
+
+[CloudWatch Logs subscription filters](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter)
+to stream logs to other Lambda functions (e.g. to forward logs to Amazon OpenSearch Service) can be declared inline
+for the module managed log group or an existing log group.
+
+The module will create the required [IAM permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) for CloudWatch logs automatically. Those permissions can be removed by setting `cloudwatch_logs_enabled = false`.
 
 see [example](examples/cloudwatch-logs) for details
 
@@ -249,18 +256,43 @@ module "lambda" {
   // remove CloudWatch logs IAM permissions
   // cloudwatch_logs_enabled = false
 
+  // configure retention time for the module managed log group
   cloudwatch_logs_retention_in_days = 7
 
   cloudwatch_log_subscription_filters = {
-    destination_1 = {
-      //see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter for available arguments
-      destination_arn = module.destination_1.arn
+    sub_1 = {
+      // see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_subscription_filter for available arguments
+      destination_arn = module.sub_1.arn
       filter_pattern  = "%Lambda%"
     }
+  }
 
-    destination_2 = {
-      destination_arn = module.destination_2.arn
-    }
+  // advanced logging config including a custom CloudWatch log group managed by the module
+  logging_config = {
+    application_log_level = "INFO"
+    log_format            = "JSON"
+    log_group             = "/custom/my_function_name"
+    system_log_level      = "WARN"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "existing" {
+  name              = "/existing/${module.fixtures.output_function_name}"
+  retention_in_days = 1
+}
+
+module "sub_1" {
+  source = "../../"
+
+  // other required arguments
+
+  // disable creation of the module managed CloudWatch log group
+  create_cloudwatch_log_group = false
+
+  // advanced logging config using an external CloudWatch log group
+  logging_config = {
+    log_format = "Text"
+    log_group  = aws_cloudwatch_log_group.existing.name
   }
 }
 ```

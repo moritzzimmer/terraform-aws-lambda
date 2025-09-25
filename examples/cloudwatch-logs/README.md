@@ -1,6 +1,7 @@
 # Example with CloudWatch logs configuration
 
-Creates an AWS Lambda functions with various CloudWatch logs configurations.
+Create AWS Lambda functions showcasing [advanced logging configuration](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs-loggroups.html)
+and log [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Subscriptions.html).
 
 ## usage
 
@@ -32,7 +33,6 @@ Note that this example may create resources which cost money. Run `terraform des
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_custom_log_group_name"></a> [custom\_log\_group\_name](#module\_custom\_log\_group\_name) | ../../ | n/a |
 | <a name="module_fixtures"></a> [fixtures](#module\_fixtures) | ../fixtures | n/a |
 | <a name="module_logs_subscription"></a> [logs\_subscription](#module\_logs\_subscription) | ../../ | n/a |
 | <a name="module_sub_1"></a> [sub\_1](#module\_sub\_1) | ../../ | n/a |

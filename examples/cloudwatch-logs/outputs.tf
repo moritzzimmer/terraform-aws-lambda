@@ -5,12 +5,12 @@ output "arn" {
 
 output "cloudwatch_custom_log_group_name" {
   description = "The name of the custom CloudWatch log group."
-  value       = module.custom_log_group_name.cloudwatch_log_group_name
+  value       = module.logs_subscription.cloudwatch_log_group_name
 }
 
 output "cloudwatch_custom_log_group_arn" {
   description = "The Amazon Resource Name (ARN) identifying the custom CloudWatch log group used by your Lambda function."
-  value       = module.custom_log_group_name.cloudwatch_log_group_arn
+  value       = module.logs_subscription.cloudwatch_log_group_arn
 }
 
 output "cloudwatch_existing_log_group_name" {
