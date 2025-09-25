@@ -46,7 +46,7 @@ variable "cloudwatch_logs_kms_key_id" {
 
 
 variable "cloudwatch_logs_log_group_class" {
-  description = "Specified the log class of the log group. Possible values are: `STANDARD`, `INFREQUENT_ACCESS`, or `DELIVERY`."
+  description = "Specifies the log class of the log group. Possible values are: `STANDARD`, `INFREQUENT_ACCESS`, or `DELIVERY`."
   default     = null
   type        = string
 }

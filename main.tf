@@ -87,7 +87,7 @@ resource "aws_lambda_function" "lambda" {
     }
   }
 
-  // create the CloudWatch log group first so it's not created automatically by AWS Lambda
+  // create the CloudWatch log group first so it's not automatically created by AWS Lambda
   depends_on = [aws_cloudwatch_log_group.lambda]
 }
 
@@ -177,7 +177,7 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
     }
   }
 
-  // create the CloudWatch log group first so it's not created automatically by AWS Lambda
+  // create the CloudWatch log group first so it's not automatically created by AWS Lambda
   depends_on = [aws_cloudwatch_log_group.lambda]
 
   lifecycle {
