@@ -77,8 +77,17 @@ resource "aws_lambda_function" "lambda" {
     }
   }
 
-  // create the CloudWatch log group first so it's no create automatically
-  // by AWS Lambda
+  dynamic "logging_config" {
+    for_each = var.logging_config == null ? [] : [var.logging_config]
+    content {
+      application_log_level = logging_config.value.application_log_level
+      log_format            = logging_config.value.log_format
+      log_group             = logging_config.value.log_group
+      system_log_level      = logging_config.value.system_log_level
+    }
+  }
+
+  // create the CloudWatch log group first so it's not automatically created by AWS Lambda
   depends_on = [aws_cloudwatch_log_group.lambda]
 }
 
@@ -158,8 +167,17 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
     }
   }
 
-  // create the CloudWatch log group first so it's no create automatically
-  // by AWS Lambda
+  dynamic "logging_config" {
+    for_each = var.logging_config == null ? [] : [var.logging_config]
+    content {
+      application_log_level = logging_config.value.application_log_level
+      log_format            = logging_config.value.log_format
+      log_group             = logging_config.value.log_group
+      system_log_level      = logging_config.value.system_log_level
+    }
+  }
+
+  // create the CloudWatch log group first so it's not automatically created by AWS Lambda
   depends_on = [aws_cloudwatch_log_group.lambda]
 
   lifecycle {

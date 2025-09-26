@@ -31,6 +31,7 @@ variable "cloudwatch_lambda_insights_enabled" {
   type        = bool
 }
 
+# FIXME: this variable should be renamed in the next major release to reflect that it attaches CloudWatch Logs permissions
 variable "cloudwatch_logs_enabled" {
   description = "Enables your Lambda function to send logs to CloudWatch. The IAM role of this Lambda function will be enhanced with required permissions."
   type        = bool
@@ -43,16 +44,35 @@ variable "cloudwatch_logs_kms_key_id" {
   default     = null
 }
 
+
+variable "cloudwatch_logs_log_group_class" {
+  description = "Specifies the log class of the log group. Possible values are: `STANDARD`, `INFREQUENT_ACCESS`, or `DELIVERY`."
+  default     = null
+  type        = string
+}
+
 variable "cloudwatch_logs_retention_in_days" {
   description = "Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire."
   default     = null
   type        = number
 }
 
+variable "cloudwatch_logs_skip_destroy" {
+  description = "Set to true if you do not wish the log group (and any logs it may contain) to be deleted at destroy time, and instead just remove the log group from the Terraform state."
+  type        = bool
+  default     = false
+}
+
 variable "cloudwatch_log_subscription_filters" {
   description = "CloudWatch Logs subscription filter resources. Currently supports only Lambda functions as destinations."
   default     = {}
   type        = map(any)
+}
+
+variable "create_cloudwatch_log_group" {
+  description = "Create and manage the CloudWatch Log Group for the Lambda function. Set to `false` to reuse an existing log group."
+  default     = true
+  type        = bool
 }
 
 variable "description" {
@@ -87,15 +107,21 @@ variable "filename" {
   type        = string
 }
 
+variable "handler" {
+  description = "The function entrypoint in your code."
+  default     = ""
+  type        = string
+}
+
 variable "ignore_external_function_updates" {
   description = "Ignore updates to your Lambda function executed externally to the Terraform lifecycle. Set this to `true` if you're using CodeDeploy, aws CLI or other external tools to update your Lambda function code."
   default     = false
   type        = bool
 }
 
-variable "handler" {
-  description = "The function entrypoint in your code."
-  default     = ""
+variable "iam_role_name" {
+  description = "Override the name of the IAM role for the function. Otherwise the default will be your function name with the region as a suffix."
+  default     = null
   type        = string
 }
 
@@ -133,6 +159,17 @@ variable "layers" {
   description = "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function."
   default     = []
   type        = list(string)
+}
+
+variable "logging_config" {
+  description = "Configuration block for advanced logging settings."
+  default     = null
+  type = object({
+    log_format            = string
+    application_log_level = optional(string, null)
+    log_group             = optional(string, null)
+    system_log_level      = optional(string, null)
+  })
 }
 
 variable "memory_size" {
@@ -247,12 +284,6 @@ variable "vpc_config" {
     security_group_ids          = list(string)
     subnet_ids                  = list(string)
   })
-}
-
-variable "iam_role_name" {
-  description = "Override the name of the IAM role for the function. Otherwise the default will be your function name with the region as a suffix."
-  default     = null
-  type        = string
 }
 
 variable "snap_start" {
