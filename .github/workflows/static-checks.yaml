@@ -84,3 +84,4 @@ jobs:
         with:
           terraform-version: ${{ steps.terraformVersion.outputs.maxVersion }}
           install-trivy: true
+          args: '--all-files --color always --show-diff-on-failure --verbose'
