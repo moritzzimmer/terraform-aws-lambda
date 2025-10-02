@@ -1,0 +1,58 @@
+name: static checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  terraformVersions:
+    name: get min/max Terraform versions
+    runs-on: ubuntu-latest
+    outputs:
+      minVersion: ${{ steps.minMax.outputs.minVersion }}
+      maxVersion: ${{ steps.minMax.outputs.maxVersion }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Get Terraform version
+        uses: clowdhaus/terraform-min-max@04440fe3b2a1e64eb5ad115f8f7c57c4d6a54333 #v1.4.1
+        id: minMax
+        with:
+          directory: .
+
+  pre_commit:
+    name: pre-commit
+    needs: terraformVersions
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        version:
+          - ${{ needs.terraformVersions.outputs.minVersion }}
+          - ${{ needs.terraformVersions.outputs.maxVersion }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: pre-commit ${{ matrix.version }}
+        uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
+        with:
+          terraform-version: ${{ matrix.version }}
+          install-trivy: true
+          trivy-version: '0.67.0'
+          args: '--all-files --color always --show-diff-on-failure --verbose'

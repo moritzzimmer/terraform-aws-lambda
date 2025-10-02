@@ -30,8 +30,7 @@ check: ## Runs pre-commit hooks against all files
 	@pre-commit run --all-files
 
 .PHONY: bump-version
-BUMP ?= patch
-bump-version: ## Bumps the version of this module. Set BUMP to [ patch | major | minor ].
+bump-version: check-bump ## Bumps the version of this module. Set BUMP to [ major | minor | patch ].
 	@echo bumping version from $(VERSION_TAG) to $(NEXT_TAG)
 	@echo "Updating links in README.md"
 	@sed -i '' s/$(subst v,,$(VERSION))/$(subst v,,$(NEXT_VERSION))/g README.md
@@ -61,7 +60,7 @@ check-bump:
 		exit 1; \
 	fi
 
-release: check-bump check-git-branch bump-version ## Releases a new module version
+release: check-git-branch bump-version ## Releases a new module version
 	@echo "+ $@"
 	git add README.md
 	git commit -vsam "Bump version to $(NEXT_TAG)"
