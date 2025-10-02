@@ -27,8 +27,8 @@ jobs:
         uses: clowdhaus/terraform-composite-actions/directories@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
         id: dirs
 
-  validate:
-    name: Validate Terraform stacks
+  pre_commit_min_version:
+    name: pre-commit (min terraform version)
     needs: terraform_directories
     runs-on: ubuntu-latest
 
@@ -40,16 +40,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Terraform version
+      - name: Get Terraform version
         uses: clowdhaus/terraform-min-max@04440fe3b2a1e64eb5ad115f8f7c57c4d6a54333 #v1.4.1
         id: terraformVersion
         with:
           directory: ${{ matrix.directory }}
 
-      - name: Pre-Commit ${{ steps.minMax.outputs.minVersion }}
+      - name: Pre-Commit ${{ steps.terraformVersion.outputs.minVersion }}
         uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
         with:
           terraform-version: ${{ steps.terraformVersion.outputs.minVersion }}
           install-trivy: true
-          tflint-version: 'latest'
-          trivy-version: '0.65.0'
+
+  pre_commit_max_version:
+    name: pre-commit (max terraform version)
+    needs: terraform_directories
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.terraform_directories.outputs.directories) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Get Terraform version
+        uses: clowdhaus/terraform-min-max@04440fe3b2a1e64eb5ad115f8f7c57c4d6a54333 #v1.4.1
+        id: terraformVersion
+        with:
+          directory: ${{ matrix.directory }}
+
+      - name: Pre-Commit ${{ steps.terraformVersion.outputs.maxVersion }}
+        uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
+        with:
+          terraform-version: ${{ steps.terraformVersion.outputs.maxVersion }}
+          install-trivy: true
