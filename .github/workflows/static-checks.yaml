@@ -51,11 +51,12 @@ jobs:
         with:
           directory: ${{ matrix.directory }}
 
+      # only run terraform validate on the minimal supported terraform version
       - name: Pre-Commit ${{ steps.terraformVersion.outputs.minVersion }}
         uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
         with:
           terraform-version: ${{ steps.terraformVersion.outputs.minVersion }}
-          install-trivy: true
+          args: 'terraform_validate --color=always --show-diff-on-failure --files $(ls *.tf)'
 
   pre_commit_max_version:
     name: pre-commit (max tf version)
@@ -77,6 +78,7 @@ jobs:
         with:
           directory: ${{ matrix.directory }}
 
+      # run all pre-commit checks on the maximum supported terraform version
       - name: Pre-Commit ${{ steps.terraformVersion.outputs.maxVersion }}
         uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
         with:
