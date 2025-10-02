@@ -13,34 +13,28 @@ permissions:
   pull-requests: write
 
 jobs:
-  terraform_stacks:
+  terraform_directories:
     name: Collect Terraform stacks
     runs-on: ubuntu-latest
     outputs:
-      directories: ${{ steps.stacks.outputs.directories }}
+      directories: ${{ steps.dirs.outputs.directories }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Collect stacks
+      - name: Collect directories
         uses: clowdhaus/terraform-composite-actions/directories@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
-        id: stacks
-
-      - name: Outputs
-        run: echo "${{ steps.stacks.outputs.directories }}"
-
-      - name: JSON
-        run: echo "${{ fromJson(steps.stacks.outputs.directories) }}"
+        id: dirs
 
   validate:
     name: Validate Terraform stacks
-    needs: terraform_stacks
+    needs: terraform_directories
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        directory: ${{ fromJson(needs.terraform_stacks.outputs.directories) }}
+        directory: ${{ fromJson(needs.terraform_directories.outputs.directories) }}
 
     steps:
       - name: Checkout
@@ -55,7 +49,7 @@ jobs:
       - name: Pre-Commit ${{ steps.minMax.outputs.minVersion }}
         uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
         with:
-          terraform-version: ${{ steps.minMax.outputs.minVersion }}
+          terraform-version: ${{ steps.terraformVersion.outputs.minVersion }}
           install-trivy: true
           tflint-version: 'latest'
           trivy-version: '0.65.0'
