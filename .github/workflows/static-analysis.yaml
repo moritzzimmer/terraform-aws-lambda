@@ -25,6 +25,13 @@ jobs:
 
       - name: Collect stacks
         uses: clowdhaus/terraform-composite-actions/directories@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
+        id: stacks
+
+      - name: Outputs
+        run: echo "${{ steps.stacks.outputs.directories }}"
+
+      - name: JSON
+        run: echo "${{ fromJson(steps.stacks.outputs.directories) }}"
 
   validate:
     name: Validate Terraform stacks
