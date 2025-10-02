@@ -33,7 +33,7 @@ jobs:
 
     strategy:
       matrix:
-        directory: ${{ fromJson(needs.collectInputs.outputs.directories) }}
+        directory: ${{ fromJson(needs.terraform_stacks.outputs.directories) }}
 
     steps:
       - name: Checkout
