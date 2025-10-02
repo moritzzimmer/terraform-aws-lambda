@@ -1,0 +1,14 @@
+exit-code: 1
+exit-on-eol: 1
+
+misconfiguration:
+  terraform:
+    exclude-downloaded-modules: true
+
+severity:
+  - HIGH
+  - CRITICAL
+
+scan:
+  skip-dirs:
+    - "**/.terraform/**/*"

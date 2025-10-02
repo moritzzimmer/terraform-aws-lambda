@@ -11,7 +11,6 @@ MAJOR              := $(word 1,$(VERSION_PARTS))
 MINOR              := $(word 2,$(VERSION_PARTS))
 PATCH              := $(word 3,$(VERSION_PARTS))
 
-BUMP ?= patch
 ifeq ($(BUMP), major)
 NEXT_VERSION		:= $(shell echo $$(($(MAJOR)+1)).0.0)
 else ifeq ($(BUMP), minor)
@@ -21,47 +20,14 @@ NEXT_VERSION		:= $(shell echo $(MAJOR).$(MINOR).$$(($(PATCH)+1)))
 endif
 NEXT_TAG 			:= v$(NEXT_VERSION)
 
-STACKS = $(shell find . -not -path "*/\.*" -iname "*.tf" | sed -E "s|/[^/]+$$||" | sort --unique)
-ROOT_DIR := $(shell pwd)
-
-all: fmt validate tflint trivy
-
-.PHONY: fmt
-fmt: ## Rewrites Terraform files to canonical format
+.PHONY: check
+check: ## Runs pre-commit hooks against all files
 	@echo "+ $@"
-	@terraform fmt -check=true -recursive
-
-.PHONY: validate
-validate: ## Validates the Terraform files
-	@echo "+ $@"
-	@for s in $(STACKS); do \
-		echo "validating $$s"; \
-		terraform -chdir=$$s init -backend=false > /dev/null; \
-		terraform -chdir=$$s validate || exit 1 ;\
-    done;
-
-.PHONY: tflint
-tflint: ## Runs tflint on all Terraform files
-	@echo "+ $@"
-	@tflint --init
-	@for s in $(STACKS); do \
-		echo "tflint $$s"; \
-		terraform -chdir=$$s init -backend=false > /dev/null; \
-		tflint -chdir=$$s -f compact --config $(ROOT_DIR)/.tflint.hcl || exit 1; \
-	done;
-
-trivy: ## Runs trivy on all Terraform files
-	@echo "+ $@"
-	@trivy config  --exit-code 1 --severity HIGH --tf-exclude-downloaded-modules .
-
-.PHONY: providers
-providers: ## Upgrades all providers and platform independent dependency locks (slow)
-	@echo "+ $@"
-	@for s in $(STACKS) ; do \
-  		echo upgrading: $$s ;\
-		terraform -chdir=$$s init -upgrade=true -backend=false > /dev/null; \
-		terraform -chdir=$$s providers lock -platform=darwin_amd64 -platform=darwin_arm64 -platform=linux_amd64 ;\
-	done
+	@command -v pre-commit >/dev/null 2>&1 || { \
+		echo "pre-commit not installed. Install via 'pip install pre-commit' or 'brew install pre-commit'."; \
+		exit 1; \
+	}
+	@pre-commit run --all-files
 
 .PHONY: bump-version
 BUMP ?= patch
@@ -81,7 +47,21 @@ check-git-branch: check-git-clean
 	git fetch --all --tags --prune
 	git checkout main
 
-release: check-git-branch bump-version ## Releases a new module version
+.PHONY: check-bump
+check-bump:
+	@echo "+ $@"
+	@if [ -z "$(BUMP)" ]; then \
+		echo "Error: BUMP variable must be specified for release."; \
+		echo "Usage: make release BUMP=major|minor|patch"; \
+		exit 1; \
+	fi
+	@if [ "$(BUMP)" != "major" ] && [ "$(BUMP)" != "minor" ] && [ "$(BUMP)" != "patch" ]; then \
+		echo "Error: BUMP must be one of: major, minor, patch"; \
+		echo "Usage: make release BUMP=major|minor|patch"; \
+		exit 1; \
+	fi
+
+release: check-bump check-git-branch bump-version ## Releases a new module version
 	@echo "+ $@"
 	git add README.md
 	git commit -vsam "Bump version to $(NEXT_TAG)"
