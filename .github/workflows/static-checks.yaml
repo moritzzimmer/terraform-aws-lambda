@@ -12,6 +12,10 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   terraform_directories:
     name: Collect Terraform stacks
@@ -33,6 +37,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      max-parallel: 5
       matrix:
         directory: ${{ fromJson(needs.terraform_directories.outputs.directories) }}
 
@@ -58,6 +63,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      max-parallel: 5
       matrix:
         directory: ${{ fromJson(needs.terraform_directories.outputs.directories) }}
 
