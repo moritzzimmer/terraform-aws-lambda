@@ -30,8 +30,7 @@ check: ## Runs pre-commit hooks against all files
 	@pre-commit run --all-files
 
 .PHONY: bump-version
-BUMP ?= patch
-bump-version: ## Bumps the version of this module. Set BUMP to [ patch | major | minor ].
+bump-version: ## Bumps the version of this module. Set BUMP to [ major | minor | patch ].
 	@echo bumping version from $(VERSION_TAG) to $(NEXT_TAG)
 	@echo "Updating links in README.md"
 	@sed -i '' s/$(subst v,,$(VERSION))/$(subst v,,$(NEXT_VERSION))/g README.md
