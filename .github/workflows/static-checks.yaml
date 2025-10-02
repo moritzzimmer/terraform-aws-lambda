@@ -1,4 +1,4 @@
-name: static analysis
+name: static checks
 
 on:
   pull_request:
@@ -28,7 +28,7 @@ jobs:
         id: dirs
 
   pre_commit_min_version:
-    name: pre-commit (min terraform version)
+    name: pre-commit (min tf version)
     needs: terraform_directories
     runs-on: ubuntu-latest
 
@@ -53,7 +53,7 @@ jobs:
           install-trivy: true
 
   pre_commit_max_version:
-    name: pre-commit (max terraform version)
+    name: pre-commit (max tf version)
     needs: terraform_directories
     runs-on: ubuntu-latest
 
