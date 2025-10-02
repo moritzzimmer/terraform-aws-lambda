@@ -56,6 +56,7 @@ jobs:
         with:
           terraform-version: ${{ steps.terraformVersion.outputs.minVersion }}
           install-trivy: true
+          args: 'terraform_validate --color=always --show-diff-on-failure --files ${{ matrix.directory }}/*'
 
   pre_commit_max_version:
     name: pre-commit (max tf version)
@@ -82,3 +83,4 @@ jobs:
         with:
           terraform-version: ${{ steps.terraformVersion.outputs.maxVersion }}
           install-trivy: true
+          args: 'terraform_validate --color=always --show-diff-on-failure --files ${{ matrix.directory }}/*'
