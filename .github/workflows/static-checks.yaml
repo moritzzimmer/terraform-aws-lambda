@@ -49,7 +49,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: pre-commit ${{ matrix.version }}
+      - name: pre-commit
         uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
         with:
           terraform-version: ${{ matrix.version }}
