@@ -1,6 +1,6 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/static%20analysis/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-8.4.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/8.4.0) ![Terraform Version](https://img.shields.io/badge/Terraform-0.12+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/static%20checks/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-8.4.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/8.4.0) ![Terraform Version](https://img.shields.io/badge/Terraform-1.5.7+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
 development of Lambda functions like:
@@ -17,8 +17,7 @@ development of Lambda functions like:
 - inline declaration of [SNS Topic Subscriptions](https://www.terraform.io/docs/providers/aws/r/sns_topic_subscription.html) including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-sns-subscriptions))
 - inline declaration of [CloudWatch Event Rules](https://www.terraform.io/docs/providers/aws/r/cloudwatch_event_rule.html) including required [Lambda permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) (see [example](examples/with-cloudwatch-event-rules))
 - IAM permissions for read access to parameters from [AWS Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html)
-- [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Log group configuration including retention time and [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with required permissions
-to stream logs to other Lambda functions (e.g. forwarding logs to Elasticsearch)
+- [CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) Logs configuration like retention time or [subscription filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html) with all required IAM permissions (see [example](examples/cloudwatch-logs))
 - Lambda@Edge support fulfilling [requirements for CloudFront triggers](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-requirements-limits.html#lambda-requirements-cloudfront-triggers). Functions need
 to be deployed to US East (N. Virginia) region (`us-east-1`)
 - configuration for [Amazon CloudWatch Lambda Insights](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-insights.html) including required
@@ -346,8 +345,8 @@ see [examples](examples/deployment) for details.
 - [complete](examples/complete)
 - [container-image](examples/container-image)
 - [deployment](examples/deployment)
+- [cloudwatch-logs](examples/cloudwatch-logs)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
-- [with-cloudwatch-logs-subscription](examples/cloudwatch-logs)
 - [with-event-source-mappings](examples/with-event-source-mappings)
 - [with-sns-subscriptions](examples/with-sns-subscriptions)
 - [with-vpc](examples/with-vpc)

@@ -1,7 +1,8 @@
 .terraform*
 terraform.tfstate
 terraform.tfstate.backup
+**/*.zip
 
 bin/
 .idea
-lambda.zip
+**/.DS_Store
