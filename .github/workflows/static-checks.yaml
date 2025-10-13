@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Get Terraform version
-        uses: clowdhaus/terraform-min-max@04440fe3b2a1e64eb5ad115f8f7c57c4d6a54333 #v1.4.1
+        uses: clowdhaus/terraform-min-max@a86951cbe89f4d15caec805f36aa1dd68863ae32 #v2.1.0
         id: minMax
         with:
           directory: .
