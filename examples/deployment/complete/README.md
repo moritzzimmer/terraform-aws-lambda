@@ -22,8 +22,11 @@ Note that this example may create resources which cost money. Run `terraform des
 Upload a new `zip` package to S3 to start the deployment pipeline:
 
 ```shell
-aws s3api put-object --bucket example-ci-{account_id}-{region} --key deployment-hooks/package/lambda.zip --body lambda.zip
+aws s3api put-object --bucket example-ci-{account_id}-{region} --key deployment-hooks/package/lambda.zip --metadata description="Description for the new Lambda version" --body lambda.zip
 ```
+
+The `--metadata description=` is optional. If set, it will use the value as the description for the new Lambda function
+version.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

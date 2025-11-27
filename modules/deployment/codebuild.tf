@@ -103,8 +103,19 @@ phases:
           versionId = os.environ.get("SOURCEVARIABLES_VERSIONID")
           print(f"S3 deployment: {s3_bucket}/{s3_key} (versionId={versionId})")
 
-          update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, S3Bucket=s3_bucket, S3Key=s3_key, S3ObjectVersion=versionId, Publish=True)
-          target_version = update_response["Version"]
+          s3_client = boto3.client("s3", region_name=os.environ.get("REGION"))
+          s3_attributes = s3_client.head_object(Bucket=s3_bucket, Key=s3_key, VersionId=versionId)
+
+          if "description" in s3_attributes["Metadata"]:
+            description = s3_attributes["Metadata"]["description"]
+            # The description of a lambda version can be max 256 characters, so we need to ensure that here
+            truncated_description = description[:256]
+            update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, S3Bucket=s3_bucket, S3Key=s3_key, S3ObjectVersion=versionId, Publish=False)
+            publish_response = lambda_client.publish_version(FunctionName=lambda_function_name, CodeSha256=update_response["CodeSha256"], Description=truncated_description)
+            target_version = publish_response["Version"]
+          else:
+            update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, S3Bucket=s3_bucket, S3Key=s3_key, S3ObjectVersion=versionId, Publish=True)
+            target_version = update_response["Version"]
         else:
           # ECR/image deployment
           image_uri = os.environ.get("SOURCEVARIABLES_IMAGE_URI")
