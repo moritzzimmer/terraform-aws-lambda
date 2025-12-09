@@ -181,6 +181,10 @@ of the CodePipeline needs an AWS S3 Notification for emitting events in your Ama
 filtered events to EventBridge and trigger the pipeline (see [docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventBridge.html) for details). Make sure to enable S3 bucket
 notifications for your source bucket!
 
+Optionally, if the S3 object being deployed has the metadata `description` set, it will be used as the description of
+the new published version of the Lambda, truncated at 256 characters. You are responsible for setting this metadata when
+you produce the object in S3. Without the metadata, the function description is copied for the version description.
+
 ### with custom deployment configuration
 
 This module supports all predefined [default deployment configurations](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html)
