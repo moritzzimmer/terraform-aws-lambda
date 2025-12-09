@@ -1,6 +1,6 @@
 # AWS Lambda Terraform module
 
-![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/static%20checks/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-8.4.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/8.4.0) ![Terraform Version](https://img.shields.io/badge/Terraform-1.5.7+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/moritzzimmer/terraform-aws-lambda/workflows/static%20checks/badge.svg) [![Terraform Module Registry](https://img.shields.io/badge/Terraform%20Module%20Registry-8.5.0-blue.svg)](https://registry.terraform.io/modules/moritzzimmer/lambda/aws/8.5.0) ![Terraform Version](https://img.shields.io/badge/Terraform-1.5.7+-green.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Terraform module to create AWS [Lambda](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) and accompanying resources for an efficient and secure
 development of Lambda functions like:
