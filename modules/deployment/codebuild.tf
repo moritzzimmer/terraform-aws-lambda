@@ -111,6 +111,8 @@ phases:
             # The description of a lambda version can be max 256 characters, so we need to ensure that here
             truncated_description = description[:256]
             update_response = lambda_client.update_function_code(FunctionName=lambda_function_name, S3Bucket=s3_bucket, S3Key=s3_key, S3ObjectVersion=versionId, Publish=False)
+            waiter = lambda_client.get_waiter("function_updated_v2")
+            waiter.wait(FunctionName=lambda_function_name)
             publish_response = lambda_client.publish_version(FunctionName=lambda_function_name, CodeSha256=update_response["CodeSha256"], Description=truncated_description)
             target_version = publish_response["Version"]
           else:
