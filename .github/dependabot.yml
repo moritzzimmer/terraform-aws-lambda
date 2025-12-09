@@ -9,4 +9,11 @@ updates:
       interval: "weekly"
     assignees:
       - moritzzimmer
+    groups:
+      actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
