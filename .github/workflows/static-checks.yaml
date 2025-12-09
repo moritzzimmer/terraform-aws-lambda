@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: pre-commit ${{ matrix.version }}
-        uses: clowdhaus/terraform-composite-actions/pre-commit@26118b78561fb44052ce9ab6c5ab850df70b9aa0 #v1.13.0
+        uses: clowdhaus/terraform-composite-actions/pre-commit@462243b714d762cbcac6732098e9fdb4ab236cb7 #v1.14.0
         with:
           terraform-version: ${{ matrix.version }}
           install-trivy: true
