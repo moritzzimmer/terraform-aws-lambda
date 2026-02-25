@@ -101,6 +101,15 @@ variable "event_source_mappings" {
   type        = any
 }
 
+variable "file_system_config" {
+  description = "Connection settings for an EFS file system. Before creating or updating Lambda functions with `file_system_config`, EFS mount targets must be in available lifecycle state. Use `depends_on` to explicitly declare this dependency. See [Amazon EFS for Lambda](https://docs.aws.amazon.com/lambda/latest/dg/services-efs.html) for more details."
+  default     = null
+  type = object({
+    arn              = string
+    local_mount_path = string
+  })
+}
+
 variable "filename" {
   description = "The path to the function's deployment package within the local filesystem. If defined, The s3_-prefixed options and image_uri cannot be used."
   default     = null

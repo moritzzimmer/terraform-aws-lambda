@@ -45,6 +45,14 @@ resource "aws_lambda_function" "lambda" {
     }
   }
 
+  dynamic "file_system_config" {
+    for_each = var.file_system_config == null ? [] : [var.file_system_config]
+    content {
+      arn              = file_system_config.value.arn
+      local_mount_path = file_system_config.value.local_mount_path
+    }
+  }
+
   dynamic "image_config" {
     for_each = length(var.image_config) > 0 ? [true] : []
     content {
@@ -132,6 +140,14 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
       variables = environment.value.variables
+    }
+  }
+
+  dynamic "file_system_config" {
+    for_each = var.file_system_config == null ? [] : [var.file_system_config]
+    content {
+      arn              = file_system_config.value.arn
+      local_mount_path = file_system_config.value.local_mount_path
     }
   }
 
