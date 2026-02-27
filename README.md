@@ -347,6 +347,7 @@ see [examples](examples/deployment) for details.
 - [deployment](examples/deployment)
 - [cloudwatch-logs](examples/cloudwatch-logs)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
+- [with-efs](examples/with-efs)
 - [with-event-source-mappings](examples/with-event-source-mappings)
 - [with-sns-subscriptions](examples/with-sns-subscriptions)
 - [with-vpc](examples/with-vpc)
