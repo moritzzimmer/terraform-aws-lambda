@@ -33,6 +33,7 @@ resource "aws_security_group" "efs" {
 
 resource "aws_efs_file_system" "this" {
   creation_token = module.fixtures.output_function_name
+  encrypted      = true
 
   tags = {
     Name = module.fixtures.output_function_name
