@@ -24,10 +24,17 @@ resource "aws_security_group" "efs" {
   vpc_id = module.vpc.vpc_id
 
   ingress {
-    from_port       = 2049
-    to_port         = 2049
-    protocol        = "tcp"
-    security_groups = [module.vpc.default_security_group_id]
+    from_port = 2049
+    to_port   = 2049
+    protocol  = "tcp"
+    self      = true
+  }
+
+  egress {
+    from_port = 2049
+    to_port   = 2049
+    protocol  = "tcp"
+    self      = true
   }
 }
 
@@ -67,6 +74,34 @@ resource "aws_efs_access_point" "this" {
   }
 }
 
+data "aws_iam_policy_document" "efs" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "elasticfilesystem:ClientMount",
+      "elasticfilesystem:ClientWrite",
+      "elasticfilesystem:DescribeMountTargets",
+    ]
+
+    resources = [
+      aws_efs_file_system.this.arn,
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "elasticfilesystem:AccessPointArn"
+      values   = [aws_efs_access_point.this.arn]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "efs" {
+  name   = "${module.fixtures.output_function_name}-efs"
+  policy = data.aws_iam_policy_document.efs.json
+  role   = module.lambda.role_name
+}
+
 module "lambda" {
   source = "../../"
 
@@ -88,7 +123,7 @@ module "lambda" {
   }
 
   vpc_config = {
-    security_group_ids = [module.vpc.default_security_group_id]
+    security_group_ids = [aws_security_group.efs.id]
     subnet_ids         = module.vpc.private_subnets
   }
 
