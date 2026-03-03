@@ -102,7 +102,7 @@ variable "event_source_mappings" {
 }
 
 variable "file_system_config" {
-  description = "Connection settings for an EFS Access Point. The `arn` must be an EFS Access Point ARN (format: `arn:aws:elasticfilesystem:region:account-id:access-point/fsap-xxxxxxxxx`). Before creating or updating Lambda functions with `file_system_config`, EFS mount targets must be in available lifecycle state. Use `depends_on` to explicitly declare this dependency. See [Amazon EFS for Lambda](https://docs.aws.amazon.com/lambda/latest/dg/services-efs.html) for more details."
+  description = "Configuration block for EFS file system, `local_mount_path` must start with `/mnt/`"
   default     = null
   type = object({
     arn              = string
