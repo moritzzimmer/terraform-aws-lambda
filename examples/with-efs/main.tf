@@ -74,34 +74,6 @@ resource "aws_efs_access_point" "this" {
   }
 }
 
-data "aws_iam_policy_document" "efs" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "elasticfilesystem:ClientMount",
-      "elasticfilesystem:ClientWrite",
-      "elasticfilesystem:DescribeMountTargets",
-    ]
-
-    resources = [
-      aws_efs_file_system.this.arn,
-    ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "elasticfilesystem:AccessPointArn"
-      values   = [aws_efs_access_point.this.arn]
-    }
-  }
-}
-
-resource "aws_iam_role_policy" "efs" {
-  name   = "${module.fixtures.output_function_name}-efs"
-  policy = data.aws_iam_policy_document.efs.json
-  role   = module.lambda.role_name
-}
-
 module "lambda" {
   source = "../../"
 
