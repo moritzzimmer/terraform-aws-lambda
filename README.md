@@ -347,6 +347,7 @@ see [examples](examples/deployment) for details.
 - [deployment](examples/deployment)
 - [cloudwatch-logs](examples/cloudwatch-logs)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
+- [with-efs](examples/with-efs)
 - [with-event-source-mappings](examples/with-event-source-mappings)
 - [with-sns-subscriptions](examples/with-sns-subscriptions)
 - [with-vpc](examples/with-vpc)
@@ -443,6 +444,7 @@ No modules.
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment (e.g. env variables) configuration for the Lambda function enable you to dynamically pass settings to your function code and libraries | <pre>object({<br/>    variables = map(string)<br/>  })</pre> | `null` | no |
 | <a name="input_ephemeral_storage_size"></a> [ephemeral\_storage\_size](#input\_ephemeral\_storage\_size) | The size of your Lambda functions ephemeral storage (/tmp) represented in MB. Valid value between 512 MB to 10240 MB. | `number` | `512` | no |
 | <a name="input_event_source_mappings"></a> [event\_source\_mappings](#input\_event\_source\_mappings) | Creates event source mappings to allow the Lambda function to get events from Kinesis, DynamoDB and SQS. The IAM role of this Lambda function will be enhanced with necessary minimum permissions to get those events. | `any` | `{}` | no |
+| <a name="input_file_system_config"></a> [file\_system\_config](#input\_file\_system\_config) | Configuration block for EFS file system, `local_mount_path` must start with `/mnt/` | <pre>object({<br/>    arn              = string<br/>    local_mount_path = string<br/>  })</pre> | `null` | no |
 | <a name="input_filename"></a> [filename](#input\_filename) | The path to the function's deployment package within the local filesystem. If defined, The s3\_-prefixed options and image\_uri cannot be used. | `string` | `null` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | A unique name for your Lambda Function. | `string` | n/a | yes |
 | <a name="input_handler"></a> [handler](#input\_handler) | The function entrypoint in your code. | `string` | `""` | no |

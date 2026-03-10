@@ -101,6 +101,15 @@ variable "event_source_mappings" {
   type        = any
 }
 
+variable "file_system_config" {
+  description = "Configuration block for EFS file system, `local_mount_path` must start with `/mnt/`"
+  default     = null
+  type = object({
+    arn              = string
+    local_mount_path = string
+  })
+}
+
 variable "filename" {
   description = "The path to the function's deployment package within the local filesystem. If defined, The s3_-prefixed options and image_uri cannot be used."
   default     = null
