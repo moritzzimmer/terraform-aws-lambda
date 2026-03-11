@@ -12,6 +12,6 @@ module "lambda" {
   handler          = "example.Handler::handleRequest"
   memory_size      = 512
   runtime          = "java25"
-  source_code_hash = filebase64sha256("${path.module}/../build/distributions/lambda.zip")
+  source_code_hash = fileexists("${path.module}/../build/distributions/lambda.zip") ? filebase64sha256("${path.module}/../build/distributions/lambda.zip") : null
   timeout          = 30
 }

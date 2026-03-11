@@ -12,6 +12,6 @@ module "lambda" {
   handler          = "handler.handler"
   memory_size      = 256
   runtime          = "python3.14"
-  source_code_hash = filebase64sha256("${path.module}/../build/lambda.zip")
+  source_code_hash = fileexists("${path.module}/../build/lambda.zip") ? filebase64sha256("${path.module}/../build/lambda.zip") : null
   timeout          = 30
 }
