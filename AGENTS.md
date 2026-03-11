@@ -6,8 +6,8 @@ Terraform module for AWS Lambda with opinionated defaults for IAM, logging, VPC,
 ## Key files
 - `main.tf` — Two `aws_lambda_function` resources (normal + external lifecycle for CodeDeploy/CLI updates), selected via `var.ignore_external_function_updates`
 - `iam.tf` — IAM role, conditional policy attachments (VPC, tracing, Lambda Insights, SSM, CloudWatch Logs)
-- `variables.tf` — REQUIRED section first, then OPTIONAL with section comments. 45 variables.
-- `outputs.tf` — 8 outputs (arn, function_name, role_name, role_arn, invoke_arn, version, log group, log group arn)
+- `variables.tf` — REQUIRED section first, then OPTIONAL with section comments
+- `outputs.tf` — Core outputs (arn, function_name, role_name, role_arn, invoke_arn, version, log group, log group arn)
 - `cloudwatch_logs.tf`, `cloudwatch_event_rules.tf`, `event_source_mappings.tf`, `sns_subscriptions.tf` — Feature-specific resources
 - `modules/deployment/` — CodePipeline/CodeDeploy submodule
 
