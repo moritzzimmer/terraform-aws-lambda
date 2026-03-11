@@ -18,7 +18,7 @@ package: ## Create the Lambda deployment zip
 		--target build/packages \
 		-r build/requirements.txt
 	cd build/packages && zip -r ../lambda.zip .
-	cd build && zip -r lambda.zip -j ../handler.py
+	zip -r build/lambda.zip app
 
 tf: package ## Run terraform init and MODE (default: plan)
 	terraform -chdir=terraform init
