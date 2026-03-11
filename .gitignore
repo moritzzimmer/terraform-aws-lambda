@@ -4,5 +4,7 @@ terraform.tfstate.backup
 **/*.zip
 
 bin/
+build/
+.gradle/
 .idea
 **/.DS_Store
