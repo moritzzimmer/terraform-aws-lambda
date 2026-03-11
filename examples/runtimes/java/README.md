@@ -5,7 +5,6 @@ Creates an AWS Lambda function from a Java project built with Gradle.
 ## Prerequisites
 
 - Java 25+
-- Gradle
 
 ## Usage
 

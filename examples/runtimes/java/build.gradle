@@ -13,7 +13,6 @@ repositories {
 
 dependencies {
     compileOnly 'com.amazonaws:aws-lambda-java-core:1.2.3'
-    compileOnly 'com.amazonaws:aws-lambda-java-events:3.14.0'
 }
 
 tasks.register('buildZip', Zip) {
