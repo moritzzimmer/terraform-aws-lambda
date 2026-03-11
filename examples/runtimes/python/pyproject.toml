@@ -1,0 +1,7 @@
+[project]
+name = "lambda-python-example"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "aws-lambda-powertools>=3.0.0",
+]

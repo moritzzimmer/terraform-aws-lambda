@@ -28,7 +28,7 @@ to be deployed to US East (N. Virginia) region (`us-east-1`)
 
 ## How do I use this module?
 
-The module can be used for all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) supported by AWS Lambda.
+The module can be used for all [runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) supported by AWS Lambda (see [examples](examples/runtimes)).
 
 Deployment packages can be specified either directly as a local file (using the `filename` argument), indirectly via Amazon S3 (using the `s3_bucket`, `s3_key` and `s3_object_versions` arguments)
 or using [container images](https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html) (using `image_uri` and `package_type` arguments),
@@ -346,6 +346,9 @@ see [examples](examples/deployment) for details.
 - [container-image](examples/container-image)
 - [deployment](examples/deployment)
 - [cloudwatch-logs](examples/cloudwatch-logs)
+- runtimes
+  - [java](examples/runtimes/java)
+  - [python](examples/runtimes/python)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
 - [with-efs](examples/with-efs)
 - [with-event-source-mappings](examples/with-event-source-mappings)

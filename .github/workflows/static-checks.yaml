@@ -54,5 +54,5 @@ jobs:
         with:
           terraform-version: ${{ matrix.version }}
           install-trivy: true
-          trivy-version: '0.69.2'
+          trivy-version: '0.69.3'
           args: '--all-files --color always --show-diff-on-failure --verbose'
