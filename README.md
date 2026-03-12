@@ -347,6 +347,7 @@ see [examples](examples/deployment) for details.
 - [deployment](examples/deployment)
 - [cloudwatch-logs](examples/cloudwatch-logs)
 - runtimes
+  - [go](examples/runtimes/go)
   - [java](examples/runtimes/java)
   - [python](examples/runtimes/python)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
