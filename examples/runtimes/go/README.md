@@ -4,7 +4,7 @@ Creates an AWS Lambda function from a Go project using the `provided.al2023` cus
 
 ## Prerequisites
 
-- Go 1.24+
+- Go 1.26+
 
 ## Usage
 
