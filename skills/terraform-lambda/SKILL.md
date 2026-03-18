@@ -204,6 +204,12 @@ These matter because getting them wrong causes hard-to-debug issues:
 
 ## After generation
 
+**Verify the generated code builds.** After writing all files, run `make package`
+(or the equivalent build command) to confirm the project compiles and packages
+successfully. If it fails, fix the issue before presenting the result to the
+user. Common causes: missing `using`/`import` statements, wrong package names
+in build files, or mismatched handler signatures.
+
 Once the files are written:
 
 1. Suggest `make help` to see available targets
