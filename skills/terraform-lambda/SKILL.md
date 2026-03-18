@@ -34,7 +34,13 @@ arguments via `/terraform-lambda`, parse them. Otherwise ask concisely:
 2. **Runtime** — Go, Python, Java, .NET, Node.js, or container image (default: Python)
 3. **Event source** — what triggers the function: SQS, SNS, Kinesis, DynamoDB Streams, CloudWatch Events/schedule, API Gateway, S3, or none (default: none)
 4. **Extra features** — VPC, EFS, X-Ray tracing, Lambda Insights, SSM parameters, CloudWatch log retention, snap_start (Java only)
-5. **CI/CD pipeline** — does the user want CodeDeploy-based deployments? If so: S3 or ECR source, deployment strategy (canary/linear/all-at-once), auto-rollback?
+5. **CI/CD pipeline** — does the user want CodeDeploy-based deployments? If so:
+   - S3 or ECR source?
+   - **S3 bucket**: Does an S3 bucket already exist (reference via `data` source
+     or bucket name), or should the skill create a new one inline? This matters
+     for the Terraform setup — ask explicitly.
+   - Deployment strategy: canary, linear, or all-at-once?
+   - Auto-rollback on failure?
 6. **Target directory** — where to create the project (default: `./<function-name>/`)
 
 If the user gives a one-liner like "create a Python Lambda triggered by SQS called order-processor", extract all info from that — don't ask again for things already stated.
@@ -121,6 +127,13 @@ output "invoke_arn" {
   source_code_hash = fileexists(local.artifact) ? filebase64sha256(local.artifact) : null
   ```
 - Default architecture: `["arm64"]` (Graviton — better price/performance)
+- **Runtime versions**: Do not rely on your training data for Lambda runtime
+  identifiers — they go stale quickly (e.g., `java21` is outdated, `java25`
+  is current). Before generating code, look up the latest runtime by searching
+  the web for "AWS Lambda supported runtimes" or checking
+  `https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`. If you
+  cannot verify, leave a `# TODO: verify this is the latest runtime` comment
+  next to the runtime value so the user knows to check.
 - Always include `tags = { managed_by = "terraform" }`
 
 For runtime-specific settings, event source patterns, and the full variable
@@ -141,9 +154,14 @@ When the user wants CodeDeploy-based deployments, the setup changes:
 
 1. The main module uses **S3-based packaging** (`s3_bucket`/`s3_key`) instead of
    local `filename`, and sets `ignore_external_function_updates = true`
-2. A **Lambda alias** is created with `lifecycle { ignore_changes = [function_version] }`
+2. An **`aws_s3_object` resource** uploads the initial build artifact to S3, and
+   the main module references `s3_object_version` from it — this ensures the zip
+   exists before the Lambda is created (without this, first apply fails with
+   `NoSuchKey`). Use `lifecycle { ignore_changes = [etag] }` so CodePipeline
+   deployments don't conflict.
+3. A **Lambda alias** is created with `lifecycle { ignore_changes = [function_version] }`
    — CodeDeploy manages version shifts, not Terraform
-3. The **deployment submodule** (`moritzzimmer/lambda/aws//modules/deployment`)
+4. The **deployment submodule** (`moritzzimmer/lambda/aws//modules/deployment`)
    creates a CodePipeline + CodeDeploy pipeline
 
 For the full pattern with examples (canary, rollback, alarms), see
@@ -167,6 +185,12 @@ These matter because getting them wrong causes hard-to-debug issues:
 
 - **snap_start is Java-only**: Setting it for other runtimes silently does
   nothing useful. Only suggest it when runtime is Java.
+
+- **S3 bucket: use `.bucket`, not `.id`**: When passing an S3 bucket to the
+  deployment module, always use `aws_s3_bucket.x.bucket` (the name string),
+  not `aws_s3_bucket.x.id`. The `.id` attribute can cause "Invalid count
+  argument" errors because the deployment module uses
+  `count = var.s3_bucket != ""` at plan time.
 
 - **lambda_at_edge + VPC are incompatible**: Lambda@Edge runs at CloudFront
   edge locations and cannot access a VPC.

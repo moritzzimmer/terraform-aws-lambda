@@ -47,30 +47,94 @@ version shifts, not Terraform.
 
 The most common pattern. Pipeline triggers when a new zip is uploaded to S3.
 
-**Important:** The S3 bucket must have EventBridge notifications enabled:
+### S3 bucket — name must be deterministic at plan time
+
+The deployment module uses `count = var.s3_bucket != ""` which Terraform
+evaluates during plan. The bucket name must be resolvable at plan time.
+
+**All of these work:**
+
+1. **Inline bucket with a deterministic name** (used in the module's own examples):
+   ```hcl
+   resource "aws_s3_bucket" "source" {
+     bucket = "ci-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}"
+   }
+   # Then use: aws_s3_bucket.source.bucket
+   ```
+
+2. **Data source for an existing bucket:**
+   ```hcl
+   data "aws_s3_bucket" "artifacts" {
+     bucket = "my-team-ci-artifacts"
+   }
+   # Then use: data.aws_s3_bucket.artifacts.bucket
+   ```
+
+3. **Literal string or variable:**
+   ```hcl
+   s3_bucket = "my-artifacts-bucket"
+   # or: var.artifacts_bucket
+   ```
+
+**Common mistake:** use `.bucket` (the name), not `.id`. The `.id` attribute of
+`aws_s3_bucket` can behave differently in count contexts and cause "Invalid
+count argument" errors:
 ```hcl
-resource "aws_s3_bucket_notification" "artifacts" {
-  bucket      = "my-artifacts-bucket"
-  eventbridge = true
-}
+s3_bucket = aws_s3_bucket.source.bucket  # correct — the bucket name string
+s3_bucket = aws_s3_bucket.source.id      # wrong — can cause count errors
 ```
+
+### Initial S3 upload — critical for first apply
+
+The Lambda function needs the zip to exist in S3 before it can be created.
+Without this, the first `terraform apply` fails with `S3 Error Code: NoSuchKey`.
+
+Create an `aws_s3_object` resource that uploads the initial build artifact, and
+reference its `version_id` in the main module via `s3_object_version`. This
+ensures Terraform uploads the zip before creating the Lambda. Use
+`lifecycle { ignore_changes = [etag] }` so subsequent CodePipeline deployments
+don't conflict with Terraform state.
 
 ### Minimal example
 
 ```hcl
+locals {
+  artifact      = "../build/lambda.zip"
+  function_name = "invoice-generator"
+  s3_key        = "${local.function_name}/package/lambda.zip"
+}
+
+data "aws_s3_bucket" "artifacts" {
+  bucket = "my-artifacts-bucket"
+}
+
+# Upload initial artifact — only used for first `terraform apply`,
+# all further deployments run via CodePipeline
+resource "aws_s3_object" "initial" {
+  bucket = data.aws_s3_bucket.artifacts.bucket
+  key    = local.s3_key
+  source = local.artifact
+  etag   = fileexists(local.artifact) ? filemd5(local.artifact) : null
+
+  lifecycle {
+    ignore_changes = [etag]
+  }
+}
+
 module "my_function" {
   source  = "moritzzimmer/lambda/aws"
   version = "~> 8.6"
 
   architectures                    = ["arm64"]
   description                      = "Invoice generator"
-  function_name                    = "invoice-generator"
+  function_name                    = local.function_name
   handler                          = "app.main.handler"
   ignore_external_function_updates = true
   publish                          = true
-  runtime                          = "python3.14"
-  s3_bucket                        = "my-artifacts-bucket"
-  s3_key                           = "invoice-generator/lambda.zip"
+  runtime                          = "<latest python runtime>"
+  s3_bucket                        = data.aws_s3_bucket.artifacts.bucket
+  s3_key                           = local.s3_key
+  s3_object_version                = aws_s3_object.initial.version_id
   timeout                          = 30
 
   tags = {
@@ -93,10 +157,10 @@ module "deployment" {
   version = "~> 8.6"
 
   alias_name                         = aws_lambda_alias.current.name
-  codepipeline_artifact_store_bucket = "my-artifacts-bucket"
+  codepipeline_artifact_store_bucket = data.aws_s3_bucket.artifacts.bucket
   function_name                      = module.my_function.function_name
-  s3_bucket                          = "my-artifacts-bucket"
-  s3_key                             = "invoice-generator/lambda.zip"
+  s3_bucket                          = data.aws_s3_bucket.artifacts.bucket
+  s3_key                             = local.s3_key
 }
 ```
 
@@ -108,10 +172,10 @@ module "deployment" {
   version = "~> 8.6"
 
   alias_name                         = aws_lambda_alias.current.name
-  codepipeline_artifact_store_bucket = "my-artifacts-bucket"
+  codepipeline_artifact_store_bucket = data.aws_s3_bucket.artifacts.bucket
   function_name                      = module.my_function.function_name
-  s3_bucket                          = "my-artifacts-bucket"
-  s3_key                             = "invoice-generator/lambda.zip"
+  s3_bucket                          = data.aws_s3_bucket.artifacts.bucket
+  s3_key                             = local.s3_key
 
   # Canary: shift 10% of traffic, wait 5 minutes, then shift rest
   deployment_config_name = "CodeDeployDefault.LambdaCanary10Percent5Minutes"
@@ -130,10 +194,10 @@ module "deployment" {
   version = "~> 8.6"
 
   alias_name                         = aws_lambda_alias.current.name
-  codepipeline_artifact_store_bucket = "my-artifacts-bucket"
+  codepipeline_artifact_store_bucket = data.aws_s3_bucket.artifacts.bucket
   function_name                      = module.my_function.function_name
-  s3_bucket                          = "my-artifacts-bucket"
-  s3_key                             = "invoice-generator/lambda.zip"
+  s3_bucket                          = data.aws_s3_bucket.artifacts.bucket
+  s3_key                             = local.s3_key
 
   deployment_config_name = "CodeDeployDefault.LambdaCanary10Percent5Minutes"
 
