@@ -360,7 +360,13 @@ see [examples](examples/deployment) for details.
 
 ## Bootstrap new projects
 
-In case you are using [go](https://golang.org/) for developing your Lambda functions, you can also use [func](https://github.com/moritzzimmer/func) to bootstrap your project and get started quickly.
+This module ships with an [Agent Skill](https://skills.sh/) to scaffold Lambda projects using AI coding agents:
+
+```bash
+npx skills add moritzzimmer/terraform-aws-lambda
+```
+
+Then use `/terraform-lambda` or just ask your agent to create a Lambda function — the skill triggers automatically on natural language prompts like *"scaffold a Python Lambda triggered by SQS"*.
 
 ## How do I contribute to this module?
 
