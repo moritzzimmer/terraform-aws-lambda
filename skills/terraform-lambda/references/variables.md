@@ -21,7 +21,7 @@ Everything else is optional.
 | `architectures` | `list(string)` | `null` | `["x86_64"]` or `["arm64"]` |
 | `description` | `string` | `""` | What the function does |
 | `handler` | `string` | `""` | Function entrypoint |
-| `runtime` | `string` | `""` | Runtime identifier (e.g., `python3.14`, `provided.al2023`) |
+| `runtime` | `string` | `""` | Lambda runtime identifier — look up current values in AWS docs |
 | `package_type` | `string` | `"Zip"` | `Zip` or `Image` |
 | `publish` | `bool` | `false` | Publish as new version on each change |
 | `timeout` | `number` | `3` | Execution timeout in seconds |

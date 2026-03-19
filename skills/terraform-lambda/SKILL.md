@@ -62,9 +62,10 @@ If the user gives a one-liner like "create a Python Lambda triggered by SQS call
 ```
 
 Source code location varies by runtime — Go puts `main.go` and `go.mod` at the
-project root (idiomatic Go), while Python uses `src/app/`, Java uses `src/`,
-etc. Always consult [references/runtimes.md](references/runtimes.md) for the
-correct layout.
+project root (idiomatic Go), Python uses `app/` at the project root, .NET puts
+source files at root, Java uses the standard Gradle `src/main/java/` layout.
+Always consult [references/runtimes.md](references/runtimes.md) for the correct
+layout.
 
 ### Terraform files
 
@@ -128,12 +129,11 @@ output "invoke_arn" {
   ```
 - Default architecture: `["arm64"]` (Graviton — better price/performance)
 - **Runtime versions**: Do not rely on your training data for Lambda runtime
-  identifiers — they go stale quickly (e.g., `java21` is outdated, `java25`
-  is current). Before generating code, look up the latest runtime by searching
-  the web for "AWS Lambda supported runtimes" or checking
-  `https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`. If you
-  cannot verify, leave a `# TODO: verify this is the latest runtime` comment
-  next to the runtime value so the user knows to check.
+  identifiers — they go stale quickly. Before generating code, look up the
+  latest runtime by searching the web for "AWS Lambda supported runtimes" or
+  checking `https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`.
+  If you cannot verify, leave a `# TODO: verify this is the latest runtime`
+  comment next to the runtime value so the user knows to check.
 - Always include `tags = { managed_by = "terraform" }`
 
 For runtime-specific settings, event source patterns, and the full variable
