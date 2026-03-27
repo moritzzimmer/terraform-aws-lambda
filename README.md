@@ -351,6 +351,7 @@ see [examples](examples/deployment) for details.
   - [go](examples/runtimes/go)
   - [java](examples/runtimes/java)
   - [python](examples/runtimes/python)
+  - [rust](examples/runtimes/rust)
 - [with-cloudwatch-event-rules](examples/with-cloudwatch-event-rules)
 - [with-efs](examples/with-efs)
 - [with-event-source-mappings](examples/with-event-source-mappings)

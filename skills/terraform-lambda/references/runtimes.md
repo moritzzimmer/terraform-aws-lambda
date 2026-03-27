@@ -31,6 +31,7 @@ tf: package ## Run terraform init and MODE (default: plan)
 ## Table of Contents
 
 - [Go](#go)
+- [Rust](#rust)
 - [Python](#python)
 - [Java](#java)
 - [.NET](#net)
@@ -68,6 +69,56 @@ Go runtime. The handler is always `bootstrap`.
 - After generation, run `go mod tidy` to resolve dependencies
 
 **Key dependency:** `github.com/aws/aws-lambda-go`
+
+---
+
+## Rust
+
+**Terraform settings:**
+```hcl
+architectures    = ["arm64"]
+handler          = "bootstrap"
+memory_size      = 128
+runtime          = "provided.al2023"
+timeout          = 30
+```
+
+Rust uses `provided.al2023` (custom runtime) like Go. The handler is always
+`bootstrap`. Requires [cargo-lambda](https://www.cargo-lambda.info/) for
+cross-compilation.
+
+**Project layout** — follows `cargo lambda new` structure with handler in a
+separate module:
+```
+<function-name>/
+├── src/
+│   ├── main.rs
+│   └── generic_handler.rs
+├── build.rs
+├── Cargo.toml
+├── Makefile
+└── terraform/
+```
+
+`main.rs` handles bootstrapping (tracing init, runtime start). `generic_handler.rs`
+contains the handler function with request/response types. `build.rs` captures the
+rustc version at compile time via `RUSTC_VERSION` env var.
+
+**Build approach:**
+- `cargo lambda build --release --arm64 --output-format zip` produces a zip directly
+- Copy `target/lambda/<crate-name>/bootstrap.zip` to `build/lambda.zip`
+- Clean: `cargo clean` + `rm -rf build`
+
+**Key dependencies:** `lambda_runtime`, `serde`, `serde_json`, `tokio`
+
+**Handler pattern** — accept `serde_json::Value` as input (works with any JSON
+payload including the default Lambda console test event), return a typed response
+struct:
+```rust
+pub(crate) async fn function_handler(_event: LambdaEvent<Value>) -> Result<Response, Error> {
+    // ...
+}
+```
 
 ---
 

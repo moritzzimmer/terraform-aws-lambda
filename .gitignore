@@ -6,6 +6,7 @@ terraform.tfstate.backup
 bin/
 build/
 obj/
+target/
 .gradle/
 .idea
 **/.DS_Store

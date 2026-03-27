@@ -31,7 +31,7 @@ Before generating anything, establish what the user needs. If they provided
 arguments via `/terraform-lambda`, parse them. Otherwise ask concisely:
 
 1. **Function name** (required) — must be a valid Lambda function name
-2. **Runtime** — Go, Python, Java, .NET, Node.js, or container image (default: Python)
+2. **Runtime** — Go, Rust, Python, Java, .NET, Node.js, or container image (default: Python)
 3. **Event source** — what triggers the function: SQS, SNS, Kinesis, DynamoDB Streams, CloudWatch Events/schedule, API Gateway, S3, or none (default: none)
 4. **Extra features** — VPC, EFS, X-Ray tracing, Lambda Insights, SSM parameters, CloudWatch log retention, snap_start (Java only)
 5. **CI/CD pipeline** — does the user want CodeDeploy-based deployments? If so:
@@ -62,10 +62,10 @@ If the user gives a one-liner like "create a Python Lambda triggered by SQS call
 ```
 
 Source code location varies by runtime — Go puts `main.go` and `go.mod` at the
-project root (idiomatic Go), Python uses `app/` at the project root, .NET puts
-source files at root, Java uses the standard Gradle `src/main/java/` layout.
-Always consult [references/runtimes.md](references/runtimes.md) for the correct
-layout.
+project root (idiomatic Go), Rust uses `src/` with a `cargo lambda new` structure,
+Python uses `app/` at the project root, .NET puts source files at root, Java uses
+the standard Gradle `src/main/java/` layout. Always consult
+[references/runtimes.md](references/runtimes.md) for the correct layout.
 
 ### Terraform files
 
@@ -179,7 +179,7 @@ These matter because getting them wrong causes hard-to-debug issues:
   reason for x86_64 (e.g., native dependencies that don't support ARM). Graviton
   is ~20% cheaper and generally faster for Lambda.
 
-- **Memory defaults by runtime**: Go/Node.js: 128MB. Python/.NET: 256MB.
+- **Memory defaults by runtime**: Go/Rust/Node.js: 128MB. Python/.NET: 256MB.
   Java: 512MB. These reflect typical cold-start and memory needs — the user can
   always override.
 
