@@ -82,9 +82,10 @@ variable "description" {
 }
 
 variable "durable_config" {
-  description = "Durable execution configuration for the Lambda function, see https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html for details. `execution_timeout` is the maximum execution time in seconds (1 to 31622400). `retention_period` is the number of days to retain execution state (1 to 90, defaults to 14). Adding or removing this configuration forces replacement of the function. Durable functions are only available in some regions."
+  description = "Durable execution configuration for the Lambda function, see https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html for details. `execution_timeout` is the maximum execution time in seconds (1 to 31622400). `retention_period` is the number of days to retain execution state (1 to 90, defaults to 14). `delete_timeout` is the Terraform delete timeout of the function (defaults to `60m`), since running durable executions are stopped before the function is deleted. Adding or removing this configuration forces replacement of the function. Durable functions are only available in some regions."
   default     = null
   type = object({
+    delete_timeout    = optional(string, "60m")
     execution_timeout = number
     retention_period  = optional(number)
   })
@@ -286,16 +287,6 @@ variable "timeout" {
   description = "The amount of time your Lambda Function has to run in seconds."
   default     = 3
   type        = number
-}
-
-variable "timeouts" {
-  description = "Timeouts for create, update and delete operations of the Lambda function. Set `delete` (e.g. `60m`) for durable functions, since running durable executions are stopped before the function is deleted."
-  default     = null
-  type = object({
-    create = optional(string)
-    delete = optional(string)
-    update = optional(string)
-  })
 }
 
 variable "tracing_config_mode" {

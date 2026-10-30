@@ -104,11 +104,9 @@ resource "aws_lambda_function" "lambda" {
   }
 
   dynamic "timeouts" {
-    for_each = var.timeouts == null ? [] : [var.timeouts]
+    for_each = var.durable_config == null ? [] : [var.durable_config]
     content {
-      create = timeouts.value.create
-      delete = timeouts.value.delete
-      update = timeouts.value.update
+      delete = timeouts.value.delete_timeout
     }
   }
 
@@ -219,11 +217,9 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
   }
 
   dynamic "timeouts" {
-    for_each = var.timeouts == null ? [] : [var.timeouts]
+    for_each = var.durable_config == null ? [] : [var.durable_config]
     content {
-      create = timeouts.value.create
-      delete = timeouts.value.delete
-      update = timeouts.value.update
+      delete = timeouts.value.delete_timeout
     }
   }
 

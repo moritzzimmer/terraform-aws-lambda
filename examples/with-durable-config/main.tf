@@ -21,8 +21,4 @@ module "lambda" {
     execution_timeout = 3600
     retention_period  = 7
   }
-
-  timeouts = {
-    delete = "60m"
-  }
 }
