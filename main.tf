@@ -38,6 +38,14 @@ resource "aws_lambda_function" "lambda" {
     size = var.ephemeral_storage_size
   }
 
+  dynamic "durable_config" {
+    for_each = var.durable_config == null ? [] : [var.durable_config]
+    content {
+      execution_timeout = durable_config.value.execution_timeout
+      retention_period  = durable_config.value.retention_period
+    }
+  }
+
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
@@ -92,6 +100,15 @@ resource "aws_lambda_function" "lambda" {
       log_format            = logging_config.value.log_format
       log_group             = logging_config.value.log_group
       system_log_level      = logging_config.value.system_log_level
+    }
+  }
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+      update = timeouts.value.update
     }
   }
 
@@ -136,6 +153,14 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
     size = var.ephemeral_storage_size
   }
 
+  dynamic "durable_config" {
+    for_each = var.durable_config == null ? [] : [var.durable_config]
+    content {
+      execution_timeout = durable_config.value.execution_timeout
+      retention_period  = durable_config.value.retention_period
+    }
+  }
+
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
@@ -190,6 +215,15 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
       log_format            = logging_config.value.log_format
       log_group             = logging_config.value.log_group
       system_log_level      = logging_config.value.system_log_level
+    }
+  }
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+      update = timeouts.value.update
     }
   }
 
