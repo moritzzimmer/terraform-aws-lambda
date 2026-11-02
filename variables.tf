@@ -82,11 +82,11 @@ variable "description" {
 }
 
 variable "durable_config" {
-  description = "Durable execution configuration for the Lambda function, see https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html for details. `execution_timeout` is the maximum execution time in seconds (1 to 31622400). `retention_period` is the number of days to retain execution state (1 to 90, defaults to 14). `delete_timeout` is the Terraform delete timeout of the function (defaults to `60m`), since running durable executions are stopped before the function is deleted. Adding or removing this configuration forces replacement of the function. Durable functions are only available in some regions."
+  description = "Durable execution configuration for the Lambda function, see https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html for details. `execution_timeout` is the maximum execution time in seconds (1 to 31622400). `kms_key_arn` is the ARN of a customer managed KMS key to encrypt execution state. The key policy must give the required permissions, see https://docs.aws.amazon.com/lambda/latest/dg/durable-encryption.html. `retention_period` is the number of days to retain execution state (1 to 90, defaults to 14). Set `lambda_timeouts.delete` (e.g. `60m`), since running durable executions are stopped before the function is deleted. Adding or removing this configuration forces replacement of the function. Durable functions are only available in some regions."
   default     = null
   type = object({
-    delete_timeout    = optional(string, "60m")
     execution_timeout = number
+    kms_key_arn       = optional(string)
     retention_period  = optional(number)
   })
 }
@@ -172,6 +172,16 @@ variable "lambda_at_edge" {
   description = "Enable Lambda@Edge for your Node.js or Python functions. Required trust relationship and publishing of function versions will be configured."
   default     = false
   type        = bool
+}
+
+variable "lambda_timeouts" {
+  description = "Timeouts for create, update and delete operations of the Lambda function, see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function#timeouts. Each unset operation uses the provider default of `10m`. Set `delete` (e.g. `60m`) for durable functions."
+  default     = null
+  type = object({
+    create = optional(string)
+    delete = optional(string)
+    update = optional(string)
+  })
 }
 
 variable "layers" {
