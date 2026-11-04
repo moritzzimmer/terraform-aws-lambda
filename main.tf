@@ -38,6 +38,15 @@ resource "aws_lambda_function" "lambda" {
     size = var.ephemeral_storage_size
   }
 
+  dynamic "durable_config" {
+    for_each = var.durable_config == null ? [] : [var.durable_config]
+    content {
+      execution_timeout = durable_config.value.execution_timeout
+      kms_key_arn       = durable_config.value.kms_key_arn
+      retention_period  = durable_config.value.retention_period
+    }
+  }
+
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
@@ -93,6 +102,12 @@ resource "aws_lambda_function" "lambda" {
       log_group             = logging_config.value.log_group
       system_log_level      = logging_config.value.system_log_level
     }
+  }
+
+  timeouts {
+    create = try(var.lambda_timeouts.create, null)
+    delete = try(var.lambda_timeouts.delete, null)
+    update = try(var.lambda_timeouts.update, null)
   }
 
   // create the CloudWatch log group first so it's not automatically created by AWS Lambda
@@ -136,6 +151,15 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
     size = var.ephemeral_storage_size
   }
 
+  dynamic "durable_config" {
+    for_each = var.durable_config == null ? [] : [var.durable_config]
+    content {
+      execution_timeout = durable_config.value.execution_timeout
+      kms_key_arn       = durable_config.value.kms_key_arn
+      retention_period  = durable_config.value.retention_period
+    }
+  }
+
   dynamic "environment" {
     for_each = var.environment == null ? [] : [var.environment]
     content {
@@ -191,6 +215,12 @@ resource "aws_lambda_function" "lambda_external_lifecycle" {
       log_group             = logging_config.value.log_group
       system_log_level      = logging_config.value.system_log_level
     }
+  }
+
+  timeouts {
+    create = try(var.lambda_timeouts.create, null)
+    delete = try(var.lambda_timeouts.delete, null)
+    update = try(var.lambda_timeouts.update, null)
   }
 
   // create the CloudWatch log group first so it's not automatically created by AWS Lambda
