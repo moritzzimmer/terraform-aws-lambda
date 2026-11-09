@@ -69,4 +69,4 @@ Runtime-specific examples (`examples/runtimes/`) use Makefiles with standardized
 
 ## Provider requirements
 - Terraform >= 1.5.7
-- AWS provider >= 6.0
+- AWS provider >= 6.71.0

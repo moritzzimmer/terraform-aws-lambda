@@ -51,6 +51,19 @@ resource "aws_iam_role_policy" "tracing" {
   role   = aws_iam_role.lambda.id
 }
 
+data "aws_iam_policy" "durable_execution" {
+  count = var.durable_config == null ? 0 : 1
+
+  arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "durable_execution" {
+  count = var.durable_config == null ? 0 : 1
+
+  policy_arn = data.aws_iam_policy.durable_execution[0].arn
+  role       = aws_iam_role.lambda.name
+}
+
 data "aws_iam_policy" "lambda_insights" {
   count = var.cloudwatch_lambda_insights_enabled ? 1 : 0
 
