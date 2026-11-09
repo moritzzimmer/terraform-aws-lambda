@@ -68,18 +68,21 @@ variable "codebuild_environment_compute_type" {
   description = "Information about the compute resources the build project will use."
   default     = "BUILD_LAMBDA_1GB"
   type        = string
+  nullable    = false
 }
 
 variable "codebuild_environment_image" {
   description = "Docker image to use for this build project. The image needs to include python."
   default     = "aws/codebuild/amazonlinux-aarch64-lambda-standard:python3.12"
   type        = string
+  nullable    = false
 }
 
 variable "codebuild_environment_type" {
   description = "Type of build environment to use for related builds."
   default     = "ARM_LAMBDA_CONTAINER"
   type        = string
+  nullable    = false
 }
 
 variable "codedeploy_appspec_hooks_after_allow_traffic_arn" {
